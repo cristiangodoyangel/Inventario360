@@ -1,5 +1,19 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
     ViewData["Title"] = "Inicio";
 }
-<h1>Bienvenido a Inventario360</h1>
-<p>Consulta stock, gestiona materiales y genera reportes fácilmente.</p>
+
+<div class="hero d-flex justify-content-center my-4">
+    <img src="/images/control360.png" alt="Control360" class="img-fluid d-none d-md-block">
+</div>
+
+<div class="dashboard text-center">
+    <a href="/Producto/Index" class="btn btn-lg text-white fw-bold m-2" style="background-color: #f1663b;">Inventario</a>
+    <a href="/Salida/Index" class="btn btn-lg text-white fw-bold m-2" style="background-color: #f1663b;">Entrega de Materiales</a>
+    <a href="/Solicitud/Index" class="btn btn-lg text-white fw-bold m-2" style="background-color: #f1663b;">Solicitud de Materiales</a>
+    <a href="/Reportes/Index" class="btn btn-lg text-white fw-bold m-2" style="background-color: #f1663b;">Reportes</a>
+</div>
+
+<footer>
+</footer>
