@@ -1,5 +1,20 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Producto
+
 @{
+    ViewData["Title"] = "Detalle del Producto";
 }
+
+<h2>Detalle del Producto</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">@Model.NombreTecnico</h3>
+        <p><strong>Marca:</strong> @Model.Marca</p>
+        <p><strong>Descripción:</strong> @Model.Descripcion</p>
+        <p><strong>Stock:</strong> @Model.Cantidad @Model.UnidadMedida</p>
+        <p><strong>Ubicación:</strong> @Model.Ubicacion</p>
+        <p><strong>Proveedor:</strong> @Model.Proveedor</p>
+    </div>
+</div>
+
+<a href="@Url.Action("Index", "Productos")" class="btn btn-secondary">Volver al listado</a>
