@@ -14,6 +14,7 @@ builder.Services.AddIdentity<Usuario, IdentityRole>()
     .AddEntityFrameworkStores<InventarioDbContext>()
     .AddDefaultTokenProviders();
 
+
 // Configurar reglas de contraseña
 builder.Services.Configure<IdentityOptions>(options =>
 {

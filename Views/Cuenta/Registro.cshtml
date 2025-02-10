@@ -1,13 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "Registro";
+    ViewData["Title"] = "Iniciar Sesión";
 }
-<h2>Registro de Usuario</h2>
-<form method="post">
-    <label>Nombre:</label>
-    <input type="text" name="nombre" required />
-    <label>Correo:</label>
-    <input type="email" name="email" required />
-    <label>Contraseña:</label>
-    <input type="password" name="password" required />
-    <button type="submit">Registrar</button>
-</form>
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card p-4 shadow" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center mb-3">Iniciar Sesión</h2>
+        <p class="text-center text-muted">Ingresa tus credenciales para acceder al sistema.</p>
+        <form>
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" placeholder="Tu correo">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" placeholder="Tu contraseña">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        </form>
+    </div>
+</div>

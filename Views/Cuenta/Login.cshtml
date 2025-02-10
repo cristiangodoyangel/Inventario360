@@ -1,11 +1,29 @@
 ﻿@{
     ViewData["Title"] = "Iniciar Sesión";
 }
-<h2>Iniciar Sesión</h2>
-<form method="post">
-    <label>Usuario:</label>
-    <input type="text" name="usuario" required />
-    <label>Contraseña:</label>
-    <input type="password" name="password" required />
-    <button type="submit">Ingresar</button>
-</form>
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card p-4 shadow" style="max-width: 350px; width: 100%;">
+        <h3 class="text-center mb-3">Iniciar Sesión</h3>
+        <p class="text-center text-muted" style="font-size: 14px;">Ingresa tus credenciales para acceder al sistema.</p>
+
+        @if (!string.IsNullOrEmpty(ViewBag.Error))
+        {
+            <div class="alert alert-danger text-center" role="alert">
+                @ViewBag.Error
+            </div>
+        }
+
+        <form method="post" action="@Url.Action("Login", "Cuenta")">
+            <div class="mb-3">
+                <label for="email" class="form-label" style="font-size: 14px;">Correo Electrónico</label>
+                <input type="email" class="form-control form-control-sm" id="email" name="email" placeholder="Tu correo" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label" style="font-size: 14px;">Contraseña</label>
+                <input type="password" class="form-control form-control-sm" id="password" name="password" placeholder="Tu contraseña" required>
+            </div>
+            <button type="submit" class="btn w-100 btn-sm" style="background-color: #f1663b; color: white;">Ingresar</button>
+        </form>
+    </div>
+</div>
