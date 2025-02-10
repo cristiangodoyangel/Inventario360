@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Inventario360.Migrations
 {
     [DbContext(typeof(InventarioDbContext))]
-    [Migration("20250209055720_AgregarIdentity")]
-    partial class AgregarIdentity
+    [Migration("20250210025615_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,179 @@ namespace Inventario360.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Inventario360.Models.Empleado", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Cargo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Empleado");
+                });
+
+            modelBuilder.Entity("Inventario360.Models.Producto", b =>
+                {
+                    b.Property<int>("ITEM")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ITEM"));
+
+                    b.Property<int?>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Estado")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Imagen")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Marca")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Medida")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreTecnico")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Proveedor")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ubicacion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UnidadMedida")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ITEM");
+
+                    b.ToTable("Producto");
+                });
+
+            modelBuilder.Entity("Inventario360.Models.Proveedor", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Contacto")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Proveedor");
+                });
+
+            modelBuilder.Entity("Inventario360.Models.Proyecto", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nombre")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Proyecto");
+                });
+
+            modelBuilder.Entity("Inventario360.Models.SalidaDeBodega", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int?>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Producto")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProyectoAsignado")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResponsableEntrega")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Solicitante")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("SalidaDeBodega");
+                });
+
+            modelBuilder.Entity("Inventario360.Models.SolicitudDeMaterial", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int?>("Cantidad")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ITEM")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Imagen")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Marca")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Medida")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreTecnico")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Producto")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UnidadMedida")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("SolicitudDeMaterial");
+                });
 
             modelBuilder.Entity("Inventario360.Models.Usuario", b =>
                 {

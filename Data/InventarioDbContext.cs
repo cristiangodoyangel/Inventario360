@@ -21,7 +21,8 @@ namespace Inventario360.Data
         {
             base.OnModelCreating(builder);
 
-            // Configuración adicional si es necesaria
+            builder.Entity<Producto>()
+                .HasKey(p => p.ITEM); // Verifica que la clave primaria está definida
         }
     }
 }

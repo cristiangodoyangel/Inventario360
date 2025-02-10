@@ -1,8 +1,13 @@
-﻿namespace Inventario360.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Inventario360.Models
 {
     public class Producto
     {
-        public int ITEM { get; set; } // Clave primaria
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ITEM { get; set; }
         public int? Cantidad { get; set; } // Puede ser null según la BD
         public required string NombreTecnico { get; set; } // varchar(255)
         public string? Medida { get; set; } // varchar(50), puede ser null
