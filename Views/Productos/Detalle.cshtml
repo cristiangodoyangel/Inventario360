@@ -4,17 +4,50 @@
     ViewData["Title"] = "Detalle del Producto";
 }
 
-<h2>Detalle del Producto</h2>
+<div class="container mt-4">
+    <h2 class="mb-3 text-primary">Detalle del Producto</h2>
 
-<div class="card">
-    <div class="card-body">
-        <h3 class="card-title">@Model.NombreTecnico</h3>
-        <p><strong>Marca:</strong> @Model.Marca</p>
-        <p><strong>Descripción:</strong> @Model.Descripcion</p>
-        <p><strong>Stock:</strong> @Model.Cantidad @Model.UnidadMedida</p>
-        <p><strong>Ubicación:</strong> @Model.Ubicacion</p>
-        <p><strong>Proveedor:</strong> @Model.Proveedor</p>
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <div class="row">
+                <!-- Imagen del producto -->
+                <div class="col-md-4 text-center">
+                    <img src="~/images/@Model.Imagen" alt="Imagen de @Model.NombreTecnico" class="img-fluid rounded shadow-sm" width="200">
+                </div>
+                <!-- Datos del producto -->
+                <div class="col-md-8">
+                    <h3 class="card-title text-dark">@Model.NombreTecnico</h3>
+                    <table class="table table-bordered mt-3">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light">Marca</th>
+                                <td>@Model.Marca</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Descripción</th>
+                                <td>@Model.Descripcion</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Stock</th>
+                                <td class="fw-bold">@Model.Cantidad @Model.UnidadMedida</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Ubicación</th>
+                                <td>@Model.Ubicacion</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Proveedor</th>
+                                <td>@Model.Proveedor</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de regreso -->
+    <div class="mt-4 text-end">
+        <a href="@Url.Action("Index", "Productos")" class="btn btn-secondary btn-lg">Volver al inventario</a>
     </div>
 </div>
-
-<a href="@Url.Action("Index", "Productos")" class="btn btn-secondary">Volver al listado</a>
