@@ -8,7 +8,7 @@
     <div class="row mb-4">
         <div class="col-md-6"></div>
         <div class="col-md-6 text-end">
-            <a asp-action="Create" class="btn btn-secondary">➕ Agregar Producto</a>
+            <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
         </div>
     </div>
 
@@ -47,10 +47,10 @@
                         <td>
                             <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
                         </td>
-                        <td class="text-center">
-                            <a href="@Url.Action("Editar", "Productos", new { id = producto.ITEM })" class="btn btn-warning btn-sm">✏️</a>
-                            <a asp-action="Delete" asp-route-id="@producto.ITEM" class="btn btn-danger btn-sm">🗑️</a>
-                        </td>
+                        <td>
+    <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-outline-secondary btn-sm">✏️</a>
+    <a asp-action="Eliminar" asp-route-id="@producto.ITEM" class="btn btn-outline-secondary btn-sm">🗑️</a>
+</td>
                     </tr>
             }
         </tbody>
