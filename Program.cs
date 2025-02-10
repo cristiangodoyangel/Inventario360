@@ -1,5 +1,6 @@
 using Inventario360.Data;
 using Inventario360.Models;
+using Inventario360.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configurar la conexión a SQL Server
 builder.Services.AddDbContext<InventarioDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IProductoService, ProductoService>();
+
 
 // Configurar Identity
 builder.Services.AddIdentity<Usuario, IdentityRole>()
@@ -49,5 +52,10 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Productos}/{action=Index}/{id?}");
+
 
 app.Run();

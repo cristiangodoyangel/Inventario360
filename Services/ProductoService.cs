@@ -27,13 +27,13 @@ namespace Inventario360.Services
 
         public async Task Agregar(Producto producto)
         {
-            _context.Producto.Add(producto);
+            await _context.Producto.AddAsync(producto);
             await _context.SaveChangesAsync();
         }
 
         public async Task Actualizar(Producto producto)
         {
-            _context.Producto.Update(producto);
+            _context.Entry(producto).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
 
