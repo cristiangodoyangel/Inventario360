@@ -49,27 +49,38 @@ namespace Inventario360.Controllers
             return View(producto);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Editar(Producto producto)
-        {
-            if (!ModelState.IsValid) return View(producto);
-
-            await _productoService.Actualizar(producto);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            var producto = await _productoService.ObtenerPorId(id);
-            if (producto == null) return NotFound();
-            return View(producto);
-        }
-
+        
         [HttpPost, ActionName("Eliminar")]
         public async Task<IActionResult> ConfirmarEliminar(int id)
         {
             await _productoService.Eliminar(id);
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Editar(Producto producto, IFormFile ImagenArchivo)
+        {
+            if (!ModelState.IsValid) return View(producto);
+
+            if (ImagenArchivo != null && ImagenArchivo.Length > 0)
+            {
+                var rutaCarpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                var nombreArchivo = $"{producto.ITEM}_{Path.GetFileName(ImagenArchivo.FileName)}";
+                var rutaArchivo = Path.Combine(rutaCarpeta, nombreArchivo);
+
+                // Guardar imagen en el servidor
+                using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+                {
+                    await ImagenArchivo.CopyToAsync(stream);
+                }
+
+                // Actualizar el nombre del archivo en la BD
+                producto.Imagen = nombreArchivo;
+            }
+
+            await _productoService.Actualizar(producto);
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }
