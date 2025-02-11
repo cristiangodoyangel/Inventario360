@@ -31,85 +31,145 @@
         <tbody>
             @foreach (var producto in Model)
             {
-                    <tr>
-                        <td>@producto.ITEM</td>
-                        <td>
-                            <a href="@Url.Action("Detalle", "Productos", new { id = producto.ITEM })" class="text-primary fw-bold">
+                <tr>
+                    <td>@producto.ITEM</td>
+                    <td>
+                        <a href="@Url.Action("Detalle", "Productos", new { id = producto.ITEM })" class="text-primary fw-bold">
                             @producto.NombreTecnico
-                            </a>
-                        </td>
-                        <td>@producto.Medida</td>
-                        <td>@producto.UnidadMedida</td>
-                        <td>@producto.Marca</td>
-                        <td class="@(producto.Cantidad == 0 ? "text-danger fw-bold" : "")">@producto.Cantidad</td>
-                        <td>@producto.Ubicacion</td>
-                        <td>@producto.Estado</td>
-                        <td>
-                            <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
-                        </td>
-                        <td>
-    <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-outline-secondary btn-sm">✏️</a>
-    <a asp-action="Eliminar" asp-route-id="@producto.ITEM" class="btn btn-outline-secondary btn-sm">🗑️</a>
-</td>
-                    </tr>
+                        </a>
+                    </td>
+                    <td>@producto.Medida</td>
+                    <td>@producto.UnidadMedida</td>
+                    <td>@producto.Marca</td>
+                    <td class="@(producto.Cantidad == 0 ? "text-danger fw-bold" : "")">@producto.Cantidad</td>
+                    <td>@producto.Ubicacion</td>
+                    <td>@producto.Estado</td>
+                    <td>
+                        <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
+                    </td>
+                    <td>
+                        <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-outline-secondary btn-sm">✏️</a>
+
+                        <!-- Botón de la papelera sin fondo -->
+                        <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@producto.ITEM)">
+                            🗑️
+                        </button>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
 </div>
 
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmarEliminarLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Seguro que deseas eliminar este producto?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="eliminar-form" asp-action="Eliminar" method="post">
+                    <input type="hidden" id="productoId" name="id" />
+                    <button type="submit" class="btn btn-orange">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-        <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-        <script>
-            $(document).ready(function () {
-                $('#productosTable').DataTable({
-                    "paging": true,
-                    "pageLength": 8,
-                    "lengthMenu": [8, 25, 50],
-                    "language": {
-                        "lengthMenu": "Mostrar _MENU_ registros por página",
-                        "zeroRecords": "No se encontraron productos",
-                        "info": "Mostrando página _PAGE_ de _PAGES_",
-                        "infoEmpty": "No hay registros disponibles",
-                        "infoFiltered": "(filtrado de _MAX_ registros en total)",
-                        "search": "Buscar:",
-                        "paginate": {
-                            "first": "Primero",
-                            "last": "Último",
-                            "next": "Siguiente",
-                            "previous": "Anterior"
-                        }
-                    },
-                    "drawCallback": function () {
-                        $('.dataTables_paginate > .pagination').addClass('pagination-separated');
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+    <script>
+        $(document).ready(function () {
+            $('#productosTable').DataTable({
+                "paging": true,
+                "pageLength": 8,
+                "lengthMenu": [8, 25, 50],
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron productos",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros en total)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
                     }
-                });
+                },
+                "drawCallback": function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-separated');
+                }
             });
-        </script>
-        <style>
-            .pagination-separated .paginate_button {
-                margin: 0 8px;
-            }
+        });
 
-            .table-hover tbody tr:hover {
-                background-color: #ffcebf;
-            }
-
-            /* Ajusta este valor para controlar el espaciado */
-            .mb-4 {
-                margin-bottom: 3rem !important;
-            }
-
-            /* Estilo opcional para el encabezado de la tabla */
-            .table-light th {
-                background-color: #f8f9fa;
-                font-weight: bold;
-                text-align: center;
-            }
-
-            /* Estilo opcional para las celdas de la tabla */
-            .table td {
-                vertical-align: middle;
-            }
-        </style>
+        function confirmarEliminacion(id) {
+            document.getElementById('productoId').value = id;
+            var modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
+            modal.show();
+        }
+    </script>
 }
+
+<!-- Estilos personalizados -->
+<style>
+    /* Botón de confirmación en el modal (Naranja sólido) */
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    /* Botón del ícono de la papelera (Sin fondo) */
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000;
+        color: #f06529 !important;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #ffcebf;
+    }
+
+    /* Ajusta este valor para controlar el espaciado */
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    /* Estilo opcional para el encabezado de la tabla */
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    /* Estilo opcional para las celdas de la tabla */
+    .table td {
+        vertical-align: middle;
+    }
+</style>
