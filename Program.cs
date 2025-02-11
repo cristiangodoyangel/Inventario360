@@ -10,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<InventarioDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<ISalidaBodegaService, SalidaBodegaService>();
+builder.Services.AddScoped<ISolicitudService, SolicitudService>();
+
+
 
 
 // Configurar Identity

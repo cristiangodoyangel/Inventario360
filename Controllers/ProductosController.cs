@@ -33,6 +33,21 @@ namespace Inventario360.Controllers
             return View();
         }
 
+        [HttpPost, ActionName("Eliminar")]
+        [ValidateAntiForgeryToken]
+        public IActionResult EliminarConfirmado(int id)
+        {
+            var producto = _productoService.ObtenerPorId(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            _productoService.Eliminar(id);
+            return RedirectToAction("Index");
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Producto producto, IFormFile ImagenArchivo)
@@ -58,12 +73,6 @@ namespace Inventario360.Controllers
         }
 
 
-        [HttpPost, ActionName("Eliminar")]
-        public async Task<IActionResult> ConfirmarEliminar(int id)
-        {
-            await _productoService.Eliminar(id);
-            return RedirectToAction(nameof(Index));
-        }
 
         [HttpGet] // Muestra el formulario de edición
         public async Task<IActionResult> Editar(int id)

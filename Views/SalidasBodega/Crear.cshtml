@@ -1,0 +1,68 @@
+﻿@model Inventario360.Models.SalidaDeBodega
+
+@{
+    ViewData["Title"] = "Registrar Salida de Bodega";
+}
+
+<div class="container mt-4">
+    <h2>Registrar Salida de Bodega</h2>
+
+    <form asp-action="Crear" method="post">
+        <div class="mb-3">
+            <label class="form-label">Fecha</label>
+            <input asp-for="Fecha" type="datetime-local" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Producto</label>
+            <select asp-for="Producto" class="form-control" required>
+                <option value="">Seleccionar Producto</option>
+                @foreach (var producto in ViewBag.Productos)
+                {
+                    <option value="@producto.ITEM">@producto.NombreTecnico</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cantidad</label>
+            <input asp-for="Cantidad" type="number" class="form-control" min="1" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Solicitante</label>
+            <select asp-for="Solicitante" class="form-control" required>
+                <option value="">Seleccionar Solicitante</option>
+                @foreach (var empleado in ViewBag.Empleados)
+                {
+                    <option value="@empleado.ID">@empleado.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Responsable de Entrega</label>
+            <select asp-for="ResponsableEntrega" class="form-control" required>
+                <option value="">Seleccionar Responsable</option>
+                @foreach (var empleado in ViewBag.Empleados)
+                {
+                    <option value="@empleado.ID">@empleado.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Proyecto</label>
+            <select asp-for="ProyectoAsignado" class="form-control">
+                <option value="">Seleccionar Proyecto</option>
+                @foreach (var proyecto in ViewBag.Proyectos)
+                {
+                    <option value="@proyecto.ID">@proyecto.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
