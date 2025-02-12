@@ -1,0 +1,27 @@
+﻿@model SolicitudDeMaterial
+
+@{
+    ViewData["Title"] = "Nueva Solicitud de Material";
+}
+
+<h2>Crear Solicitud de Material</h2>
+
+<form method="post" asp-action="Crear">
+    <div class="mb-3">
+        <label class="form-label">Nombre del Material</label>
+        <input type="text" class="form-control" asp-for="NombreTecnico" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Cantidad</label>
+        <input type="number" class="form-control" asp-for="Cantidad" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Unidad de Medida</label>
+        <input type="text" class="form-control" asp-for="UnidadMedida" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="@Url.Action("Index", "Solicitudes")" class="btn btn-secondary">Cancelar</a>
+</form>
