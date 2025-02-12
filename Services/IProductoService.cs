@@ -6,10 +6,12 @@ namespace Inventario360.Services
 {
     public interface IProductoService
     {
-        Task<List<Producto>> ObtenerTodos(); // Obtener lista de productos
-        Task<Producto?> ObtenerPorId(int id); // Obtener un producto por ID
-        Task Agregar(Producto producto); // Agregar un nuevo producto
-        Task Actualizar(Producto producto); // Actualizar un producto existente
-        Task Eliminar(int id); // Eliminar un producto por ID
+        Task<List<Producto>> ObtenerTodos();
+        Task<Producto?> ObtenerPorId(int id);
+        Task<Producto?> GetProductoByIdAsync(int id); // ✅ Método agregado
+        Task Agregar(Producto producto);
+        Task Actualizar(Producto producto);
+        Task Eliminar(int id);
     }
+
 }

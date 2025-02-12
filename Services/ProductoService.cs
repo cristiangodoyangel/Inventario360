@@ -25,6 +25,12 @@ namespace Inventario360.Services
             return await _context.Producto.FindAsync(id);
         }
 
+        public async Task<Producto?> GetProductoByIdAsync(int id)
+        {
+            return await _context.Producto.FindAsync(id);
+        }
+
+
         public async Task Agregar(Producto producto)
         {
             await _context.Producto.AddAsync(producto);
@@ -36,7 +42,6 @@ namespace Inventario360.Services
             _context.Entry(producto).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
-
 
         public async Task Eliminar(int id)
         {
