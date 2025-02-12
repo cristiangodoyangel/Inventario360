@@ -4,12 +4,27 @@
     ViewData["Title"] = "Eliminar Producto";
 }
 
-<h2>Eliminar Producto</h2>
+<div class="container mt-4">
+    <h2 class="mb-3 text-danger">❌ Eliminar Producto</h2>
 
-<p>¿Estás seguro de que deseas eliminar el producto <strong>@Model.NombreTecnico</strong>?</p>
+    <div class="card shadow-lg p-4 border-danger">
+        <div class="alert alert-warning">
+            <p>⚠️ <strong>Advertencia:</strong> Esta acción no se puede deshacer.</p>
+        </div>
 
-<form asp-action="Eliminar" method="post">
-    <input type="hidden" asp-for="ITEM" />
-    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+        <p>¿Estás seguro de que deseas eliminar el producto <strong class="text-primary">@Model.NombreTecnico</strong>?</p>
+
+        <div class="text-center mb-3">
+            <img src="~/images/@Model.Imagen" class="img-fluid rounded shadow-sm" width="150" />
+        </div>
+
+        <form asp-action="Eliminar" method="post">
+            <input type="hidden" asp-for="ITEM" />
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-danger">🗑️ Sí, eliminar</button>
+                <a asp-action="Index" class="btn btn-secondary">❌ Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

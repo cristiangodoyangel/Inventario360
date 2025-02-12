@@ -12,6 +12,8 @@ builder.Services.AddDbContext<InventarioDbContext>(options =>
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ISalidaBodegaService, SalidaBodegaService>();
 builder.Services.AddScoped<ISolicitudService, SolicitudService>();
+builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
+builder.Services.AddScoped<IProyectoService, ProyectoService>();
 
 
 
@@ -56,10 +58,6 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Productos}/{action=Index}/{id?}");
 
 
 app.Run();

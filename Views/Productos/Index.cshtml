@@ -31,7 +31,7 @@
         <tbody>
             @foreach (var producto in Model)
             {
-                <tr>
+                <tr id="fila-@producto.ITEM">
                     <td>@producto.ITEM</td>
                     <td>
                         <a href="@Url.Action("Detalle", "Productos", new { id = producto.ITEM })" class="text-primary fw-bold">
@@ -48,7 +48,7 @@
                         <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
                     </td>
                     <td>
-                        <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-outline-secondary btn-sm">✏️</a>
+                        <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
 
                         <!-- Botón de la papelera sin fondo -->
                         <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@producto.ITEM)">
@@ -74,10 +74,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form id="eliminar-form" asp-action="Eliminar" method="post">
-                    <input type="hidden" id="productoId" name="id" />
-                    <button type="submit" class="btn btn-orange">Eliminar</button>
-                </form>
+                <button type="button" class="btn btn-orange" id="btnConfirmarEliminar">Eliminar</button>
             </div>
         </div>
     </div>
@@ -113,11 +110,34 @@
             });
         });
 
+        var productoIdAEliminar = null;
+
         function confirmarEliminacion(id) {
-            document.getElementById('productoId').value = id;
+            productoIdAEliminar = id;
             var modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
             modal.show();
         }
+
+        document.getElementById("btnConfirmarEliminar").addEventListener("click", function () {
+            if (productoIdAEliminar) {
+                $.ajax({
+                    url: "/Productos/Eliminar",
+                    type: "POST",
+                    data: { id: productoIdAEliminar },
+                    success: function (response) {
+                        if (response.success) {
+                            $("#fila-" + productoIdAEliminar).fadeOut(300, function () { $(this).remove(); });
+                            $("#confirmarEliminarModal").modal('hide');
+                        } else {
+                            alert("Error: " + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Hubo un error al eliminar el producto.");
+                    }
+                });
+            }
+        });
     </script>
 }
 
@@ -126,6 +146,7 @@
     /* Botón de confirmación en el modal (Naranja sólido) */
     .btn-orange {
         background-color: #f06529 !important;
+        border-radius: 5px;
         border-color: #f06529 !important;
         color: white !important;
     }
@@ -138,8 +159,9 @@
     /* Botón del ícono de la papelera (Sin fondo) */
     .btn-icon {
         background-color: transparent !important;
-        border: 1px solid #000000;
+        border: 1px solid #000000 !important;
         color: #f06529 !important;
+        border-radius: 5px;
         font-size: 1.2rem;
         padding: 0.3rem;
     }
