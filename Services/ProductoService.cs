@@ -37,6 +37,7 @@ namespace Inventario360.Services
             await _context.SaveChangesAsync();
         }
 
+
         public async Task Eliminar(int id)
         {
             var producto = await _context.Producto.FindAsync(id);

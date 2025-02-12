@@ -33,18 +33,17 @@ namespace Inventario360.Controllers
             return View();
         }
 
-        [HttpPost, ActionName("Eliminar")]
-        [ValidateAntiForgeryToken]
-        public IActionResult EliminarConfirmado(int id)
+        [HttpPost]
+        public async Task<IActionResult> Eliminar(int id)
         {
-            var producto = _productoService.ObtenerPorId(id);
+            var producto = await _productoService.ObtenerPorId(id);
             if (producto == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "El producto no existe." });
             }
 
-            _productoService.Eliminar(id);
-            return RedirectToAction("Index");
+            await _productoService.Eliminar(id);
+            return Json(new { success = true });
         }
 
 
@@ -74,37 +73,62 @@ namespace Inventario360.Controllers
 
 
 
-        [HttpGet] // Muestra el formulario de edición
+        [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
             var producto = await _productoService.ObtenerPorId(id);
-            if (producto == null) return NotFound();
+            if (producto == null)
+            {
+                return NotFound();
+            }
             return View(producto);
         }
 
-        [HttpPost] // Procesa la edición
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> Editar(Producto producto, IFormFile ImagenArchivo)
         {
-            if (!ModelState.IsValid) return View(producto);
-
-            if (ImagenArchivo != null && ImagenArchivo.Length > 0)
+            if (ModelState.IsValid)
             {
-                var rutaCarpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                var nombreArchivo = $"{producto.ITEM}_{Path.GetFileName(ImagenArchivo.FileName)}";
-                var rutaArchivo = Path.Combine(rutaCarpeta, nombreArchivo);
-
-                using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+                var productoExistente = await _productoService.ObtenerPorId(producto.ITEM);
+                if (productoExistente == null)
                 {
-                    await ImagenArchivo.CopyToAsync(stream);
+                    ModelState.AddModelError("", "El producto no existe.");
+                    return View(producto);
                 }
 
-                producto.Imagen = nombreArchivo; // Guardar el nombre de la imagen en la BD
+                // Actualizar datos
+                productoExistente.Cantidad = producto.Cantidad;
+                productoExistente.NombreTecnico = producto.NombreTecnico;
+                productoExistente.Medida = producto.Medida;
+                productoExistente.UnidadMedida = producto.UnidadMedida;
+                productoExistente.Marca = producto.Marca;
+                productoExistente.Ubicacion = producto.Ubicacion;
+                productoExistente.Estado = producto.Estado;
+
+                // Guardar nueva imagen si se subió un archivo
+                if (ImagenArchivo != null && ImagenArchivo.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                    var fileName = $"{Guid.NewGuid()}_{ImagenArchivo.FileName}";
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    // Guardar archivo en servidor
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImagenArchivo.CopyToAsync(stream);
+                    }
+
+                    // Actualizar campo de imagen en la base de datos
+                    productoExistente.Imagen = fileName;
+                }
+
+                await _productoService.Actualizar(productoExistente);
+                return RedirectToAction("Index");
             }
 
-            await _productoService.Actualizar(producto);
-            return RedirectToAction(nameof(Index));
+            return View(producto);
         }
+
 
     }
 }

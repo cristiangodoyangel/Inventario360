@@ -4,65 +4,79 @@
     ViewData["Title"] = "Registrar Salida de Bodega";
 }
 
-<div class="container mt-4">
-    <h2>Registrar Salida de Bodega</h2>
+<div class="container mt-5">
+    <h2 class="mb-4">Registrar Salida de Bodega</h2>
 
     <form asp-action="Crear" method="post">
         <div class="mb-3">
-            <label class="form-label">Fecha</label>
-            <input asp-for="Fecha" type="datetime-local" class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Producto</label>
-            <select asp-for="Producto" class="form-control" required>
-                <option value="">Seleccionar Producto</option>
+            <label for="productoBusqueda" class="form-label">Buscar Producto</label>
+            <input type="text" id="productoBusqueda" class="form-control" placeholder="Ingrese nombre o código del producto...">
+            <select id="productoSeleccionado" asp-for="Producto" class="form-select mt-2" required>
+                <option value="">Seleccione un producto</option>
                 @foreach (var producto in ViewBag.Productos)
                 {
                     <option value="@producto.ITEM">@producto.NombreTecnico</option>
                 }
             </select>
+            <span asp-validation-for="Producto" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Cantidad</label>
-            <input asp-for="Cantidad" type="number" class="form-control" min="1" required />
+            <label asp-for="Cantidad" class="form-label">Cantidad</label>
+            <input type="number" asp-for="Cantidad" class="form-control" required>
+            <span asp-validation-for="Cantidad" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Solicitante</label>
-            <select asp-for="Solicitante" class="form-control" required>
-                <option value="">Seleccionar Solicitante</option>
+            <label asp-for="Solicitante" class="form-label">Solicitante</label>
+            <select asp-for="Solicitante" class="form-select" required>
+                <option value="">Seleccione un empleado</option>
                 @foreach (var empleado in ViewBag.Empleados)
                 {
                     <option value="@empleado.ID">@empleado.Nombre</option>
                 }
             </select>
+            <span asp-validation-for="Solicitante" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Responsable de Entrega</label>
-            <select asp-for="ResponsableEntrega" class="form-control" required>
-                <option value="">Seleccionar Responsable</option>
+            <label asp-for="ResponsableEntrega" class="form-label">Responsable de Entrega</label>
+            <select asp-for="ResponsableEntrega" class="form-select" required>
+                <option value="">Seleccione un empleado</option>
                 @foreach (var empleado in ViewBag.Empleados)
                 {
                     <option value="@empleado.ID">@empleado.Nombre</option>
                 }
             </select>
+            <span asp-validation-for="ResponsableEntrega" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Proyecto</label>
-            <select asp-for="ProyectoAsignado" class="form-control">
-                <option value="">Seleccionar Proyecto</option>
+            <label asp-for="ProyectoAsignado" class="form-label">Proyecto Asignado</label>
+            <select asp-for="ProyectoAsignado" class="form-select" required>
+                <option value="">Seleccione un proyecto</option>
                 @foreach (var proyecto in ViewBag.Proyectos)
                 {
                     <option value="@proyecto.ID">@proyecto.Nombre</option>
                 }
             </select>
+            <span asp-validation-for="ProyectoAsignado" class="text-danger"></span>
         </div>
 
-        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="submit" class="btn btn-primary">Registrar Salida</button>
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("productoBusqueda").addEventListener("input", function () {
+            var searchValue = this.value.toLowerCase();
+            var select = document.getElementById("productoSeleccionado");
+            for (var i = 0; i < select.options.length; i++) {
+                var option = select.options[i];
+                option.hidden = !option.text.toLowerCase().includes(searchValue);
+            }
+        });
+    </script>
+}
