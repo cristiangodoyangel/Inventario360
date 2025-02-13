@@ -128,6 +128,13 @@ namespace Inventario360.Controllers
 
             return View(producto);
         }
+        [HttpGet]
+        public async Task<IActionResult> ObtenerProductos()
+        {
+            var productos = await _productoService.ObtenerTodosAsync();
+            return Json(productos);
+        }
+
 
 
     }

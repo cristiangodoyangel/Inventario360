@@ -60,5 +60,14 @@ namespace Inventario360.Controllers
             await _solicitudService.AddSolicitudAsync(solicitud);
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerProductos()
+        {
+            var productos = await _productoService.ObtenerTodosAsync();
+            return Json(productos);
+        }
+
+
     }
 }
