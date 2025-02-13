@@ -22,7 +22,7 @@ namespace Inventario360.Services
                 };
 
                 // Crear el usuario con la contraseña
-                var result = await userManager.CreateAsync(user, "Password123!");
+                var result = await userManager.CreateAsync(user, "123456");
 
                 // Asignar un rol si es necesario, por ejemplo "Admin"
                 // await userManager.AddToRoleAsync(user, "Admin");
