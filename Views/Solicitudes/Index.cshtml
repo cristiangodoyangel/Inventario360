@@ -1,7 +1,6 @@
 ﻿@model IEnumerable<Inventario360.Models.SolicitudDeMaterial>
 @using Inventario360.Models
 
-
 @{
     ViewData["Title"] = "Solicitudes de Material";
 }
@@ -32,7 +31,7 @@
             <tr>
                 <td>@item.NombreTecnico</td>
                 <td>@item.Descripcion</td>
-                <td><img src="@item.Imagen" alt="Imagen del producto" width="50"></td>
+                <td><img src="@Url.Content("~/images/" + item.Imagen)" alt="Imagen del producto" width="50"></td>
                 <td>@item.Cantidad</td>
                 <td>@item.Medida</td>
                 <td>@item.UnidadMedida</td>
@@ -52,16 +51,32 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formAgregarProducto">
                     <div class="mb-3">
                         <label for="productoSelect" class="form-label">Seleccionar Producto</label>
                         <select id="productoSelect" class="form-control"></select>
                     </div>
                     <div class="mb-3">
+                        <label for="cantidad" class="form-label">Cantidad</label>
+                        <input type="number" class="form-control" id="cantidad" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="medida" class="form-label">Medida</label>
+                        <input type="text" class="form-control" id="medida">
+                    </div>
+                    <div class="mb-3">
+                        <label for="unidadMedida" class="form-label">Unidad de Medida</label>
+                        <input type="text" class="form-control" id="unidadMedida">
+                    </div>
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marca">
+                    </div>
+                    <div class="mb-3">
                         <label for="posibleProveedor" class="form-label">Posible Proveedor</label>
                         <input type="text" class="form-control" id="posibleProveedor">
                     </div>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
+                    <button type="button" class="btn btn-primary" id="btnAgregarProducto">Agregar</button>
                 </form>
             </div>
         </div>
@@ -77,22 +92,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="formNuevoProducto">
                     <div class="mb-3">
                         <label for="nombreTecnico" class="form-label">Nombre Técnico</label>
                         <input type="text" class="form-control" id="nombreTecnico">
                     </div>
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion"></textarea>
+                        <input type="text" class="form-control" id="descripcion">
                     </div>
                     <div class="mb-3">
                         <label for="imagen" class="form-label">Imagen</label>
-                        <input type="file" class="form-control" id="imagen">
+                        <input type="file" class="form-control" id="imagen" accept="image/*">
                     </div>
                     <div class="mb-3">
                         <label for="cantidad" class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="cantidad">
+                        <input type="number" class="form-control" id="cantidad" min="1">
                     </div>
                     <div class="mb-3">
                         <label for="medida" class="form-label">Medida</label>
@@ -107,10 +122,10 @@
                         <input type="text" class="form-control" id="marca">
                     </div>
                     <div class="mb-3">
-                        <label for="posibleProveedorNuevo" class="form-label">Posible Proveedor</label>
-                        <input type="text" class="form-control" id="posibleProveedorNuevo">
+                        <label for="posibleProveedor" class="form-label">Posible Proveedor</label>
+                        <input type="text" class="form-control" id="posibleProveedor">
                     </div>
-                    <button type="submit" class="btn btn-success">Crear Producto</button>
+                    <button type="button" class="btn btn-primary" id="btnCrearProducto">Crear Producto</button>
                 </form>
             </div>
         </div>
@@ -120,7 +135,107 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('#solicitudesTable').DataTable();
+            console.log("Página cargada, inicializando DataTable...");
+
+            if ($.fn.DataTable) {
+                $('#solicitudesTable').DataTable();
+            } else {
+                console.error("DataTable no está definido. Verifica que se haya cargado correctamente.");
+            }
+
+            // Cargar productos en el select
+            $.ajax({
+                url: '/Productos/ObtenerProductos',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    let select = $('#productoSelect');
+                    select.empty();
+                    select.append('<option value="">Seleccione un producto</option>');
+                    data.forEach(producto => {
+                        select.append(`<option value="${producto.item}" data-imagen="~/images/${producto.imagen}">${producto.nombreTecnico}</option>`);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al obtener los productos:', error);
+                }
+            });
+
+            // Evento de agregar producto desde inventario
+            $('#btnAgregarProducto').click(function () {
+                console.log("Botón Agregar presionado");
+
+                let productoId = $('#productoSelect').val();
+                let productoNombre = $('#productoSelect option:selected').text();
+                let cantidad = $('#cantidad').val();
+                let medida = $('#medida').val();
+                let unidadMedida = $('#unidadMedida').val();
+                let marca = $('#marca').val();
+                let posibleProveedor = $('#posibleProveedor').val();
+                let productoImagen = $('#productoSelect option:selected').data('imagen'); // Obtener la imagen seleccionada
+
+                if (!productoId || !cantidad || !medida || !unidadMedida || !marca) {
+                    alert("Por favor, complete todos los campos.");
+                    return;
+                }
+
+                let newRow = `
+                    <tr>
+                        <td>${productoNombre}</td>
+                        <td>Descripción no disponible</td>
+                        <td><img src="${productoImagen}" alt="Imagen del producto" width="50"></td>
+                        <td>${cantidad}</td>
+                        <td>${medida}</td>
+                        <td>${unidadMedida}</td>
+                        <td>${marca}</td>
+                        <td>${posibleProveedor}</td>
+                    </tr>
+                `;
+
+                $('#solicitudesTable tbody').append(newRow);
+                $('#agregarDesdeInventarioModal').modal('hide');
+                $('#formAgregarProducto')[0].reset();
+            });
+
+            // Evento de crear nuevo producto
+            $('#btnCrearProducto').click(function () {
+                console.log("Botón Crear Producto presionado");
+
+                let nombreTecnico = $('#nombreTecnico').val();
+                let descripcion = $('#descripcion').val();
+                let imagen = $('#imagen')[0].files[0]; // Obtener el archivo de la imagen
+                let cantidad = $('#cantidad').val();
+                let medida = $('#medida').val();
+                let unidadMedida = $('#unidadMedida').val();
+                let marca = $('#marca').val();
+                let posibleProveedor = $('#posibleProveedor').val();
+
+                if (!nombreTecnico || !descripcion || !imagen || !cantidad || !medida || !unidadMedida || !marca || !posibleProveedor) {
+                    alert("Por favor, complete todos los campos.");
+                    return;
+                }
+
+                // Si se quiere mostrar la imagen cargada, aquí se puede mostrar la vista previa
+                let imagenSrc = URL.createObjectURL(imagen);
+
+                let newRow = `
+                    <tr>
+                        <td>${nombreTecnico}</td>
+                        <td>${descripcion}</td>
+                        <td><img src="${imagenSrc}" alt="Imagen del producto" width="50"></td>
+                        <td>${cantidad}</td>
+                        <td>${medida}</td>
+                        <td>${unidadMedida}</td>
+                        <td>${marca}</td>
+                        <td>${posibleProveedor}</td>
+                    </tr>
+                `;
+
+                $('#solicitudesTable tbody').append(newRow);
+                $('#crearNuevoProductoModal').modal('hide');
+                $('#formNuevoProducto')[0].reset();
+            });
+
         });
     </script>
 }
