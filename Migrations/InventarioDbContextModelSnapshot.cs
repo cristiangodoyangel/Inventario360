@@ -71,8 +71,8 @@ namespace Inventario360.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Proveedor")
-                        .HasColumnType("int");
+                    b.Property<string>("Proveedor")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ubicacion")
                         .HasColumnType("nvarchar(max)");
@@ -162,32 +162,41 @@ namespace Inventario360.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int?>("Cantidad")
+                    b.Property<int>("Cantidad")
                         .HasColumnType("int");
 
                     b.Property<string>("Descripcion")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ITEM")
+                    b.Property<int>("ITEM")
                         .HasColumnType("int");
 
                     b.Property<string>("Imagen")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Marca")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Medida")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NombreTecnico")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Producto")
+                    b.Property<string>("PosibleProveedor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Producto")
                         .HasColumnType("int");
 
                     b.Property<string>("UnidadMedida")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");

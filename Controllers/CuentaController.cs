@@ -1,23 +1,74 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Inventario360.Models;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
-public class CuentaController : Controller
+namespace Inventario360.Controllers
 {
-    public IActionResult Login()
+    public class CuentaController : Controller
     {
-        return View();
-    }
+        private readonly SignInManager<Usuario> _signInManager;
+        private readonly UserManager<Usuario> _userManager;
 
-    [HttpPost]
-    public IActionResult Login(string email, string password)
-    {
-        // Simulación de usuario válido (reemplazar con la autenticación real)
-        if (email == "admin@example.com" && password == "123456")
+        // Inyectar SignInManager y UserManager
+        public CuentaController(SignInManager<Usuario> signInManager, UserManager<Usuario> userManager)
         {
-            return RedirectToAction("Index", "Home");
+            _signInManager = signInManager;
+            _userManager = userManager;
         }
 
-        ViewBag.Error = "Correo o contraseña incorrectos.";
-        return View();
-    }
+        // Vista de Login
+        public IActionResult Login()
+        {
+            return View();
+        }
 
+        // Método para procesar el Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(Cuenta model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Buscar el usuario con el correo electrónico proporcionado
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    // Verificar si el correo está confirmado
+                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        ViewBag.Error = "Correo no confirmado. Por favor verifique su correo electrónico.";
+                        return View(model);
+                    }
+
+                    // Intentar iniciar sesión con el correo y contraseña proporcionados
+                    var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
+
+                    if (result.Succeeded)
+                    {
+                        // Redirigir al sistema (Dashboard) si el login es exitoso
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        // Si las credenciales son incorrectas
+                        ViewBag.Error = "Correo o contraseña incorrectos.";
+                    }
+                }
+                else
+                {
+                    ViewBag.Error = "El usuario no existe.";
+                }
+            }
+            return View(model);
+        }
+
+        // Método para manejar el logout (cerrar sesión)
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync(); // Cerrar sesión
+            return RedirectToAction("Index", "Home"); // Redirigir al home después de cerrar sesión
+        }
+    }
 }

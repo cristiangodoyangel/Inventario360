@@ -1,0 +1,23 @@
+﻿@model Inventario360.Models.SalidaDeBodega
+
+@{
+    ViewData["Title"] = "Detalle de Salida de Bodega";
+}
+
+<div class="container mt-4">
+    <h2>Detalle de Salida de Bodega</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Producto: @Model.Producto</h5>
+            <p><strong>Fecha:</strong> @(Model.Fecha.HasValue ? Model.Fecha.Value.ToString("dd/MM/yyyy HH:mm") : "Sin fecha")</p>
+
+            <p><strong>Cantidad:</strong> @Model.Cantidad</p>
+            <p><strong>Solicitante:</strong> @Model.Solicitante</p>
+            <p><strong>Responsable de Entrega:</strong> @Model.ResponsableEntrega</p>
+            <p><strong>Proyecto Asignado:</strong> @Model.ProyectoAsignado</p>
+        </div>
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary mt-3">Volver al Listado</a>
+</div>

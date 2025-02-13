@@ -15,7 +15,7 @@ namespace Inventario360.Models
         public string? Marca { get; set; } // varchar(255), puede ser null
         public string? Descripcion { get; set; } // text, puede ser null
         public string? Imagen { get; set; } // varchar(255), puede ser null
-        public int? Proveedor { get; set; } // FK hacia Proveedor
+        public string? Proveedor { get; set; }
         public string? Ubicacion { get; set; } // varchar(255), puede ser null
         public string? Estado { get; set; } // varchar(50), puede ser null (Usado/Nuevo)
     }

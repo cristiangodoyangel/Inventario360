@@ -6,10 +6,10 @@ namespace Inventario360.Services
 {
     public interface ISalidaBodegaService
     {
-        Task<List<SalidaDeBodega>> ObtenerTodas(); // Obtener todas las salidas de bodega
-        Task<SalidaDeBodega?> ObtenerPorId(int id); // Obtener una salida por ID
-        Task Agregar(SalidaDeBodega salida); // Agregar una nueva salida
-        Task Actualizar(SalidaDeBodega salida); // Actualizar una salida existente
-        Task Eliminar(int id); // Eliminar una salida por ID
+        Task<List<SalidaDeBodega>> ObtenerTodas();
+        Task<SalidaDeBodega?> ObtenerPorId(int id);
+        Task<bool> RegistrarSalida(SalidaDeBodega salida, Producto producto); // ✅ Se actualiza aquí
+        Task Actualizar(SalidaDeBodega salida);
+        Task Eliminar(int id);
     }
 }

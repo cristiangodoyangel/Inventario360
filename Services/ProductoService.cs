@@ -20,10 +20,29 @@ namespace Inventario360.Services
             return await _context.Producto.ToListAsync();
         }
 
+        public async Task<IEnumerable<object>> ObtenerTodosAsync()
+        {
+            return await _context.Producto
+                .Select(p => new
+                {
+                    p.ITEM,
+                    p.NombreTecnico
+                })
+                .ToListAsync();
+        }
+
+
+
         public async Task<Producto?> ObtenerPorId(int id)
         {
             return await _context.Producto.FindAsync(id);
         }
+
+        public async Task<Producto?> GetProductoByIdAsync(int id)
+        {
+            return await _context.Producto.FindAsync(id);
+        }
+
 
         public async Task Agregar(Producto producto)
         {

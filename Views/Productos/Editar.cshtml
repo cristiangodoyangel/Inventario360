@@ -1,0 +1,90 @@
+﻿@model Inventario360.Models.Producto
+
+@{
+    ViewData["Title"] = "Editar Producto";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3 text-primary">Editar Producto</h2>
+
+    <div class="card shadow-lg p-4">
+        <form asp-action="Editar" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="ITEM" />
+
+            <div class="mb-3">
+                <label class="form-label">Nombre Técnico</label>
+                <input asp-for="NombreTecnico" class="form-control" required />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Medida</label>
+                    <input asp-for="Medida" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Unidad de Medida</label>
+                    <input asp-for="UnidadMedida" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Marca</label>
+                    <input asp-for="Marca" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input asp-for="Cantidad" class="form-control" type="number" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ubicación</label>
+                    <input asp-for="Ubicacion" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Estado</label>
+                    <select asp-for="Estado" class="form-control">
+                        <option value="Nuevo">Nuevo</option>
+                        <option value="Usado">Usado</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Proveedor</label>
+                <input asp-for="Proveedor" class="form-control" type="number" />
+            </div>
+
+            <!-- Vista previa de la imagen actual -->
+            <div class="mb-3 text-center">
+                <label class="form-label">Imagen Actual</label><br>
+                @if (!string.IsNullOrEmpty(Model.Imagen))
+                {
+                    <img src="~/uploads/@Model.Imagen" class="img-fluid rounded shadow-sm" width="150" />
+                }
+                else
+                {
+                    <p class="text-muted">No hay imagen cargada</p>
+                }
+            </div>
+
+            <!-- Subida de nueva imagen -->
+            <div class="mb-3">
+                <label class="form-label">Subir Nueva Imagen</label>
+                <input type="file" name="ImagenArchivo" class="form-control" />
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">💾 Guardar Cambios</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
