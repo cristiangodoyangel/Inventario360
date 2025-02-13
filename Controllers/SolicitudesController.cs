@@ -1,75 +1,73 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Inventario360.Services;
 using Inventario360.Models;
-using System.Threading.Tasks;
+using Inventario360.Services;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Inventario360.Controllers
 {
     public class SolicitudesController : Controller
     {
         private readonly ISolicitudService _solicitudService;
+        private readonly IProductoService _productoService;
 
-        public SolicitudesController(ISolicitudService solicitudService)
+        public SolicitudesController(ISolicitudService solicitudService, IProductoService productoService)
         {
             _solicitudService = solicitudService;
+            _productoService = productoService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var solicitudes = await _solicitudService.ObtenerTodas();
+            var solicitudes = await _solicitudService.GetAllSolicitudesAsync();
             return View(solicitudes);
         }
 
-        public IActionResult Crear()
+        [HttpPost]
+        public async Task<IActionResult> AgregarDesdeInventario(int productoId, int cantidad, string medida, string unidadMedida, string marca, string posibleProveedor)
         {
-            return View();
+            var producto = await _productoService.GetProductoByIdAsync(productoId);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            var solicitud = new SolicitudDeMaterial
+            {
+                NombreTecnico = producto.NombreTecnico,
+                Descripcion = producto.Descripcion,
+                Imagen = producto.Imagen,
+                Producto = productoId,
+                Cantidad = cantidad,
+                Medida = medida,
+                UnidadMedida = unidadMedida,
+                Marca = marca,
+                PosibleProveedor = posibleProveedor
+            };
+
+            await _solicitudService.AddSolicitudAsync(solicitud);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Crear(SolicitudDeMaterial solicitud)
+        public async Task<IActionResult> CrearNuevoProducto(SolicitudDeMaterial solicitud)
         {
-            if (!ModelState.IsValid) return View(solicitud);
+            if (!ModelState.IsValid)
+            {
+                return View("Index");
+            }
 
-            await _solicitudService.Agregar(solicitud);
-            return RedirectToAction(nameof(Index));
+            await _solicitudService.AddSolicitudAsync(solicitud);
+            return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Detalle(int id)
+        [HttpGet]
+        public async Task<IActionResult> ObtenerProductos()
         {
-            var solicitud = await _solicitudService.ObtenerPorId(id);
-            if (solicitud == null) return NotFound();
-            return View(solicitud);
+            var productos = await _productoService.ObtenerTodosAsync();
+            return Json(productos);
         }
 
-        public async Task<IActionResult> Editar(int id)
-        {
-            var solicitud = await _solicitudService.ObtenerPorId(id);
-            if (solicitud == null) return NotFound();
-            return View(solicitud);
-        }
 
-        [HttpPost]
-        public async Task<IActionResult> Editar(SolicitudDeMaterial solicitud)
-        {
-            if (!ModelState.IsValid) return View(solicitud);
-
-            await _solicitudService.Actualizar(solicitud);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Eliminar(int id)
-        {
-            var solicitud = await _solicitudService.ObtenerPorId(id);
-            if (solicitud == null) return NotFound();
-            return View(solicitud);
-        }
-
-        [HttpPost, ActionName("Eliminar")]
-        public async Task<IActionResult> ConfirmarEliminar(int id)
-        {
-            await _solicitudService.Eliminar(id);
-            return RedirectToAction(nameof(Index));
-        }
     }
 }

@@ -1,29 +1,71 @@
 ﻿@{
-    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["Title"] = "Iniciar sesión";
 }
 
-<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4 shadow" style="max-width: 350px; width: 100%;">
-        <h3 class="text-center mb-3">Iniciar Sesión</h3>
-        <p class="text-center text-muted" style="font-size: 14px;">Ingresa tus credenciales para acceder al sistema.</p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-4">
+            <h2 class="text-center mb-4">Iniciar sesión</h2>
 
-        @if (!string.IsNullOrEmpty(ViewBag.Error))
-        {
-            <div class="alert alert-danger text-center" role="alert">
-                @ViewBag.Error
-            </div>
-        }
+            <form asp-action="Login" method="post">
+                <div class="form-group">
+                    <label for="Email">Correo electrónico</label>
+                    <input type="email" class="form-control form-control-sm" id="Email" name="Email" placeholder="Ingrese su correo electrónico" required />
+                </div>
 
-        <form method="post" action="@Url.Action("Login", "Cuenta")">
-            <div class="mb-3">
-                <label for="email" class="form-label" style="font-size: 14px;">Correo Electrónico</label>
-                <input type="email" class="form-control form-control-sm" id="email" name="email" placeholder="Tu correo" required>
+                <div class="form-group mt-3">
+                    <label for="Password">Contraseña</label>
+                    <input type="password" class="form-control form-control-sm" id="Password" name="Password" placeholder="Ingrese su contraseña" required />
+                </div>
+
+                <div class="form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="RememberMe" name="RememberMe" />
+                    <label class="form-check-label" for="RememberMe">Recordarme</label>
+                </div>
+
+                <button type="submit" class="btn btn-secondary">Iniciar sesión</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="#">¿Olvidaste tu contraseña?</a>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label" style="font-size: 14px;">Contraseña</label>
-                <input type="password" class="form-control form-control-sm" id="password" name="password" placeholder="Tu contraseña" required>
-            </div>
-            <button type="submit" class="btn w-100 btn-sm" style="background-color: #f1663b; color: white;">Ingresar</button>
-        </form>
+        </div>
     </div>
 </div>
+
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        margin-top: 50px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    .form-control {
+        height: calc(1.5rem + 2px);
+        font-size: 0.875rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .form-check-label {
+        font-size: 0.85rem;
+    }
+
+    .form-check-input {
+        width: 1rem;
+        height: 1rem;
+    }
+</style>

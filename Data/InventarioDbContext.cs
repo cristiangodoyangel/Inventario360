@@ -4,7 +4,7 @@ using Inventario360.Models;
 
 namespace Inventario360.Data
 {
-    public class InventarioDbContext : IdentityDbContext<Usuario>
+    public class InventarioDbContext : IdentityDbContext<Usuario> // Se usa Usuario como clase de identidad
     {
         public InventarioDbContext(DbContextOptions<InventarioDbContext> options)
             : base(options) { }
@@ -19,10 +19,14 @@ namespace Inventario360.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder);
+            base.OnModelCreating(builder); // Llamar al método base para configurar Identity
 
+            // Definir clave primaria de Producto
             builder.Entity<Producto>()
-                .HasKey(p => p.ITEM); // Verifica que la clave primaria está definida
+                .HasKey(p => p.ITEM);
+
+            // Puedes agregar más configuraciones de entidades aquí si es necesario
         }
+
     }
 }

@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Inventario360.Models;
+﻿using Inventario360.Models;
 
-namespace Inventario360.Services
+public interface ISolicitudService
 {
-    public interface ISolicitudService
-    {
-        Task<List<SolicitudDeMaterial>> ObtenerTodas(); // Obtener todas las solicitudes
-        Task<SolicitudDeMaterial?> ObtenerPorId(int id); // Obtener una solicitud por ID
-        Task Agregar(SolicitudDeMaterial solicitud); // Agregar una nueva solicitud
-        Task Actualizar(SolicitudDeMaterial solicitud); // Actualizar una solicitud existente
-        Task Eliminar(int id); // Eliminar una solicitud por ID
-    }
+    Task<IEnumerable<SolicitudDeMaterial>> GetAllSolicitudesAsync();
+    Task<IEnumerable<SolicitudDeMaterial>> ObtenerTodas(); // ✅ Método agregado
+    Task<SolicitudDeMaterial> GetSolicitudByIdAsync(int id);
+    Task AddSolicitudAsync(SolicitudDeMaterial solicitud);
+    Task UpdateSolicitudAsync(SolicitudDeMaterial solicitud);
+    Task DeleteSolicitudAsync(int id);
 }

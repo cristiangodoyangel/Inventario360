@@ -57,13 +57,36 @@
         .navbar-toggler-icon {
             filter: invert(1);
         }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+            .user-info img {
+                height: 30px;
+                width: 30px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="/images/logo.png" alt="Logo">
-        <a href="/Cuenta/Login" class="login-btn">Ingresar</a>
-
+        <img src="~/images/logo.png" alt="Logo">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="user-info">
+               
+                <span>@User.Identity.Name</span>
+                <a href="@Url.Action("Logout", "Cuenta")" class="login-btn">Cerrar sesión</a>
+            </div>
+        }
+        else
+        {
+            <a asp-controller="Cuenta" asp-action="Login" class="login-btn">Ingresar</a>
+        }
     </div>
 
     <nav class="navbar navbar-expand-lg navbar-light">
@@ -73,10 +96,18 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="/Productos/Index">Inventario</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Salida/Index">Entrega de Materiales</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Solicitud/Index">Solicitud de Materiales</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Reportes/Index">Reportes</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Productos" asp-action="Index">Inventario</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="SalidasBodega" asp-action="Index">Entrega de Materiales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Solicitudes" asp-action="Index">Solicitud de Materiales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Reportes" asp-action="Index">Reportes</a>
+                    </li>
                 </ul>
             </div>
         </div>
