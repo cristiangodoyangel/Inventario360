@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-public class ApplicationUser : IdentityUser
+namespace Inventario360.Models
 {
-    // Puedes agregar propiedades adicionales si lo deseas
+    public class ApplicationUser : IdentityUser
+    {
+        // Puedes agregar propiedades adicionales si lo necesitas
+    }
 }

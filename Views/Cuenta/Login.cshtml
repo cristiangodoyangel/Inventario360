@@ -1,29 +1,26 @@
-﻿@{
-    ViewData["Title"] = "Iniciar Sesión";
-}
+﻿@model Inventario360.Models.Cuenta
 
-<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4 shadow" style="max-width: 350px; width: 100%;">
-        <h3 class="text-center mb-3">Iniciar Sesión</h3>
-        <p class="text-center text-muted" style="font-size: 14px;">Ingresa tus credenciales para acceder al sistema.</p>
+<h2>Iniciar sesión</h2>
 
-        @if (!string.IsNullOrEmpty(ViewBag.Error))
-        {
-            <div class="alert alert-danger text-center" role="alert">
-                @ViewBag.Error
-            </div>
-        }
-
-        <form method="post" action="@Url.Action("Login", "Cuenta")">
-            <div class="mb-3">
-                <label for="email" class="form-label" style="font-size: 14px;">Correo Electrónico</label>
-                <input type="email" class="form-control form-control-sm" id="email" name="email" placeholder="Tu correo" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label" style="font-size: 14px;">Contraseña</label>
-                <input type="password" class="form-control form-control-sm" id="password" name="password" placeholder="Tu contraseña" required>
-            </div>
-            <button type="submit" class="btn w-100 btn-sm" style="background-color: #f1663b; color: white;">Ingresar</button>
-        </form>
+<form method="post" asp-action="Login">
+    <div class="form-group">
+        <label for="Email">Correo electrónico</label>
+        <input type="email" id="Email" asp-for="Email" class="form-control" required />
     </div>
-</div>
+    <div class="form-group">
+        <label for="Password">Contraseña</label>
+        <input type="password" id="Password" asp-for="Password" class="form-control" required />
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" asp-for="RememberMe" class="form-check-input" />
+        <label class="form-check-label" for="RememberMe">Recordarme</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger mt-2">
+        @ViewBag.Error
+    </div>
+}
