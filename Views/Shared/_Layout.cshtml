@@ -57,12 +57,36 @@
         .navbar-toggler-icon {
             filter: invert(1);
         }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+            .user-info img {
+                height: 30px;
+                width: 30px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
     </style>
 </head>
 <body>
     <div class="header">
         <img src="~/images/logo.png" alt="Logo">
-        <a asp-controller="Cuenta" asp-action="Login" class="login-btn">Ingresar</a>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="user-info">
+                <img src="https://www.gravatar.com/avatar/@(User.Identity.Name.GetHashCode())" alt="User Icon">
+                <span>@User.Identity.Name</span>
+                <a href="@Url.Action("Logout", "Cuenta")" class="login-btn">Cerrar sesión</a>
+            </div>
+        }
+        else
+        {
+            <a asp-controller="Cuenta" asp-action="Login" class="login-btn">Ingresar</a>
+        }
     </div>
 
     <nav class="navbar navbar-expand-lg navbar-light">
