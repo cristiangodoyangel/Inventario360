@@ -78,7 +78,7 @@
         @if (User.Identity.IsAuthenticated)
         {
             <div class="user-info">
-                <img src="https://www.gravatar.com/avatar/@(User.Identity.Name.GetHashCode())" alt="User Icon">
+               
                 <span>@User.Identity.Name</span>
                 <a href="@Url.Action("Logout", "Cuenta")" class="login-btn">Cerrar sesión</a>
             </div>
