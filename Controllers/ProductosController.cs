@@ -3,9 +3,14 @@ using Inventario360.Services;
 using Inventario360.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Inventario360.Controllers
 {
+    [Authorize] // 🔒 Aplica autenticación a todo el controlador
     public class ProductosController : Controller
     {
         private readonly IProductoService _productoService;
@@ -46,7 +51,6 @@ namespace Inventario360.Controllers
             return Json(new { success = true });
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Producto producto, IFormFile ImagenArchivo)
@@ -70,8 +74,6 @@ namespace Inventario360.Controllers
             await _productoService.Agregar(producto);
             return RedirectToAction(nameof(Index));
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
@@ -128,14 +130,12 @@ namespace Inventario360.Controllers
 
             return View(producto);
         }
+
         [HttpGet]
         public async Task<IActionResult> ObtenerProductos()
         {
             var productos = await _productoService.ObtenerTodosAsync();
             return Json(productos);
         }
-
-
-
     }
 }

@@ -8,7 +8,7 @@
     <div class="row mb-4">
         <div class="col-md-6"></div>
         <div class="col-md-6 text-end">
-            <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
+            <a asp-action="Crear" class="btn btn-secondary">Agregar Producto</a>
         </div>
     </div>
 
@@ -49,8 +49,6 @@
                     </td>
                     <td>
                         <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
-
-                        <!-- Botón de la papelera sin fondo -->
                         <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@producto.ITEM)">
                             🗑️
                         </button>
@@ -81,6 +79,7 @@
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 
