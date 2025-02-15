@@ -3,7 +3,7 @@
 public interface ISolicitudService
 {
     Task<IEnumerable<SolicitudDeMaterial>> GetAllSolicitudesAsync();
-    Task<IEnumerable<SolicitudDeMaterial>> ObtenerTodas(); // ✅ Método agregado
+    Task<List<SolicitudDeMaterial>> ObtenerTodas();// ✅ Método agregado
     Task<SolicitudDeMaterial> GetSolicitudByIdAsync(int id);
     Task AddSolicitudAsync(SolicitudDeMaterial solicitud);
     Task UpdateSolicitudAsync(SolicitudDeMaterial solicitud);

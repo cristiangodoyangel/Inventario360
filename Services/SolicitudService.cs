@@ -21,11 +21,10 @@ namespace Inventario360.Services
             return await _context.SolicitudDeMaterial.ToListAsync();
         }
 
-        public async Task<IEnumerable<SolicitudDeMaterial>> ObtenerTodas()
+        public async Task<List<SolicitudDeMaterial>> ObtenerTodas()
         {
             return await _context.SolicitudDeMaterial.ToListAsync();
         }
-
 
         public async Task<SolicitudDeMaterial> GetSolicitudByIdAsync(int id)
         {
@@ -34,7 +33,7 @@ namespace Inventario360.Services
 
         public async Task AddSolicitudAsync(SolicitudDeMaterial solicitud)
         {
-            _context.SolicitudDeMaterial.Add(solicitud);
+            await _context.SolicitudDeMaterial.AddAsync(solicitud);
             await _context.SaveChangesAsync();
         }
 

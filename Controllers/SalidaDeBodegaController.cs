@@ -4,9 +4,11 @@ using Inventario360.Models;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inventario360.Controllers
 {
+    [Authorize] // Protege todas las acciones del controlador
     public class SalidasBodegaController : Controller
     {
         private readonly IProductoService _productoService;
@@ -53,6 +55,7 @@ namespace Inventario360.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(SalidaDeBodega salida)
         {
             if (ModelState.IsValid)
@@ -68,10 +71,10 @@ namespace Inventario360.Controllers
                     {
                         if (producto.Cantidad >= salida.Cantidad)
                         {
-                            // **Corrección: Se establece la fecha automáticamente**
+                            // Se establece la fecha automáticamente
                             salida.Fecha = DateTime.Now;
 
-                            // **Corrección: Se actualiza el stock y se guarda la salida en una sola transacción**
+                            // Se actualiza el stock y se guarda la salida en una sola transacción
                             bool operacionExitosa = await _salidaBodegaService.RegistrarSalida(salida, producto);
 
                             if (operacionExitosa)

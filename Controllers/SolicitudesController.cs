@@ -3,9 +3,11 @@ using Inventario360.Models;
 using Inventario360.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inventario360.Controllers
 {
+    [Authorize] // Protege todas las acciones del controlador
     public class SolicitudesController : Controller
     {
         private readonly ISolicitudService _solicitudService;
@@ -24,6 +26,7 @@ namespace Inventario360.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AgregarDesdeInventario(int productoId, int cantidad, string medida, string unidadMedida, string marca, string posibleProveedor)
         {
             var producto = await _productoService.GetProductoByIdAsync(productoId);
@@ -50,6 +53,7 @@ namespace Inventario360.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearNuevoProducto(SolicitudDeMaterial solicitud)
         {
             if (!ModelState.IsValid)
@@ -67,7 +71,5 @@ namespace Inventario360.Controllers
             var productos = await _productoService.ObtenerTodosAsync();
             return Json(productos);
         }
-
-
     }
 }
