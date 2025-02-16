@@ -47,58 +47,45 @@ namespace Inventario360.Controllers
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
-            ViewBag.Productos = await _productoService.ObtenerTodos();
-            ViewBag.Empleados = await _empleadoService.ObtenerTodos();
-            ViewBag.Proyectos = await _proyectoService.ObtenerTodos();
-
-            return View();
+            await CargarDatosVista();
+            return View(new SalidaDeBodega());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear(SalidaDeBodega salida)
+        public async Task<IActionResult> Crear(SalidaDeBodega salida, List<DetalleSalidaDeBodega> detalles)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (!salida.Producto.HasValue)
-                {
-                    ModelState.AddModelError("", "Debe seleccionar un producto válido.");
-                }
-                else
-                {
-                    var producto = await _productoService.ObtenerPorId(salida.Producto.Value);
-                    if (producto != null)
-                    {
-                        if (producto.Cantidad >= salida.Cantidad)
-                        {
-                            // Se establece la fecha automáticamente
-                            salida.Fecha = DateTime.Now;
-
-                            // Se actualiza el stock y se guarda la salida en una sola transacción
-                            bool operacionExitosa = await _salidaBodegaService.RegistrarSalida(salida, producto);
-
-                            if (operacionExitosa)
-                                return RedirectToAction("Index");
-                            else
-                                ModelState.AddModelError("", "Error al registrar la salida.");
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("", "No hay suficiente stock disponible.");
-                        }
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "El producto seleccionado no existe.");
-                    }
-                }
+                ModelState.AddModelError("", "Debe completar todos los campos obligatorios.");
+                await CargarDatosVista();
+                return View(salida);
             }
 
+            if (detalles == null || detalles.Count == 0)
+            {
+                ModelState.AddModelError("", "Debe seleccionar al menos un producto para la salida.");
+                await CargarDatosVista();
+                return View(salida);
+            }
+
+            bool resultado = await _salidaBodegaService.RegistrarSalida(salida, detalles);
+
+            if (!resultado)
+            {
+                ModelState.AddModelError("", "Error al registrar la salida, verifique el stock.");
+                await CargarDatosVista();
+                return View(salida);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task CargarDatosVista()
+        {
             ViewBag.Productos = await _productoService.ObtenerTodos();
             ViewBag.Empleados = await _empleadoService.ObtenerTodos();
             ViewBag.Proyectos = await _proyectoService.ObtenerTodos();
-
-            return View(salida);
         }
     }
 }

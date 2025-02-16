@@ -17,36 +17,50 @@ namespace Inventario360.Services
 
         public async Task<List<SalidaDeBodega>> ObtenerTodas()
         {
-            return await _context.SalidaDeBodega.ToListAsync();
+            return await _context.SalidaDeBodega
+                .Include(s => s.Detalles) // Incluye los detalles de la salida
+                .ThenInclude(d => d.Producto) // Incluye información del producto
+                .ToListAsync();
         }
 
         public async Task<SalidaDeBodega?> ObtenerPorId(int id)
         {
-            return await _context.SalidaDeBodega.FindAsync(id);
+            return await _context.SalidaDeBodega
+                .Include(s => s.Detalles)
+                .ThenInclude(d => d.Producto)
+                .FirstOrDefaultAsync(s => s.ID == id);
         }
 
-        // **Corrección: Método seguro para actualizar stock y registrar salida en una sola transacción**
-        public async Task<bool> RegistrarSalida(SalidaDeBodega salida, Producto producto)
+        // Método corregido para registrar múltiples productos en una sola salida
+        public async Task<bool> RegistrarSalida(SalidaDeBodega salida, List<DetalleSalidaDeBodega> detalles)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Verificar si el producto existe y tiene suficiente stock
-                if (producto == null || producto.Cantidad < salida.Cantidad)
-                    return false;
+                foreach (var detalle in detalles)
+                {
+                    var producto = await _context.Producto.FindAsync(detalle.ProductoID);
+                    if (producto == null || producto.Cantidad < detalle.Cantidad)
+                        return false;
 
-                // Actualizar el stock del producto
-                producto.Cantidad -= salida.Cantidad;
-                _context.Producto.Update(producto);
+                    // Reducir el stock del producto
+                    producto.Cantidad -= detalle.Cantidad;
+                    _context.Producto.Update(producto);
+                }
 
-                // Registrar la salida con la fecha actual
+                // Guardar la salida y los detalles
                 salida.Fecha = DateTime.Now;
                 _context.SalidaDeBodega.Add(salida);
+                await _context.SaveChangesAsync();
 
-                // Guardar ambos cambios en la base de datos
+                foreach (var detalle in detalles)
+                {
+                    detalle.SalidaDeBodegaID = salida.ID;
+                    _context.DetalleSalidaDeBodega.Add(detalle);
+                }
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
                 return true;
             }
             catch
@@ -56,6 +70,7 @@ namespace Inventario360.Services
             }
         }
 
+
         public async Task Actualizar(SalidaDeBodega salida)
         {
             _context.Entry(salida).State = EntityState.Modified;
@@ -64,9 +79,23 @@ namespace Inventario360.Services
 
         public async Task Eliminar(int id)
         {
-            var salida = await _context.SalidaDeBodega.FindAsync(id);
+            var salida = await _context.SalidaDeBodega
+                .Include(s => s.Detalles)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
             if (salida != null)
             {
+                // Restaurar stock antes de eliminar la salida
+                foreach (var detalle in salida.Detalles)
+                {
+                    var producto = await _context.Producto.FindAsync(detalle.ProductoID);
+                    if (producto != null)
+                    {
+                        producto.Cantidad += detalle.Cantidad; // Revertir la cantidad
+                        _context.Producto.Update(producto);
+                    }
+                }
+
                 _context.SalidaDeBodega.Remove(salida);
                 await _context.SaveChangesAsync();
             }

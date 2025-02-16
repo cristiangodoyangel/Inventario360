@@ -8,7 +8,7 @@ namespace Inventario360.Services
     {
         Task<List<SalidaDeBodega>> ObtenerTodas();
         Task<SalidaDeBodega?> ObtenerPorId(int id);
-        Task<bool> RegistrarSalida(SalidaDeBodega salida, Producto producto); // ✅ Se actualiza aquí
+        Task<bool> RegistrarSalida(SalidaDeBodega salida, List<DetalleSalidaDeBodega> detalles);
         Task Actualizar(SalidaDeBodega salida);
         Task Eliminar(int id);
     }

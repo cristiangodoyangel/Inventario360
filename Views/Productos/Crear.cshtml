@@ -1,75 +1,139 @@
-﻿@model Inventario360.Models.Producto
+﻿@model Inventario360.Models.SalidaDeBodega
 
 @{
-    ViewData["Title"] = "Agregar Nuevo Producto";
+    ViewData["Title"] = "Registrar Salida de Bodega";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-3 text-primary">Agregar Nuevo Producto</h2>
+<div class="container mt-5">
+    <h2 class="mb-4">Registrar Salida de Bodega</h2>
 
-    <div class="card shadow-lg p-4">
-        <form asp-action="Crear" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label class="form-label">Nombre Técnico</label>
-                <input asp-for="NombreTecnico" class="form-control" required />
-            </div>
+    <form asp-action="Crear" method="post">
+        <div class="mb-3">
+            <label for="productoBusqueda" class="form-label">Buscar Producto</label>
+            <input type="text" id="productoBusqueda" class="form-control" placeholder="Ingrese nombre o código del producto...">
+        </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Medida</label>
-                    <input asp-for="Medida" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Unidad de Medida</label>
-                    <input asp-for="UnidadMedida" class="form-control" />
-                </div>
-            </div>
+        <div class="mb-3">
+            <label class="form-label">Seleccione Producto</label>
+            <select id="productoSeleccionado" class="form-select">
+                <option value="">Seleccione un producto</option>
+                @foreach (var producto in ViewBag.Productos)
+                {
+                    <option value="@producto.ITEM" data-nombre="@producto.NombreTecnico">@producto.NombreTecnico</option>
+                }
+            </select>
+        </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Marca</label>
-                    <input asp-for="Marca" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Cantidad</label>
-                    <input asp-for="Cantidad" class="form-control" type="number" />
-                </div>
-            </div>
+        <div class="mb-3">
+            <label class="form-label">Cantidad</label>
+            <input type="number" id="cantidadProducto" class="form-control">
+        </div>
 
-            <div class="mb-3">
-                <label class="form-label">Descripción</label>
-                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
-            </div>
+        <button type="button" id="agregarProducto" class="btn btn-success">Agregar Producto</button>
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Ubicación</label>
-                    <input asp-for="Ubicacion" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Estado</label>
-                    <select asp-for="Estado" class="form-control">
-                        <option value="Nuevo">Nuevo</option>
-                        <option value="Usado">Usado</option>
-                    </select>
-                </div>
-            </div>
+        <h4 class="mt-4">Productos Seleccionados</h4>
+        <table class="table table-striped" id="tablaProductos">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
-            <div class="mb-3">
-                <label class="form-label">Proveedor</label>
-                <input asp-for="Proveedor" class="form-control" type="number" />
-            </div>
+        <input type="hidden" id="productosJson" name="productosJson" />
 
-            <!-- Subida de imagen -->
-            <div class="mb-3">
-                <label class="form-label">Subir Imagen</label>
-                <input type="file" name="ImagenArchivo" class="form-control" />
-            </div>
+        <div class="mb-3">
+            <label asp-for="Solicitante" class="form-label">Solicitante</label>
+            <select asp-for="Solicitante" class="form-select" required>
+                <option value="">Seleccione un empleado</option>
+                @foreach (var empleado in ViewBag.Empleados)
+                {
+                    <option value="@empleado.ID">@empleado.Nombre</option>
+                }
+            </select>
+        </div>
 
-            <div class="text-end">
-                <button type="submit" class="btn btn-success">💾 Guardar Producto</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
-    </div>
+        <div class="mb-3">
+            <label asp-for="ResponsableEntrega" class="form-label">Responsable de Entrega</label>
+            <select asp-for="ResponsableEntrega" class="form-select" required>
+                <option value="">Seleccione un empleado</option>
+                @foreach (var empleado in ViewBag.Empleados)
+                {
+                    <option value="@empleado.ID">@empleado.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ProyectoAsignado" class="form-label">Proyecto Asignado</label>
+            <select asp-for="ProyectoAsignado" class="form-select" required>
+                <option value="">Seleccione un proyecto</option>
+                @foreach (var proyecto in ViewBag.Proyectos)
+                {
+                    <option value="@proyecto.ID">@proyecto.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Registrar Salida</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
 </div>
+
+@section Scripts {
+    <script>
+        let productosSeleccionados = [];
+
+        document.getElementById("productoBusqueda").addEventListener("input", function () {
+            let searchValue = this.value.toLowerCase();
+            let select = document.getElementById("productoSeleccionado");
+            for (let option of select.options) {
+                option.hidden = !option.text.toLowerCase().includes(searchValue);
+            }
+        });
+
+        document.getElementById("agregarProducto").addEventListener("click", function () {
+            let select = document.getElementById("productoSeleccionado");
+            let cantidadInput = document.getElementById("cantidadProducto");
+
+            let productoId = select.value;
+            let productoNombre = select.options[select.selectedIndex].text;
+            let cantidad = cantidadInput.value;
+
+            if (!productoId || cantidad <= 0) {
+                alert("Seleccione un producto y una cantidad válida.");
+                return;
+            }
+
+            productosSeleccionados.push({ productoId, productoNombre, cantidad });
+
+            let tbody = document.getElementById("tablaProductos").querySelector("tbody");
+            let fila = `<tr>
+                <td>${productoNombre}</td>
+                <td>${cantidad}</td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(${productoId})">Eliminar</button></td>
+            </tr>`;
+
+            tbody.insertAdjacentHTML("beforeend", fila);
+            document.getElementById("productosJson").value = JSON.stringify(productosSeleccionados);
+            cantidadInput.value = "";
+        });
+
+        function eliminarProducto(id) {
+            productosSeleccionados = productosSeleccionados.filter(p => p.productoId != id);
+            document.getElementById("productosJson").value = JSON.stringify(productosSeleccionados);
+            let tbody = document.getElementById("tablaProductos").querySelector("tbody");
+            tbody.innerHTML = "";
+            productosSeleccionados.forEach(p => {
+                tbody.insertAdjacentHTML("beforeend", `<tr>
+                    <td>${p.productoNombre}</td>
+                    <td>${p.cantidad}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(${p.productoId})">Eliminar</button></td>
+                </tr>`);
+            });
+        }
+    </script>
+}
