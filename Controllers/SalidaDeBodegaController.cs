@@ -48,7 +48,7 @@ namespace Inventario360.Controllers
         public async Task<IActionResult> Crear()
         {
             await CargarDatosVista();
-            return View(new SalidaDeBodega());
+            return View(new SalidaDeBodega { Detalles = new List<DetalleSalidaDeBodega>() });
         }
 
         [HttpPost]
@@ -69,7 +69,10 @@ namespace Inventario360.Controllers
                 return View(salida);
             }
 
-            bool resultado = await _salidaBodegaService.RegistrarSalida(salida, detalles);
+            salida.Detalles = detalles; // Asignar la lista de detalles a la salida
+
+            bool resultado = await _salidaBodegaService.RegistrarSalida(salida, salida.Detalles);
+
 
             if (!resultado)
             {

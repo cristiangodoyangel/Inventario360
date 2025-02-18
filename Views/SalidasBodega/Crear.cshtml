@@ -11,20 +11,20 @@
         <div class="mb-3">
             <label for="productoBusqueda" class="form-label">Buscar Producto</label>
             <input type="text" id="productoBusqueda" class="form-control" placeholder="Ingrese nombre o código del producto...">
-            <select id="productoSeleccionado" asp-for="Producto" class="form-select mt-2" required>
+            <select id="productoSeleccionado" name="Detalles[0].ProductoID" class="form-select mt-2" required>
                 <option value="">Seleccione un producto</option>
                 @foreach (var producto in ViewBag.Productos)
                 {
                     <option value="@producto.ITEM">@producto.NombreTecnico</option>
                 }
             </select>
-            <span asp-validation-for="Producto" class="text-danger"></span>
+            <span class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Cantidad" class="form-label">Cantidad</label>
-            <input type="number" asp-for="Cantidad" class="form-control" required>
-            <span asp-validation-for="Cantidad" class="text-danger"></span>
+            <label for="cantidad" class="form-label">Cantidad</label>
+            <input type="number" name="Detalles[0].Cantidad" class="form-control" required>
+            <span class="text-danger"></span>
         </div>
 
         <div class="mb-3">
@@ -67,16 +67,3 @@
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
-
-@section Scripts {
-    <script>
-        document.getElementById("productoBusqueda").addEventListener("input", function () {
-            var searchValue = this.value.toLowerCase();
-            var select = document.getElementById("productoSeleccionado");
-            for (var i = 0; i < select.options.length; i++) {
-                var option = select.options[i];
-                option.hidden = !option.text.toLowerCase().includes(searchValue);
-            }
-        });
-    </script>
-}

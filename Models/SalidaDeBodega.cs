@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Inventario360.Models
 {
     public class SalidaDeBodega
     {
-        public int ID { get; set; } // Clave primaria
+        public int ID { get; set; }
         public DateTime? Fecha { get; set; }
         public int? Solicitante { get; set; }
         public int? ResponsableEntrega { get; set; }
         public int? ProyectoAsignado { get; set; }
 
-        // Relación con DetalleSalidaDeBodega (una salida puede tener múltiples productos)
+        // Relación con DetalleSalidaDeBodega
         public virtual List<DetalleSalidaDeBodega> Detalles { get; set; } = new List<DetalleSalidaDeBodega>();
     }
 }

@@ -16,8 +16,7 @@
             <tr>
                 <th>ID</th>
                 <th>Fecha</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
+                <th>Productos</th>
                 <th>Solicitante</th>
                 <th>Responsable de Entrega</th>
                 <th>Proyecto</th>
@@ -31,15 +30,21 @@
                     <td>@salida.ID</td>
                     <td>@(salida.Fecha.HasValue ? salida.Fecha.Value.ToString("dd-MM-yyyy HH:mm") : "Sin fecha")</td>
 
+                    <td>
+                        <ul>
+                            @foreach (var detalle in salida.Detalles)
+                            {
+                                <li>@detalle.Producto.NombreTecnico - Cantidad: @detalle.Cantidad</li>
+                            }
+                        </ul>
+                    </td>
 
-                    <td>@salida.Producto</td>
-                    <td>@salida.Cantidad</td>
                     <td>@salida.Solicitante</td>
                     <td>@salida.ResponsableEntrega</td>
                     <td>@salida.ProyectoAsignado</td>
                     <td>
-                        <a asp-action="Detalle" asp-route-id="@salida.ID" class="btn btn-icon">🔍 </a>
-                        <a asp-action="Eliminar" asp-route-id="@salida.ID" class="btn btn-icon">🗑️ </a>
+                        <a asp-action="Detalle" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
+                        <a asp-action="Eliminar" asp-route-id="@salida.ID" class="btn btn-icon">🗑️</a>
                     </td>
                 </tr>
             }
@@ -78,6 +83,5 @@
             font-size: 1.2rem;
             padding: 0.3rem;
         }
-
-     </style>
+    </style>
 }
