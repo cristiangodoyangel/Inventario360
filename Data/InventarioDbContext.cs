@@ -17,16 +17,31 @@ namespace Inventario360.Data
         public DbSet<Proyecto> Proyecto { get; set; }
         public DbSet<SalidaDeBodega> SalidaDeBodega { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder); // Llamar al método base para configurar Identity
+            base.OnModelCreating(modelBuilder);
 
-            // Definir clave primaria de Producto
-            builder.Entity<Producto>()
-                .HasKey(p => p.ITEM);
+            modelBuilder.Entity<SalidaDeBodega>()
+                .HasOne(s => s.SolicitanteObj)
+                .WithMany()
+                .HasForeignKey(s => s.Solicitante);
 
-            // Puedes agregar más configuraciones de entidades aquí si es necesario
+            modelBuilder.Entity<SalidaDeBodega>()
+                .HasOne(s => s.ResponsableEntregaObj)
+                .WithMany()
+                .HasForeignKey(s => s.ResponsableEntrega);
+
+            modelBuilder.Entity<SalidaDeBodega>()
+                .HasOne(s => s.ProyectoObj)
+                .WithMany()
+                .HasForeignKey(s => s.ProyectoAsignado);
+
+            modelBuilder.Entity<SalidaDeBodega>()
+                .HasOne(s => s.ProductoObj)
+                .WithMany()
+                .HasForeignKey(s => s.Producto);
         }
+
 
     }
 }
