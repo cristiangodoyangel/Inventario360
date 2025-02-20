@@ -1,55 +1,44 @@
-﻿@model IEnumerable<Inventario360.Models.Producto>
+﻿@model IEnumerable<Inventario360.Models.SalidaDeBodega>
 
 @{
-    ViewData["Title"] = "Inventario de Productos";
+    ViewData["Title"] = "Salidas de Bodega";
 }
 
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-6"></div>
-        <div class="col-md-6 text-end">
-            <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
-        </div>
+<div class="container mt-4">
+    <h2 class="mb-4">Salidas de Bodega</h2>
+
+    <div class="text-end mb-3">
+        <a asp-action="Crear" class="btn btn-secondary"> Registrar Salida</a>
     </div>
 
     <div class="table-responsive">
-        <table id="productosTable" class="table table-striped table-bordered table-hover nowrap" width="100%">
+        <table id="salidasTable" class="table table-striped table-bordered nowrap" width="100%">
             <thead class="table-light">
                 <tr>
-                    <th class="p-3">ITEM</th>
-                    <th class="p-3 all">Nombre Técnico</th> <!-- Siempre visible -->
-                    <th class="p-3">Medida</th>
-                    <th class="p-3">Unidad de Medida</th>
-                    <th class="p-3">Marca</th>
-                    <th class="p-3">Cantidad</th>
-                    <th class="p-3">Ubicación</th>
-                    <th class="p-3">Estado</th>
-                    <th class="p-3">Imagen</th>
-                    <th class="p-3">Acciones</th>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Solicitante</th>
+                    <th>Responsable de Entrega</th>
+                    <th>Proyecto</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var producto in Model)
+                @foreach (var salida in Model)
                 {
-                    <tr id="fila-@producto.ITEM">
-                        <td>@producto.ITEM</td>
-                        <td class="all">
-                            <a href="@Url.Action("Detalle", "Productos", new { id = producto.ITEM })" class="text-primary fw-bold">
-                                @producto.NombreTecnico
-                            </a>
-                        </td>
-                        <td>@producto.Medida</td>
-                        <td>@producto.UnidadMedida</td>
-                        <td>@producto.Marca</td>
-                        <td class="@(producto.Cantidad == 0 ? "text-danger fw-bold" : "")">@producto.Cantidad</td>
-                        <td>@producto.Ubicacion</td>
-                        <td>@producto.Estado</td>
+                    <tr id="fila-@salida.ID">
+                        <td>@salida.ID</td>
+                        <td>@(salida.Fecha.HasValue ? salida.Fecha.Value.ToString("dd-MM-yyyy HH:mm") : "Sin fecha")</td>
+                        <td>@(salida.ProductoObj?.NombreTecnico ?? "Sin nombre")</td>
+                        <td>@salida.Cantidad</td>
+                        <td>@(salida.SolicitanteObj?.Nombre ?? "No asignado")</td>
+                        <td>@(salida.ResponsableEntregaObj?.Nombre ?? "No asignado")</td>
+                        <td>@(salida.ProyectoObj?.Nombre ?? "No asignado")</td>
                         <td>
-                            <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
-                        </td>
-                        <td>
-                            <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
-                            <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@producto.ITEM)">🗑️</button>
+                            <a asp-action="Details" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
+                            <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@salida.ID)">🗑️</button>
                         </td>
                     </tr>
                 }
@@ -67,7 +56,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                ¿Seguro que deseas eliminar este producto?
+                ¿Seguro que deseas eliminar esta salida de bodega?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -87,17 +76,14 @@
 
     <script>
         $(document).ready(function () {
-            $('#productosTable').DataTable({
+            $('#salidasTable').DataTable({
                 "paging": true,
-                "pageLength": 8,
+                "searching": true,
                 "responsive": true,
-                "lengthMenu": [8, 25, 50],
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ registros por página",
-                    "zeroRecords": "No se encontraron productos",
+                    "zeroRecords": "No se encontraron registros",
                     "info": "Mostrando página _PAGE_ de _PAGES_",
-                    "infoEmpty": "No hay registros disponibles",
-                    "infoFiltered": "(filtrado de _MAX_ registros en total)",
                     "search": "Buscar:",
                     "paginate": {
                         "first": "Primero",
@@ -107,39 +93,43 @@
                     }
                 },
                 "columnDefs": [
-                    { "responsivePriority": 1, "targets": 1 } // Prioridad alta en "Nombre Técnico"
-                ],
-                "drawCallback": function () {
-                    $('.dataTables_paginate > .pagination').addClass('pagination-separated');
-                }
+                    { "responsivePriority": 1, "targets": 1 }, // Prioridad alta para Fecha
+                    { "responsivePriority": 2, "targets": 4 }, // Prioridad alta para Solicitante
+                    { "responsivePriority": 3, "targets": 2 }, // Producto visible si hay espacio
+                    { "responsivePriority": 4, "targets": 3 }, // Cantidad en prioridad media
+                    { "responsivePriority": 5, "targets": 6 }, // Proyecto menos prioritario
+                    { "responsivePriority": 6, "targets": 5 }, // Responsable de entrega se oculta si no hay espacio
+                    { "responsivePriority": 7, "targets": 7 }  // Acciones se ocultan si no hay espacio
+                ]
             });
         });
 
-        var productoIdAEliminar = null;
+        var salidaIdAEliminar = null;
 
         function confirmarEliminacion(id) {
-            productoIdAEliminar = id;
+            salidaIdAEliminar = id;
             var modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
             modal.show();
         }
 
         $(document).ready(function () {
             $("#btnConfirmarEliminar").click(function () {
-                if (productoIdAEliminar) {
+                if (salidaIdAEliminar) {
                     $.ajax({
-                        url: "/Productos/Eliminar",
+                        url: "/SalidaDeBodega/Eliminar",
                         type: "POST",
-                        data: { id: productoIdAEliminar },
+                        data: { id: salidaIdAEliminar },
                         success: function (response) {
                             if (response.success) {
-                                $("#fila-" + productoIdAEliminar).fadeOut(300, function () { $(this).remove(); });
+                                $("#fila-" + salidaIdAEliminar).fadeOut(300, function () { $(this).remove(); });
                                 $("#confirmarEliminarModal").modal('hide');
                             } else {
                                 alert("Error: " + response.message);
                             }
                         },
-                        error: function () {
-                            alert("Hubo un error al eliminar el producto.");
+                        error: function (xhr) {
+                            console.error(xhr.responseText);
+                            alert("Hubo un error al eliminar la salida de bodega.");
                         }
                     });
                 }
@@ -148,7 +138,6 @@
     </script>
 }
 
-<!-- Estilos personalizados -->
 <style>
     .btn-orange {
         background-color: #f06529 !important;
@@ -177,27 +166,5 @@
 
     .table-responsive {
         overflow-x: auto;
-    }
-
-    .pagination-separated .paginate_button {
-        margin: 0 8px;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #ffcebf;
-    }
-
-    .mb-4 {
-        margin-bottom: 3rem !important;
-    }
-
-    .table-light th {
-        background-color: #f8f9fa;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .table td {
-        vertical-align: middle;
     }
 </style>

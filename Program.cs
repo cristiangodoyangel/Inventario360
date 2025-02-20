@@ -10,29 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<InventarioDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configurar Identity (esto debe ir antes de registrar los servicios que lo usan)
-builder.Services.AddIdentity<Usuario, IdentityRole>()
-    .AddEntityFrameworkStores<InventarioDbContext>()
-    .AddDefaultTokenProviders();
-
-// Configurar servicios de dependencias (después de Identity)
-builder.Services.AddScoped<IProductoService, ProductoService>();
-builder.Services.AddScoped<ISalidaBodegaService, SalidaBodegaService>();
-builder.Services.AddScoped<ISolicitudService, SolicitudService>();
-builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
-builder.Services.AddScoped<IProyectoService, ProyectoService>();
-builder.Services.AddScoped<ICuentaService, CuentaService>();
-builder.Services.AddControllersWithViews();// Agregado después de Identity
-
-// Configurar reglas de contraseña para Identity
-builder.Services.Configure<IdentityOptions>(options =>
+// Configurar Identity con reglas de autenticación más seguras
+builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
-});
+
+    // Configurar bloqueo de cuenta tras intentos fallidos
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+})
+    .AddEntityFrameworkStores<InventarioDbContext>()
+    .AddDefaultTokenProviders();
 
 // Configurar cookie de autenticación
 builder.Services.ConfigureApplicationCookie(options =>
@@ -42,7 +35,19 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Cuenta/AccessDenied"; // Ruta de acceso denegado
 });
 
-// Agregar servicios MVC
+// Configurar servicios de dependencias
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<ISalidaBodegaService, SalidaBodegaService>();
+builder.Services.AddScoped<ISolicitudService, SolicitudService>();
+builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
+builder.Services.AddScoped<IProyectoService, ProyectoService>();
+builder.Services.AddScoped<ICuentaService, CuentaService>();
+
+// Configurar autorización global para proteger todas las páginas
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter());
+});
 
 var app = builder.Build();
 
@@ -52,8 +57,10 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var userManager = services.GetRequiredService<UserManager<Usuario>>();
 
-    // Llamar al inicializador de usuarios
-    await UsuarioInitializer.Initialize(services, userManager);
+    if (userManager != null)
+    {
+        await UsuarioInitializer.Initialize(services, userManager);
+    }
 }
 
 // Configuración del entorno
@@ -65,9 +72,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.UseRouting();
 
