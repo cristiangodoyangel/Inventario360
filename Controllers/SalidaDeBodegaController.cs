@@ -4,17 +4,19 @@ using Inventario360.Models;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inventario360.Controllers
 {
-    public class SalidasBodegaController : Controller
+    [Authorize] // 🔹 Aplica autenticación a todas las acciones del controlador
+    public class SalidaDeBodegaController : Controller
     {
         private readonly IProductoService _productoService;
         private readonly IEmpleadoService _empleadoService;
         private readonly IProyectoService _proyectoService;
         private readonly ISalidaBodegaService _salidaBodegaService;
 
-        public SalidasBodegaController(
+        public SalidaDeBodegaController(
             ISalidaBodegaService salidaBodegaService,
             IProductoService productoService,
             IEmpleadoService empleadoService,

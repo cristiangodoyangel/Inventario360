@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Inventario360.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Inventario360.Controllers
 {
