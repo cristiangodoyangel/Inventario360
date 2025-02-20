@@ -18,16 +18,23 @@ namespace Inventario360.Services
         public async Task<List<SalidaDeBodega>> ObtenerTodas()
         {
             return await _context.SalidaDeBodega
-                .Include(s => s.SolicitanteObj)  // Incluir nombre del solicitante
-                .Include(s => s.ResponsableEntregaObj)  // Incluir nombre del responsable
-                .Include(s => s.ProyectoObj)  // Incluir nombre del proyecto
+                .Include(s => s.ProductoObj) // ✅ Incluir relación con Producto
+                .Include(s => s.SolicitanteObj)
+                .Include(s => s.ResponsableEntregaObj)
+                .Include(s => s.ProyectoObj)
                 .ToListAsync();
         }
 
 
+
         public async Task<SalidaDeBodega?> ObtenerPorId(int id)
         {
-            return await _context.SalidaDeBodega.FindAsync(id);
+            return await _context.SalidaDeBodega
+                .Include(s => s.ProductoObj) // ✅ Incluir relación con Producto
+                .Include(s => s.SolicitanteObj)
+                .Include(s => s.ResponsableEntregaObj)
+                .Include(s => s.ProyectoObj)
+                .FirstOrDefaultAsync(s => s.ID == id);
         }
 
         // **Corrección: Método seguro para actualizar stock y registrar salida en una sola transacción**

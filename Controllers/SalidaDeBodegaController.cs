@@ -99,5 +99,20 @@ namespace Inventario360.Controllers
 
             return View(salida);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var salida = await _salidaBodegaService.ObtenerPorId(id);
+            if (salida == null)
+            {
+                return Json(new { success = false, message = "No se encontró la salida de bodega" });
+            }
+
+            await _salidaBodegaService.Eliminar(id);
+            return Json(new { success = true });
+        }
+
+
     }
 }
