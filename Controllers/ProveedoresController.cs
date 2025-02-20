@@ -3,6 +3,8 @@ using Inventario360.Services;
 using Inventario360.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Inventario360.Controllers
 {
