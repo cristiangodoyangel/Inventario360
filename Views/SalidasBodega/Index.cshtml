@@ -31,15 +31,15 @@
                     <td>@salida.ID</td>
                     <td>@(salida.Fecha.HasValue ? salida.Fecha.Value.ToString("dd-MM-yyyy HH:mm") : "Sin fecha")</td>
 
-
-                    <td>@salida.Producto</td>
+                    <td>@(salida.ProductoObj?.NombreTecnico ?? "Sin nombre")</td>
                     <td>@salida.Cantidad</td>
-                    <td>@salida.Solicitante</td>
-                    <td>@salida.ResponsableEntrega</td>
-                    <td>@salida.ProyectoAsignado</td>
+                    <td>@(salida.SolicitanteObj?.Nombre ?? "No asignado")</td>
+                    <td>@(salida.ResponsableEntregaObj?.Nombre ?? "No asignado")</td>
+                    <td>@(salida.ProyectoObj?.Nombre ?? "No asignado")</td>
+
                     <td>
-                        <a asp-action="Detalle" asp-route-id="@salida.ID" class="btn btn-icon">🔍 </a>
-                        <a asp-action="Eliminar" asp-route-id="@salida.ID" class="btn btn-icon">🗑️ </a>
+                        <a asp-action="Details" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
+                        <a asp-action="Eliminar" asp-route-id="@salida.ID" class="btn btn-icon">🗑️</a>
                     </td>
                 </tr>
             }
@@ -78,6 +78,5 @@
             font-size: 1.2rem;
             padding: 0.3rem;
         }
-
-     </style>
+    </style>
 }
