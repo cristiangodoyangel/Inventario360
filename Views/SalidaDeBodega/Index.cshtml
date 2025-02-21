@@ -33,7 +33,7 @@
                         <td>@(salida.ResponsableEntregaObj?.Nombre ?? "No asignado")</td>
                         <td>@(salida.ProyectoObj?.Nombre ?? "No asignado")</td>
                         <td>
-                            <a asp-action="Details" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
+                            <a asp-action="Detalle" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
                             <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@salida.ID)">🗑️</button>
                         </td>
                     </tr>
@@ -56,14 +56,51 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+                <button type="button" class="btn btn-orange" id="btnConfirmarEliminar">Eliminar</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+
     <script>
+        $(document).ready(function () {
+            $('#salidasTable').DataTable({
+                "paging": true,
+                "pageLength": 8,
+                "responsive": true,
+                "lengthMenu": [8, 25, 50],
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron salidas",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros en total)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "columnDefs": [
+                    { "responsivePriority": 1, "targets": 1 }, // Fecha siempre visible
+                    { "responsivePriority": 2, "targets": 2 }  // Solicitante siempre visible
+                ],
+                "drawCallback": function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-separated');
+                }
+            });
+        });
+
         var salidaIdAEliminar = null;
 
         function confirmarEliminacion(id) {
@@ -96,3 +133,56 @@
         });
     </script>
 }
+
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #ffcebf;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+</style>

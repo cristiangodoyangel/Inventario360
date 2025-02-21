@@ -37,7 +37,7 @@ namespace Inventario360.Controllers
         }
 
         // 📌 Ver detalles de una salida de bodega
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
             var salida = await _salidaBodegaService.ObtenerPorId(id);
             if (salida == null)
