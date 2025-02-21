@@ -8,7 +8,7 @@
     <h2 class="mb-4">Salidas de Bodega</h2>
 
     <div class="text-end mb-3">
-        <a asp-action="Crear" class="btn btn-secondary"> Registrar Salida</a>
+        <a asp-action="Crear" class="btn btn-secondary">Registrar Salida</a>
     </div>
 
     <div class="table-responsive">
@@ -17,8 +17,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Fecha</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
                     <th>Solicitante</th>
                     <th>Responsable de Entrega</th>
                     <th>Proyecto</th>
@@ -30,9 +28,7 @@
                 {
                     <tr id="fila-@salida.ID">
                         <td>@salida.ID</td>
-                        <td>@(salida.Fecha.HasValue ? salida.Fecha.Value.ToString("dd-MM-yyyy HH:mm") : "Sin fecha")</td>
-                        <td>@(salida.ProductoObj?.NombreTecnico ?? "Sin nombre")</td>
-                        <td>@salida.Cantidad</td>
+                        <td>@(salida.Fecha?.ToString("dd-MM-yyyy HH:mm") ?? "Sin fecha")</td>
                         <td>@(salida.SolicitanteObj?.Nombre ?? "No asignado")</td>
                         <td>@(salida.ResponsableEntregaObj?.Nombre ?? "No asignado")</td>
                         <td>@(salida.ProyectoObj?.Nombre ?? "No asignado")</td>
@@ -47,7 +43,7 @@
     </div>
 </div>
 
-<!-- Modal de Confirmación -->
+<!-- Modal de Confirmación de Eliminación -->
 <div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -60,50 +56,14 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-orange" id="btnConfirmarEliminar">Eliminar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
-
     <script>
-        $(document).ready(function () {
-            $('#salidasTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "responsive": true,
-                "language": {
-                    "lengthMenu": "Mostrar _MENU_ registros por página",
-                    "zeroRecords": "No se encontraron registros",
-                    "info": "Mostrando página _PAGE_ de _PAGES_",
-                    "search": "Buscar:",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Último",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
-                    }
-                },
-                "columnDefs": [
-                    { "responsivePriority": 1, "targets": 1 }, // Prioridad alta para Fecha
-                    { "responsivePriority": 2, "targets": 4 }, // Prioridad alta para Solicitante
-                    { "responsivePriority": 3, "targets": 2 }, // Producto visible si hay espacio
-                    { "responsivePriority": 4, "targets": 3 }, // Cantidad en prioridad media
-                    { "responsivePriority": 5, "targets": 6 }, // Proyecto menos prioritario
-                    { "responsivePriority": 6, "targets": 5 }, // Responsable de entrega se oculta si no hay espacio
-                    { "responsivePriority": 7, "targets": 7 }  // Acciones se ocultan si no hay espacio
-                ]
-            });
-        });
-
         var salidaIdAEliminar = null;
 
         function confirmarEliminacion(id) {
@@ -127,8 +87,7 @@
                                 alert("Error: " + response.message);
                             }
                         },
-                        error: function (xhr) {
-                            console.error(xhr.responseText);
+                        error: function () {
                             alert("Hubo un error al eliminar la salida de bodega.");
                         }
                     });
@@ -137,34 +96,3 @@
         });
     </script>
 }
-
-<style>
-    .btn-orange {
-        background-color: #f06529 !important;
-        border-radius: 5px;
-        border-color: #f06529 !important;
-        color: white !important;
-    }
-
-        .btn-orange:hover {
-            background-color: #d9531e !important;
-            border-color: #d9531e !important;
-        }
-
-    .btn-icon {
-        background-color: transparent !important;
-        border: 1px solid #000000 !important;
-        color: #f06529 !important;
-        border-radius: 5px;
-        font-size: 1.2rem;
-        padding: 0.3rem;
-    }
-
-        .btn-icon:hover {
-            color: #d9531e !important;
-        }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-</style>

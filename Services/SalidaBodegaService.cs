@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Inventario360.Models;
 using Microsoft.EntityFrameworkCore;
 using Inventario360.Data;
+using Newtonsoft.Json;
+using System.Linq;
+
 
 namespace Inventario360.Services
 {
@@ -15,47 +19,57 @@ namespace Inventario360.Services
             _context = context;
         }
 
-        public async Task<List<SalidaDeBodega>> ObtenerTodas()
+        public async Task<IEnumerable<SalidaDeBodega>> ObtenerTodas()
         {
-            return await _context.SalidaDeBodega
-                .Include(s => s.ProductoObj) // ✅ Incluir relación con Producto
+            return await _context.SalidasDeBodega
                 .Include(s => s.SolicitanteObj)
                 .Include(s => s.ResponsableEntregaObj)
                 .Include(s => s.ProyectoObj)
                 .ToListAsync();
         }
 
-
-
-        public async Task<SalidaDeBodega?> ObtenerPorId(int id)
+        public async Task<SalidaDeBodega> ObtenerPorId(int id)
         {
-            return await _context.SalidaDeBodega
-                .Include(s => s.ProductoObj) // ✅ Incluir relación con Producto
-                .Include(s => s.SolicitanteObj)
-                .Include(s => s.ResponsableEntregaObj)
-                .Include(s => s.ProyectoObj)
+            return await _context.SalidasDeBodega
+                .Include(s => s.Detalles)
+                .ThenInclude(d => d.Producto)
                 .FirstOrDefaultAsync(s => s.ID == id);
         }
 
-        // **Corrección: Método seguro para actualizar stock y registrar salida en una sola transacción**
-        public async Task<bool> RegistrarSalida(SalidaDeBodega salida, Producto producto)
+        public async Task<bool> RegistrarSalidaConProductos(SalidaDeBodega salida, List<DetalleSalidaDeBodega> productos)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Verificar si el producto existe y tiene suficiente stock
-                if (producto == null || producto.Cantidad < salida.Cantidad)
+                // Validar que haya al menos un producto
+                if (productos == null || productos.Count == 0)
                     return false;
 
-                // Actualizar el stock del producto
-                producto.Cantidad -= salida.Cantidad;
-                _context.Producto.Update(producto);
-
-                // Registrar la salida con la fecha actual
+                // Registrar la salida de bodega
                 salida.Fecha = DateTime.Now;
                 _context.SalidaDeBodega.Add(salida);
+                await _context.SaveChangesAsync(); // Se guarda para obtener el ID
 
-                // Guardar ambos cambios en la base de datos
+                // Procesar cada producto en la salida
+                foreach (var detalle in productos)
+                {
+                    var producto = await _context.Producto.FindAsync(detalle.ProductoID);
+                    if (producto == null || producto.Cantidad < detalle.Cantidad)
+                    {
+                        await transaction.RollbackAsync();
+                        return false;
+                    }
+
+                    // Reducir stock del producto
+                    producto.Cantidad -= detalle.Cantidad;
+                    _context.Producto.Update(producto);
+
+                    // Asociar el detalle con la salida creada
+                    detalle.SalidaDeBodegaID = salida.ID;
+                    _context.DetalleSalidaDeBodega.Add(detalle);
+                }
+
+                // Guardar cambios y confirmar la transacción
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -68,20 +82,26 @@ namespace Inventario360.Services
             }
         }
 
-        public async Task Actualizar(SalidaDeBodega salida)
-        {
-            _context.Entry(salida).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-        }
-
         public async Task Eliminar(int id)
         {
-            var salida = await _context.SalidaDeBodega.FindAsync(id);
+            var salida = await _context.SalidasDeBodega.FindAsync(id);
             if (salida != null)
             {
-                _context.SalidaDeBodega.Remove(salida);
+                _context.SalidasDeBodega.Remove(salida);
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task EliminarDetalles(int salidaId) // ✅ Agregar implementación
+        {
+            var detalles = _context.DetallesSalidasDeBodega.Where(d => d.SalidaDeBodegaID == salidaId);
+            _context.DetallesSalidasDeBodega.RemoveRange(detalles);
+            await _context.SaveChangesAsync();
+        }
+        
+    
     }
+        
+   
+    
 }

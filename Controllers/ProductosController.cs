@@ -4,17 +4,23 @@ using Inventario360.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
-
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using System;
+using Inventario360.Data;
 
 namespace Inventario360.Controllers
 {
     public class ProductosController : Controller
     {
         private readonly IProductoService _productoService;
+        private readonly InventarioDbContext _context;
 
-        public ProductosController(IProductoService productoService)
+        public ProductosController(IProductoService productoService, InventarioDbContext context)
         {
             _productoService = productoService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -38,16 +44,31 @@ namespace Inventario360.Controllers
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
-            var producto = await _productoService.ObtenerPorId(id);
-            if (producto == null)
+            try
             {
-                return Json(new { success = false, message = "El producto no existe." });
+                var producto = await _context.Producto.FindAsync(id);
+                if (producto == null)
+                {
+                    return Json(new { success = false, message = "No se encontró el producto." });
+                }
+
+                // Verificar si el producto tiene dependencias antes de eliminarlo
+                var tieneDependencias = await _context.DetalleSalidaDeBodega.AnyAsync(d => d.ProductoID == id);
+                if (tieneDependencias)
+                {
+                    return Json(new { success = false, message = "No se puede eliminar el producto porque está asociado a una salida de bodega." });
+                }
+
+                _context.Producto.Remove(producto);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
             }
-
-            await _productoService.Eliminar(id);
-            return Json(new { success = true });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error interno: " + ex.Message });
+            }
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -72,8 +93,6 @@ namespace Inventario360.Controllers
             await _productoService.Agregar(producto);
             return RedirectToAction(nameof(Index));
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
@@ -130,14 +149,12 @@ namespace Inventario360.Controllers
 
             return View(producto);
         }
+
         [HttpGet]
         public async Task<IActionResult> ObtenerProductos()
         {
-            var productos = await _productoService.ObtenerTodosAsync();
+            var productos = await _productoService.ObtenerTodos();
             return Json(productos);
         }
-
-
-
     }
 }

@@ -14,17 +14,11 @@
 
         <p>¿Estás seguro de que deseas eliminar la salida de bodega registrada el <strong class="text-primary">@Model.Fecha?.ToString("dd-MM-yyyy HH:mm")</strong>?</p>
 
-        <ul class="list-group mb-3">
-            <li class="list-group-item"><strong>Solicitante:</strong> @Model.Solicitante</li>
-            <li class="list-group-item"><strong>Responsable de Entrega:</strong> @Model.ResponsableEntrega</li>
-            <li class="list-group-item"><strong>Proyecto Asignado:</strong> @Model.ProyectoAsignado</li>
-        </ul>
-
-        <form id="formEliminar" asp-action="Eliminar" method="post">
-            <input type="hidden" asp-for="ID" />
+        <form id="formEliminar">
+            <input type="hidden" id="salidaId" value="@Model.ID" />
 
             <div class="text-end">
-                <button type="submit" class="btn btn-danger">🗑️ Sí, eliminar</button>
+                <button type="button" class="btn btn-danger" id="btnEliminar">🗑️ Sí, eliminar</button>
                 <a asp-action="Index" class="btn btn-secondary">❌ Cancelar</a>
             </div>
         </form>
@@ -33,26 +27,22 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            $("#formEliminar").submit(function (e) {
-                e.preventDefault();
-                var form = $(this);
-
-                $.ajax({
-                    url: form.attr("action"),
-                    type: "POST",
-                    data: form.serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            window.location.href = "/SalidaDeBodega/Index";
-                        } else {
-                            alert("Error: " + response.message);
-                        }
-                    },
-                    error: function () {
-                        alert("Hubo un error al eliminar la salida de bodega.");
+        $("#btnEliminar").click(function () {
+            var id = $("#salidaId").val();
+            $.ajax({
+                url: "/SalidaDeBodega/Eliminar",
+                type: "POST",
+                data: { id: id },
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = "/SalidaDeBodega/Index";
+                    } else {
+                        alert("Error: " + response.message);
                     }
-                });
+                },
+                error: function () {
+                    alert("Hubo un error al eliminar la salida de bodega.");
+                }
             });
         });
     </script>

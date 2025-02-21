@@ -10,6 +10,12 @@ namespace Inventario360.Data
             : base(options) { }
 
         // Definir las tablas (DbSet) para que Entity Framework las reconozca
+
+        public DbSet<SalidaDeBodega> SalidasDeBodega { get; set; }
+        public DbSet<DetalleSalidaDeBodega> DetallesSalidasDeBodega { get; set; }
+        public DbSet<DetalleSalidaDeBodega> DetalleSalidaDeBodega { get; set; }
+
+
         public DbSet<Producto> Producto { get; set; }
         public DbSet<SolicitudDeMaterial> SolicitudDeMaterial { get; set; }
         public DbSet<Empleado> Empleado { get; set; }
@@ -36,10 +42,7 @@ namespace Inventario360.Data
                 .WithMany()
                 .HasForeignKey(s => s.ProyectoAsignado);
 
-            modelBuilder.Entity<SalidaDeBodega>()
-                .HasOne(s => s.ProductoObj)
-                .WithMany()
-                .HasForeignKey(s => s.Producto);
+         
         }
 
 
