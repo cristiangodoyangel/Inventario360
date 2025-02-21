@@ -30,11 +30,15 @@ namespace Inventario360.Services
 
         public async Task<SalidaDeBodega> ObtenerPorId(int id)
         {
-            return await _context.SalidasDeBodega
-                .Include(s => s.Detalles)
-                .ThenInclude(d => d.Producto)
+            return await _context.SalidaDeBodega
+                .Include(s => s.SolicitanteObj) // Incluye el solicitante
+                .Include(s => s.ResponsableEntregaObj) // Incluye el responsable de entrega
+                .Include(s => s.ProyectoObj) // Incluye el proyecto asignado
+                .Include(s => s.Detalles) // Incluye los detalles de la salida
+                .ThenInclude(d => d.Producto) // Incluye el producto en cada detalle
                 .FirstOrDefaultAsync(s => s.ID == id);
         }
+
 
         public async Task<bool> RegistrarSalidaConProductos(SalidaDeBodega salida, List<DetalleSalidaDeBodega> productos)
         {
