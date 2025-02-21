@@ -1,23 +1,73 @@
 ﻿@model Inventario360.Models.SalidaDeBodega
 
 @{
-    ViewData["Title"] = "Detalle de Salida de Bodega";
+    ViewData["Title"] = "Detalle de la Salida de Bodega";
 }
 
 <div class="container mt-4">
-    <h2>Detalle de Salida de Bodega</h2>
+    <h2 class="mb-3 text-primary">Detalle de la Salida de Bodega</h2>
 
-    <div class="card">
+    <div class="card shadow-lg">
         <div class="card-body">
-            <h5 class="card-title">Producto: @Model.Producto</h5>
-            <p><strong>Fecha:</strong> @(Model.Fecha.HasValue ? Model.Fecha.Value.ToString("dd/MM/yyyy HH:mm") : "Sin fecha")</p>
+            <h4 class="mb-3">Información General</h4>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th class="bg-light">ID Salida</th>
+                        <td>@Model.ID</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Fecha</th>
+                        <td>@(Model.Fecha?.ToString("dd-MM-yyyy HH:mm") ?? "Sin fecha")</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Solicitante</th>
+                        <td>@(Model.SolicitanteObj?.Nombre ?? "No asignado")</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Responsable de Entrega</th>
+                        <td>@(Model.ResponsableEntregaObj?.Nombre ?? "No asignado")</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Proyecto</th>
+                        <td>@(Model.ProyectoObj?.Nombre ?? "No asignado")</td>
+                    </tr>
+                </tbody>
+            </table>
 
-            <p><strong>Cantidad:</strong> @Model.Cantidad</p>
-            <p><strong>Solicitante:</strong> @Model.Solicitante</p>
-            <p><strong>Responsable de Entrega:</strong> @Model.ResponsableEntrega</p>
-            <p><strong>Proyecto Asignado:</strong> @Model.ProyectoAsignado</p>
+            <h4 class="mt-4">Productos en esta Salida</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Detalles != null && Model.Detalles.Any())
+                        {
+                            foreach (var detalle in Model.Detalles)
+                            {
+                                <tr>
+                                    <td>@(detalle.Producto?.NombreTecnico ?? "Sin nombre")</td>
+                                    <td>@detalle.Cantidad</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center">No hay productos en esta salida.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <a asp-action="Index" class="btn btn-secondary mt-3">Volver al Listado</a>
+    <div class="mt-4 text-end">
+        <a href="@Url.Action("Index", "SalidaDeBodega")" class="btn btn-secondary btn-lg">Volver</a>
+    </div>
 </div>

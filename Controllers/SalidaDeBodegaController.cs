@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json;
 
 namespace Inventario360.Controllers
 {
@@ -28,13 +29,15 @@ namespace Inventario360.Controllers
             _proyectoService = proyectoService;
         }
 
+        // 📌 Vista principal de Salidas de Bodega
         public async Task<IActionResult> Index()
         {
             var salidas = await _salidaBodegaService.ObtenerTodas();
             return View(salidas);
         }
 
-        public async Task<IActionResult> Details(int id)
+        // 📌 Ver detalles de una salida de bodega
+        public async Task<IActionResult> Detalle(int id)
         {
             var salida = await _salidaBodegaService.ObtenerPorId(id);
             if (salida == null)
@@ -44,6 +47,7 @@ namespace Inventario360.Controllers
             return View(salida);
         }
 
+        // 📌 Formulario para crear una nueva salida
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
@@ -54,41 +58,43 @@ namespace Inventario360.Controllers
             return View();
         }
 
+        // 📌 Procesar la creación de una salida
         [HttpPost]
-        public async Task<IActionResult> Crear(SalidaDeBodega salida)
+        public async Task<IActionResult> Crear(SalidaDeBodega salida, string ProductosJson)
         {
             if (ModelState.IsValid)
             {
-                if (!salida.Producto.HasValue)
+                if (string.IsNullOrEmpty(ProductosJson))
                 {
-                    ModelState.AddModelError("", "Debe seleccionar un producto válido.");
+                    ModelState.AddModelError("", "Debe agregar al menos un producto a la salida de bodega.");
                 }
                 else
                 {
-                    var producto = await _productoService.ObtenerPorId(salida.Producto.Value);
-                    if (producto != null)
+                    try
                     {
-                        if (producto.Cantidad >= salida.Cantidad)
+                        // **Deserializar la lista de productos**
+                        var productos = JsonConvert.DeserializeObject<List<DetalleSalidaDeBodega>>(ProductosJson);
+
+                        if (productos == null || productos.Count == 0)
                         {
-                            // **Corrección: Se establece la fecha automáticamente**
-                            salida.Fecha = DateTime.Now;
-
-                            // **Corrección: Se actualiza el stock y se guarda la salida en una sola transacción**
-                            bool operacionExitosa = await _salidaBodegaService.RegistrarSalida(salida, producto);
-
-                            if (operacionExitosa)
-                                return RedirectToAction("Index");
-                            else
-                                ModelState.AddModelError("", "Error al registrar la salida.");
+                            ModelState.AddModelError("", "Error al procesar la lista de productos.");
                         }
                         else
                         {
-                            ModelState.AddModelError("", "No hay suficiente stock disponible.");
+                            salida.Fecha = DateTime.Now;
+
+                            // **Registrar la salida y actualizar el stock en una transacción**
+                            bool operacionExitosa = await _salidaBodegaService.RegistrarSalidaConProductos(salida, productos);
+
+                            if (operacionExitosa)
+                                return Json(new { success = true });
+                            else
+                                ModelState.AddModelError("", "Error al registrar la salida.");
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        ModelState.AddModelError("", "El producto seleccionado no existe.");
+                        ModelState.AddModelError("", "Error interno: " + ex.Message);
                     }
                 }
             }
@@ -97,9 +103,10 @@ namespace Inventario360.Controllers
             ViewBag.Empleados = await _empleadoService.ObtenerTodos();
             ViewBag.Proyectos = await _proyectoService.ObtenerTodos();
 
-            return View(salida);
+            return Json(new { success = false, message = "Error al registrar la salida." });
         }
 
+        // 📌 Método para eliminar una salida de bodega
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -109,10 +116,21 @@ namespace Inventario360.Controllers
                 return Json(new { success = false, message = "No se encontró la salida de bodega" });
             }
 
-            await _salidaBodegaService.Eliminar(id);
-            return Json(new { success = true });
-        }
+            try
+            {
+                // 🔹 **Eliminar primero los detalles de la salida**
+                await _salidaBodegaService.EliminarDetalles(id);
 
+                // 🔹 **Luego eliminar la salida**
+                await _salidaBodegaService.Eliminar(id);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error al eliminar: " + ex.Message });
+            }
+        }
 
     }
 }

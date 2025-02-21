@@ -8,7 +8,7 @@
     <h2 class="mb-4">Salidas de Bodega</h2>
 
     <div class="text-end mb-3">
-        <a asp-action="Crear" class="btn btn-secondary"> Registrar Salida</a>
+        <a asp-action="Crear" class="btn btn-secondary">Registrar Salida</a>
     </div>
 
     <div class="table-responsive">
@@ -17,8 +17,6 @@
                 <tr>
                     <th>ID</th>
                     <th>Fecha</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
                     <th>Solicitante</th>
                     <th>Responsable de Entrega</th>
                     <th>Proyecto</th>
@@ -30,14 +28,12 @@
                 {
                     <tr id="fila-@salida.ID">
                         <td>@salida.ID</td>
-                        <td>@(salida.Fecha.HasValue ? salida.Fecha.Value.ToString("dd-MM-yyyy HH:mm") : "Sin fecha")</td>
-                        <td>@(salida.ProductoObj?.NombreTecnico ?? "Sin nombre")</td>
-                        <td>@salida.Cantidad</td>
+                        <td>@(salida.Fecha?.ToString("dd-MM-yyyy HH:mm") ?? "Sin fecha")</td>
                         <td>@(salida.SolicitanteObj?.Nombre ?? "No asignado")</td>
                         <td>@(salida.ResponsableEntregaObj?.Nombre ?? "No asignado")</td>
                         <td>@(salida.ProyectoObj?.Nombre ?? "No asignado")</td>
                         <td>
-                            <a asp-action="Details" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
+                            <a asp-action="Detalle" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
                             <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@salida.ID)">🗑️</button>
                         </td>
                     </tr>
@@ -47,7 +43,7 @@
     </div>
 </div>
 
-<!-- Modal de Confirmación -->
+<!-- Modal de Confirmación de Eliminación -->
 <div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -78,12 +74,15 @@
         $(document).ready(function () {
             $('#salidasTable').DataTable({
                 "paging": true,
-                "searching": true,
+                "pageLength": 8,
                 "responsive": true,
+                "lengthMenu": [8, 25, 50],
                 "language": {
                     "lengthMenu": "Mostrar _MENU_ registros por página",
-                    "zeroRecords": "No se encontraron registros",
+                    "zeroRecords": "No se encontraron salidas",
                     "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros en total)",
                     "search": "Buscar:",
                     "paginate": {
                         "first": "Primero",
@@ -93,14 +92,12 @@
                     }
                 },
                 "columnDefs": [
-                    { "responsivePriority": 1, "targets": 1 }, // Prioridad alta para Fecha
-                    { "responsivePriority": 2, "targets": 4 }, // Prioridad alta para Solicitante
-                    { "responsivePriority": 3, "targets": 2 }, // Producto visible si hay espacio
-                    { "responsivePriority": 4, "targets": 3 }, // Cantidad en prioridad media
-                    { "responsivePriority": 5, "targets": 6 }, // Proyecto menos prioritario
-                    { "responsivePriority": 6, "targets": 5 }, // Responsable de entrega se oculta si no hay espacio
-                    { "responsivePriority": 7, "targets": 7 }  // Acciones se ocultan si no hay espacio
-                ]
+                    { "responsivePriority": 1, "targets": 1 }, // Fecha siempre visible
+                    { "responsivePriority": 2, "targets": 2 }  // Solicitante siempre visible
+                ],
+                "drawCallback": function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-separated');
+                }
             });
         });
 
@@ -127,8 +124,7 @@
                                 alert("Error: " + response.message);
                             }
                         },
-                        error: function (xhr) {
-                            console.error(xhr.responseText);
+                        error: function () {
                             alert("Hubo un error al eliminar la salida de bodega.");
                         }
                     });
@@ -166,5 +162,27 @@
 
     .table-responsive {
         overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #ffcebf;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
     }
 </style>

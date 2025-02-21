@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Inventario360.Models;
 
 namespace Inventario360.Services
 {
     public interface ISalidaBodegaService
     {
-        Task<List<SalidaDeBodega>> ObtenerTodas();
-        Task<SalidaDeBodega?> ObtenerPorId(int id);
-        Task<bool> RegistrarSalida(SalidaDeBodega salida, Producto producto); // ✅ Se actualiza aquí
-        Task Actualizar(SalidaDeBodega salida);
+        Task<bool> RegistrarSalidaConProductos(SalidaDeBodega salida, List<DetalleSalidaDeBodega> productos);
+        Task<IEnumerable<SalidaDeBodega>> ObtenerTodas();
+        Task<SalidaDeBodega> ObtenerPorId(int id);
         Task Eliminar(int id);
+        Task EliminarDetalles(int salidaId); // ✅ Agregar este método
     }
 }

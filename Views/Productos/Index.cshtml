@@ -5,6 +5,7 @@
 }
 
 <div class="container mt-5">
+    <h2 class="mb-4">Inventario de Bodega</h2>
     <div class="row mb-4">
         <div class="col-md-6"></div>
         <div class="col-md-6 text-end">
@@ -123,7 +124,7 @@
             modal.show();
         }
 
-        $(document).ready(function () {
+                $(document).ready(function () {
             $("#btnConfirmarEliminar").click(function () {
                 if (productoIdAEliminar) {
                     $.ajax({
@@ -135,16 +136,18 @@
                                 $("#fila-" + productoIdAEliminar).fadeOut(300, function () { $(this).remove(); });
                                 $("#confirmarEliminarModal").modal('hide');
                             } else {
-                                alert("Error: " + response.message);
+                                alert(response.message);
                             }
                         },
-                        error: function () {
+                        error: function (xhr) {
+                            console.error(xhr.responseText);
                             alert("Hubo un error al eliminar el producto.");
                         }
                     });
                 }
             });
         });
+
     </script>
 }
 
