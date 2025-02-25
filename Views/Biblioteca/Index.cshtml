@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Biblioteca de Documentos";
+}
+
+<h2>📂 Biblioteca de Documentos</h2>
+
+@foreach (var categoria in ViewBag.ArchivosPorCategoria.Keys)
+{
+    <h3>@categoria</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre del Archivo</th>
+                <th class="text-end">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var archivo in ViewBag.ArchivosPorCategoria[categoria])
+            {
+                <tr>
+                    <td>@archivo</td>
+                    <td class="text-end">
+                        <a href="@Url.Action("Descargar", "Biblioteca", new { categoria = categoria, nombreArchivo = archivo })" class="btn btn-primary">📥 Descargar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

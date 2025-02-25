@@ -153,8 +153,23 @@ namespace Inventario360.Controllers
         [HttpGet]
         public async Task<IActionResult> ObtenerProductos()
         {
-            var productos = await _productoService.ObtenerTodos();
-            return Json(productos);
+            try
+            {
+                var productos = await _productoService.ObtenerTodos();
+
+                if (productos == null || !productos.Any())
+                {
+                    return StatusCode(404, new { error = "No se encontraron productos." });
+                }
+
+                return Json(productos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error al obtener productos", detalle = ex.Message });
+            }
         }
+
+
     }
 }

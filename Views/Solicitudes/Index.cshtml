@@ -1,241 +1,226 @@
-﻿@model IEnumerable<Inventario360.Models.SolicitudDeMaterial>
-@using Inventario360.Models
-
-@{
+﻿@{
     ViewData["Title"] = "Solicitudes de Material";
 }
 
-<h2 class="mb-3">Solicitudes de Material</h2>
+<h2>Lista de Solicitudes</h2>
 
-<div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#agregarDesdeInventarioModal">AGREGAR DESDE INVENTARIO</button>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearNuevoProductoModal">CREAR NUEVO PRODUCTO</button>
+<!-- Botones para agregar solicitudes -->
+<div class="mb-3">
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalInventario">
+        Agregar desde Inventario
+    </button>
+
+    <button type="button" class="btn btn-secondary" id="btnNuevoProducto">
+        Agregar Producto No Listado
+    </button>
 </div>
 
-<table id="solicitudesTable" class="table table-striped">
+<!-- Tabla vacía con columnas requeridas -->
+<table id="tablaSolicitudes" class="table table-striped mt-3">
     <thead>
         <tr>
-            <th>Nombre Técnico</th>
-            <th>Descripción</th>
-            <th>Imagen</th>
+            <th>Nombre del Material</th>
             <th>Cantidad</th>
             <th>Medida</th>
             <th>Unidad de Medida</th>
             <th>Marca</th>
+            <th>Descripción</th>
+            <th>Imagen del Producto</th>
             <th>Posible Proveedor</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.NombreTecnico</td>
-                <td>@item.Descripcion</td>
-                <td><img src="@Url.Content("~/images/" + item.Imagen)" alt="Imagen del producto" width="50"></td>
-                <td>@item.Cantidad</td>
-                <td>@item.Medida</td>
-                <td>@item.UnidadMedida</td>
-                <td>@item.Marca</td>
-                <td>@item.PosibleProveedor</td>
-            </tr>
-        }
+        <!-- Se llenará dinámicamente -->
     </tbody>
 </table>
 
-<!-- Modal Agregar Desde Inventario -->
-<div class="modal fade" id="agregarDesdeInventarioModal" tabindex="-1" aria-labelledby="agregarDesdeInventarioLabel" aria-hidden="true">
+<!-- Formulario oculto para agregar material -->
+<form id="formSolicitudMaterial" style="display:none;">
+    <h2>Crear Solicitud de Material</h2>
+
+    <input type="hidden" id="ITEM" />
+    <input type="hidden" id="Imagen" />
+
+    <div class="mb-3">
+        <label class="form-label">Imagen del Producto</label>
+        <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-bottom: 10px;">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre del Material</label>
+        <input type="text" class="form-control" id="NombreTecnico">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Cantidad</label>
+        <input type="number" class="form-control" id="Cantidad" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Medida</label>
+        <input type="text" class="form-control" id="Medida" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Unidad de Medida</label>
+        <input type="text" class="form-control" id="UnidadMedida" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Marca</label>
+        <input type="text" class="form-control" id="Marca">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" id="Descripcion"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Posible Proveedor</label>
+        <input type="text" class="form-control" id="PosibleProveedor">
+    </div>
+
+    <button type="button" class="btn btn-primary" id="btnGuardar">Guardar</button>
+    <button type="button" class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+</form>
+
+<!-- Botón "Crear Solicitud de Material" ubicado abajo a la derecha -->
+<div style="text-align: right; margin-top: 20px;">
+    <button type="button" class="btn btn-orange" id="btnDescargarExcel">
+        Crear Solicitud de Material (Descargar Excel)
+    </button>
+</div>
+
+<!-- Modal para seleccionar productos desde el inventario -->
+<div class="modal fade" id="modalInventario" tabindex="-1" aria-labelledby="modalInventarioLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Agregar Producto Desde Inventario</h5>
+                <h5 class="modal-title" id="modalInventarioLabel">Seleccionar Producto del Inventario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formAgregarProducto">
-                    <div class="mb-3">
-                        <label for="productoSelect" class="form-label">Seleccionar Producto</label>
-                        <select id="productoSelect" class="form-control"></select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="cantidad" class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="cantidad" min="1">
-                    </div>
-                    <div class="mb-3">
-                        <label for="medida" class="form-label">Medida</label>
-                        <input type="text" class="form-control" id="medida">
-                    </div>
-                    <div class="mb-3">
-                        <label for="unidadMedida" class="form-label">Unidad de Medida</label>
-                        <input type="text" class="form-control" id="unidadMedida">
-                    </div>
-                    <div class="mb-3">
-                        <label for="marca" class="form-label">Marca</label>
-                        <input type="text" class="form-control" id="marca">
-                    </div>
-                    <div class="mb-3">
-                        <label for="posibleProveedor" class="form-label">Posible Proveedor</label>
-                        <input type="text" class="form-control" id="posibleProveedor">
-                    </div>
-                    <button type="button" class="btn btn-primary" id="btnAgregarProducto">Agregar</button>
-                </form>
+                <table class="table table-bordered" id="tablaInventario">
+                    <thead>
+                        <tr>
+                            <th>Seleccionar</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Aquí se llenarán los productos dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Crear Nuevo Producto -->
-<div class="modal fade" id="crearNuevoProductoModal" tabindex="-1" aria-labelledby="crearNuevoProductoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Crear Nuevo Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formNuevoProducto">
-                    <div class="mb-3">
-                        <label for="nombreTecnico" class="form-label">Nombre Técnico</label>
-                        <input type="text" class="form-control" id="nombreTecnico">
-                    </div>
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <input type="text" class="form-control" id="descripcion">
-                    </div>
-                    <div class="mb-3">
-                        <label for="imagen" class="form-label">Imagen</label>
-                        <input type="file" class="form-control" id="imagen" accept="image/*">
-                    </div>
-                    <div class="mb-3">
-                        <label for="cantidad" class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="cantidad" min="1">
-                    </div>
-                    <div class="mb-3">
-                        <label for="medida" class="form-label">Medida</label>
-                        <input type="text" class="form-control" id="medida">
-                    </div>
-                    <div class="mb-3">
-                        <label for="unidadMedida" class="form-label">Unidad de Medida</label>
-                        <input type="text" class="form-control" id="unidadMedida">
-                    </div>
-                    <div class="mb-3">
-                        <label for="marca" class="form-label">Marca</label>
-                        <input type="text" class="form-control" id="marca">
-                    </div>
-                    <div class="mb-3">
-                        <label for="posibleProveedor" class="form-label">Posible Proveedor</label>
-                        <input type="text" class="form-control" id="posibleProveedor">
-                    </div>
-                    <button type="button" class="btn btn-primary" id="btnCrearProducto">Crear Producto</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Script -->
+<script>
+    document.getElementById("btnNuevoProducto").addEventListener("click", function() {
+        document.getElementById("formSolicitudMaterial").style.display = "block";
+    });
 
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            console.log("Página cargada, inicializando DataTable...");
-
-            if ($.fn.DataTable) {
-                $('#solicitudesTable').DataTable();
-            } else {
-                console.error("DataTable no está definido. Verifica que se haya cargado correctamente.");
-            }
-
-            // Cargar productos en el select
-            $.ajax({
-                url: '/Productos/ObtenerProductos',
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    let select = $('#productoSelect');
-                    select.empty();
-                    select.append('<option value="">Seleccione un producto</option>');
-                    data.forEach(producto => {
-                        select.append(`<option value="${producto.item}" data-imagen="~/images/${producto.imagen}">${producto.nombreTecnico}</option>`);
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error al obtener los productos:', error);
-                }
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/Solicitudes/ObtenerProductos')
+            .then(response => response.json())
+            .then(data => {
+                let tbody = document.querySelector("#tablaInventario tbody");
+                tbody.innerHTML = "";
+                data.forEach(producto => {
+                    let row = `<tr>
+                        <td><button class="btn btn-sm btn-success" onclick="seleccionarProducto(${producto.item}, '${producto.nombreTecnico}', '${producto.descripcion}', '${producto.marca}', '${producto.imagen}', '${producto.posibleProveedor}')">Seleccionar</button></td>
+                        <td>${producto.nombreTecnico}</td>
+                        <td>${producto.descripcion}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
             });
+    });
 
-            // Evento de agregar producto desde inventario
-            $('#btnAgregarProducto').click(function () {
-                console.log("Botón Agregar presionado");
+           function seleccionarProducto(item, nombre, descripcion, marca, imagen, posibleProveedor) {
+        document.getElementById("formSolicitudMaterial").style.display = "block";
 
-                let productoId = $('#productoSelect').val();
-                let productoNombre = $('#productoSelect option:selected').text();
-                let cantidad = $('#cantidad').val();
-                let medida = $('#medida').val();
-                let unidadMedida = $('#unidadMedida').val();
-                let marca = $('#marca').val();
-                let posibleProveedor = $('#posibleProveedor').val();
-                let productoImagen = $('#productoSelect option:selected').data('imagen'); // Obtener la imagen seleccionada
+        document.getElementById("ITEM").value = item;
+        document.getElementById("NombreTecnico").value = nombre || '';
+        document.getElementById("Descripcion").value = descripcion || '';
+        document.getElementById("Marca").value = marca || '';
+        document.getElementById("PosibleProveedor").value = posibleProveedor || '';
 
-                if (!productoId || !cantidad || !medida || !unidadMedida || !marca) {
-                    alert("Por favor, complete todos los campos.");
-                    return;
-                }
+        let imgElement = document.getElementById("PreviewImagen");
 
-                let newRow = `
-                    <tr>
-                        <td>${productoNombre}</td>
-                        <td>Descripción no disponible</td>
-                        <td><img src="${productoImagen}" alt="Imagen del producto" width="50"></td>
-                        <td>${cantidad}</td>
-                        <td>${medida}</td>
-                        <td>${unidadMedida}</td>
-                        <td>${marca}</td>
-                        <td>${posibleProveedor}</td>
-                    </tr>
-                `;
+        if (imagen && imagen.trim() !== "") {
+            // Verifica que la imagen esté en la carpeta correcta y arma la URL
+            let imageUrl = `/images/${imagen}`;
+            imgElement.src = imageUrl;
+            imgElement.style.display = "block";
+        } else {
+            imgElement.src = "";
+            imgElement.style.display = "none";
+        }
 
-                $('#solicitudesTable tbody').append(newRow);
-                $('#agregarDesdeInventarioModal').modal('hide');
-                $('#formAgregarProducto')[0].reset();
-            });
+        // ✅ Cerrar el modal después de seleccionar un producto
+        var modal = bootstrap.Modal.getInstance(document.getElementById('modalInventario'));
+        modal.hide();
+    }
 
-            // Evento de crear nuevo producto
-            $('#btnCrearProducto').click(function () {
-                console.log("Botón Crear Producto presionado");
 
-                let nombreTecnico = $('#nombreTecnico').val();
-                let descripcion = $('#descripcion').val();
-                let imagen = $('#imagen')[0].files[0]; // Obtener el archivo de la imagen
-                let cantidad = $('#cantidad').val();
-                let medida = $('#medida').val();
-                let unidadMedida = $('#unidadMedida').val();
-                let marca = $('#marca').val();
-                let posibleProveedor = $('#posibleProveedor').val();
 
-                if (!nombreTecnico || !descripcion || !imagen || !cantidad || !medida || !unidadMedida || !marca || !posibleProveedor) {
-                    alert("Por favor, complete todos los campos.");
-                    return;
-                }
 
-                // Si se quiere mostrar la imagen cargada, aquí se puede mostrar la vista previa
-                let imagenSrc = URL.createObjectURL(imagen);
+    document.getElementById("btnGuardar").addEventListener("click", function() {
+        let tbody = document.querySelector("#tablaSolicitudes tbody");
+        let newRow = `<tr>
+            <td>${document.getElementById("NombreTecnico").value}</td>
+            <td>${document.getElementById("Cantidad").value}</td>
+            <td>${document.getElementById("Medida").value}</td>
+            <td>${document.getElementById("UnidadMedida").value}</td>
+            <td>${document.getElementById("Marca").value}</td>
+            <td>${document.getElementById("Descripcion").value}</td>
+            <td><img src="${document.getElementById("Imagen").value}" style="max-width:50px;"></td>
+            <td>${document.getElementById("PosibleProveedor").value}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
+        </tr>`;
+        tbody.innerHTML += newRow;
 
-                let newRow = `
-                    <tr>
-                        <td>${nombreTecnico}</td>
-                        <td>${descripcion}</td>
-                        <td><img src="${imagenSrc}" alt="Imagen del producto" width="50"></td>
-                        <td>${cantidad}</td>
-                        <td>${medida}</td>
-                        <td>${unidadMedida}</td>
-                        <td>${marca}</td>
-                        <td>${posibleProveedor}</td>
-                    </tr>
-                `;
+        document.getElementById("formSolicitudMaterial").reset();
+        document.getElementById("formSolicitudMaterial").style.display = "none";
+    });
 
-                $('#solicitudesTable tbody').append(newRow);
-                $('#crearNuevoProductoModal').modal('hide');
-                $('#formNuevoProducto')[0].reset();
-            });
+    function eliminarFila(button) {
+        button.closest("tr").remove();
+    }
 
-        });
-    </script>
-}
+    document.getElementById("btnCancelar").addEventListener("click", function() {
+        document.getElementById("formSolicitudMaterial").style.display = "none";
+    });
+
+    document.getElementById("btnDescargarExcel").addEventListener("click", function() {
+        window.location.href = "/Solicitudes/DescargarExcel";
+    });
+</script>
+
+<!-- Estilos CSS -->
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    .table-hover tbody tr:hover {
+        background-color: #ffcebf;
+    }
+</style>
