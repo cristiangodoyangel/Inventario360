@@ -20,16 +20,11 @@ namespace Inventario360.Services
             return await _context.Producto.ToListAsync();
         }
 
-        public async Task<IEnumerable<object>> ObtenerTodosAsync()
+        public async Task<IEnumerable<Producto>> ObtenerTodosAsync()
         {
-            return await _context.Producto
-                .Select(p => new
-                {
-                    p.ITEM,
-                    p.NombreTecnico
-                })
-                .ToListAsync();
+            return await _context.Producto.ToListAsync();
         }
+
 
 
 

@@ -1,36 +1,38 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Inventario360.Services;
-using Microsoft.AspNetCore.Authorization;
-
+using Inventario360.Models;
 
 namespace Inventario360.Controllers
 {
     public class ReportesController : Controller
     {
-        private readonly IProductoService _productoService;
-        private readonly ISolicitudService _solicitudService;
+        private readonly IReporteService _reporteService;
 
-        public ReportesController(IProductoService productoService, ISolicitudService solicitudService)
+        public ReportesController(IReporteService reporteService)
         {
-            _productoService = productoService;
-            _solicitudService = solicitudService;
+            _reporteService = reporteService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var productos = await _productoService.ObtenerTodos();
-            var solicitudes = await _solicitudService.ObtenerTodas(); // ✅ Se corrigió la llamada
-
-            var reportes = new List<object>
-    {
-        new { Material = "Total Productos", Cantidad = productos.Count },
-        new { Material = "Total Solicitudes", Cantidad = solicitudes.Count() } // ✅ Se corrigió el error
-    };
-
+            var reportes = await _reporteService.ObtenerDatosReportes();
             return View(reportes);
         }
 
+        public async Task<IActionResult> Detalles(int id)
+        {
+            var reporte = await _reporteService.ObtenerDetalleReporte(id);
+            if (reporte == null)
+            {
+                return NotFound();
+            }
+            var reportes = await _reporteService.ObtenerDatosReportes();
+            return View("~/Views/Reportes/Index.cshtml", reportes);
+
+
+        }
     }
 }
