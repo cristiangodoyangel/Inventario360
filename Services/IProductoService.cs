@@ -9,7 +9,8 @@ namespace Inventario360.Services
         Task<List<Producto>> ObtenerTodos();
         Task<Producto?> ObtenerPorId(int id);
         Task<Producto?> GetProductoByIdAsync(int id); // ✅ Método agregado
-        Task<IEnumerable<object>> ObtenerTodosAsync(); // <-- Agregar este método
+        Task<IEnumerable<Producto>> ObtenerTodosAsync();
+        // <-- Agregar este método
         Task Agregar(Producto producto);
         Task Actualizar(Producto producto);
         Task Eliminar(int id);

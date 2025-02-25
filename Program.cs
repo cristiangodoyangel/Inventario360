@@ -4,6 +4,7 @@ using Inventario360.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configurar la conexión a SQL Server
@@ -42,6 +43,9 @@ builder.Services.AddScoped<ISolicitudService, SolicitudService>();
 builder.Services.AddScoped<IEmpleadoService, EmpleadoService>();
 builder.Services.AddScoped<IProyectoService, ProyectoService>();
 builder.Services.AddScoped<ICuentaService, CuentaService>();
+builder.Services.AddScoped<IReporteService, ReporteService>();
+
+
 
 // Configurar autorización global para proteger todas las páginas
 builder.Services.AddControllersWithViews(options =>
@@ -85,3 +89,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+app.UseStaticFiles();
+

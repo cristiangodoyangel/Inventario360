@@ -6,7 +6,19 @@
 
 <h2>Crear Solicitud de Material</h2>
 
-<form method="post" asp-action="Crear">
+<!-- Botones de selección -->
+<div class="mb-3">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalInventario">
+        Agregar desde Inventario
+    </button>
+
+    <button type="button" class="btn btn-success" id="btnNuevoProducto">
+        Agregar Producto No Listado
+    </button>
+</div>
+
+<!-- Formulario de creación de producto (inicialmente oculto) -->
+<form method="post" asp-action="CrearNuevoProducto" id="formNuevoProducto" style="display:none;">
     <div class="mb-3">
         <label class="form-label">Nombre del Material</label>
         <input type="text" class="form-control" asp-for="NombreTecnico" required>
@@ -18,10 +30,157 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">Medida</label>
+        <input type="text" class="form-control" asp-for="Medida" required>
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Unidad de Medida</label>
         <input type="text" class="form-control" asp-for="UnidadMedida" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Marca</label>
+        <input type="text" class="form-control" asp-for="Marca">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" asp-for="Descripcion"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Posible Proveedor</label>
+        <input type="text" class="form-control" asp-for="PosibleProveedor">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Solicitante</label>
+        <input type="text" class="form-control" asp-for="Solicitante" required>
     </div>
 
     <button type="submit" class="btn btn-primary">Guardar</button>
     <a href="@Url.Action("Index", "Solicitudes")" class="btn btn-secondary">Cancelar</a>
 </form>
+
+<!-- Modal para seleccionar productos desde el inventario -->
+<div class="modal fade" id="modalInventario" tabindex="-1" aria-labelledby="modalInventarioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalInventarioLabel">Seleccionar Producto del Inventario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered" id="tablaInventario">
+                    <thead>
+                        <tr>
+                            <th>Seleccionar</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Aquí se llenarán los productos dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para manejar la lógica de los botones -->
+<script>
+    document.getElementById("btnNuevoProducto").addEventListener("click", function() {
+        document.getElementById("formNuevoProducto").style.display = "block";
+        this.style.display = "none"; // Oculta el botón después de hacer clic
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/Solicitudes/ObtenerProductos')
+            .then(response => response.json())
+            .then(data => {
+                let tbody = document.querySelector("#tablaInventario tbody");
+                tbody.innerHTML = "";
+                data.forEach(producto => {
+                    let row = `<tr>
+                        <td><button class="btn btn-sm btn-success" onclick="seleccionarProducto(${producto.item}, '${producto.nombreTecnico}', '${producto.descripcion}')">Seleccionar</button></td>
+                        <td>${producto.nombreTecnico}</td>
+                        <td>${producto.descripcion}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            });
+    });
+
+        function seleccionarProducto(item, nombre, descripcion, marca, imagen, posibleProveedor) {
+        document.getElementById("formNuevoProducto").style.display = "block";
+        document.getElementById("btnNuevoProducto").style.display = "none";
+
+        // Asegurar que los valores no sean "undefined"
+        let nombreMaterial = nombre || '';
+        let descripcionMaterial = descripcion || '';
+        let marcaMaterial = marca || '';
+        let imagenMaterial = imagen || '';
+        let proveedorMaterial = posibleProveedor || '';
+
+        // Insertar en la tabla de solicitudes
+        let tbody = document.querySelector("table tbody");
+        let newRow = `<tr>
+            <td>${item}</td>
+            <td>${nombreMaterial}</td>
+            <td>${new Date().toLocaleDateString()}</td>
+            <td>Pendiente</td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button>
+            </td>
+        </tr>`;
+        tbody.innerHTML += newRow;
+
+        // Llenar el formulario oculto
+        document.querySelector("[name='ITEM']").value = item;
+        document.querySelector("[name='NombreTecnico']").value = nombreMaterial;
+        document.querySelector("[name='Descripcion']").value = descripcionMaterial;
+        document.querySelector("[name='Marca']").value = marcaMaterial;
+        document.querySelector("[name='Imagen']").value = imagenMaterial;
+        document.querySelector("[name='PosibleProveedor']").value = proveedorMaterial;
+
+        // Mostrar imagen si está disponible
+        let imgElement = document.getElementById("ImagenProducto");
+        if (imagen) {
+            imgElement.src = imagen;
+            imgElement.style.display = "block";
+        } else {
+            imgElement.style.display = "none";
+        }
+
+        // Cerrar modal
+        var modal = bootstrap.Modal.getInstance(document.getElementById('modalInventario'));
+        modal.hide();
+    }
+
+    // Función para eliminar filas agregadas manualmente
+    function eliminarFila(button) {
+        button.closest("tr").remove();
+    }
+
+        function actualizarTablaSolicitudes(solicitud) {
+        let tbody = document.querySelector("table tbody");
+        let newRow = `<tr>
+            <td>${solicitud.id}</td>
+            <td>${solicitud.nombreTecnico}</td>
+            <td>${new Date(solicitud.fecha).toLocaleDateString()}</td>
+            <td>${solicitud.estado}</td>
+            <td>
+                <a href="/Solicitudes/Detalle/${solicitud.id}" class="btn btn-primary btn-sm">Ver</a>
+                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button>
+            </td>
+        </tr>`;
+        tbody.innerHTML += newRow;
+    }
+
+
+</script>
