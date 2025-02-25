@@ -6,7 +6,7 @@
 
 <!-- Botones para agregar solicitudes -->
 <div class="mb-3">
-    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalInventario">
+    <button type="button" class="btn btn-secondary" id="btnAgregarInventario" data-bs-toggle="modal" data-bs-target="#modalInventario">
         Agregar desde Inventario
     </button>
 
@@ -15,7 +15,7 @@
     </button>
 </div>
 
-<!-- Tabla vacía con columnas requeridas -->
+<!-- Tabla de solicitudes -->
 <table id="tablaSolicitudes" class="table table-striped mt-3">
     <thead>
         <tr>
@@ -40,11 +40,11 @@
     <h2>Crear Solicitud de Material</h2>
 
     <input type="hidden" id="ITEM" />
-    <input type="hidden" id="Imagen" />
 
     <div class="mb-3">
         <label class="form-label">Imagen del Producto</label>
-        <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-bottom: 10px;">
+        <input type="file" class="form-control" id="ImagenInput" accept="image/*">
+        <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-top: 10px;">
     </div>
 
     <div class="mb-3">
@@ -111,7 +111,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Aquí se llenarán los productos dinámicamente -->
+                        <!-- Se llenarán los productos dinámicamente -->
                     </tbody>
                 </table>
             </div>
@@ -124,11 +124,11 @@
 
 <!-- Script -->
 <script>
-    document.getElementById("btnNuevoProducto").addEventListener("click", function() {
-        document.getElementById("formSolicitudMaterial").style.display = "block";
+    document.addEventListener("DOMContentLoaded", function() {
+        cargarProductosInventario();
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
+    function cargarProductosInventario() {
         fetch('/Solicitudes/ObtenerProductos')
             .then(response => response.json())
             .then(data => {
@@ -136,16 +136,21 @@
                 tbody.innerHTML = "";
                 data.forEach(producto => {
                     let row = `<tr>
-                        <td><button class="btn btn-sm btn-success" onclick="seleccionarProducto(${producto.item}, '${producto.nombreTecnico}', '${producto.descripcion}', '${producto.marca}', '${producto.imagen}', '${producto.posibleProveedor}')">Seleccionar</button></td>
+                        <td><button class="btn btn-sm btn-success" onclick="seleccionarProducto('${producto.item}', '${producto.nombreTecnico}', '${producto.descripcion}', '${producto.marca}', '${producto.imagen}', '${producto.posibleProveedor}')">Seleccionar</button></td>
                         <td>${producto.nombreTecnico}</td>
                         <td>${producto.descripcion}</td>
                     </tr>`;
                     tbody.innerHTML += row;
                 });
-            });
+            })
+            .catch(error => console.error("Error al cargar productos:", error));
+    }
+
+    document.getElementById("btnAgregarInventario").addEventListener("click", function() {
+        cargarProductosInventario();
     });
 
-           function seleccionarProducto(item, nombre, descripcion, marca, imagen, posibleProveedor) {
+    function seleccionarProducto(item, nombre, descripcion, marca, imagen, posibleProveedor) {
         document.getElementById("formSolicitudMaterial").style.display = "block";
 
         document.getElementById("ITEM").value = item;
@@ -155,9 +160,7 @@
         document.getElementById("PosibleProveedor").value = posibleProveedor || '';
 
         let imgElement = document.getElementById("PreviewImagen");
-
         if (imagen && imagen.trim() !== "") {
-            // Verifica que la imagen esté en la carpeta correcta y arma la URL
             let imageUrl = `/images/${imagen}`;
             imgElement.src = imageUrl;
             imgElement.style.display = "block";
@@ -166,16 +169,30 @@
             imgElement.style.display = "none";
         }
 
-        // ✅ Cerrar el modal después de seleccionar un producto
-        var modal = bootstrap.Modal.getInstance(document.getElementById('modalInventario'));
+        let modal = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
         modal.hide();
     }
 
+    document.getElementById("btnNuevoProducto").addEventListener("click", function() {
+        document.getElementById("formSolicitudMaterial").style.display = "block";
+    });
 
-
+    document.getElementById("ImagenInput").addEventListener("change", function(event) {
+        let file = event.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("PreviewImagen").src = e.target.result;
+                document.getElementById("PreviewImagen").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 
     document.getElementById("btnGuardar").addEventListener("click", function() {
         let tbody = document.querySelector("#tablaSolicitudes tbody");
+        let imagenSrc = document.getElementById("PreviewImagen").src;
+
         let newRow = `<tr>
             <td>${document.getElementById("NombreTecnico").value}</td>
             <td>${document.getElementById("Cantidad").value}</td>
@@ -183,13 +200,23 @@
             <td>${document.getElementById("UnidadMedida").value}</td>
             <td>${document.getElementById("Marca").value}</td>
             <td>${document.getElementById("Descripcion").value}</td>
-            <td><img src="${document.getElementById("Imagen").value}" style="max-width:50px;"></td>
+            <td><img src="${imagenSrc}" style="max-width:50px;"></td>
             <td>${document.getElementById("PosibleProveedor").value}</td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
+
         tbody.innerHTML += newRow;
 
+        // **Reactivar el botón "Agregar desde Inventario"**
+        document.getElementById("btnAgregarInventario").disabled = false;
+
+        // **Forzar la recarga del modal de Bootstrap para evitar el error**
+        let modalInventario = new bootstrap.Modal(document.getElementById("modalInventario"));
+        document.getElementById("btnAgregarInventario").setAttribute("data-bs-target", "#modalInventario");
+
+        // **Limpieza del formulario después de guardar**
         document.getElementById("formSolicitudMaterial").reset();
+        document.getElementById("PreviewImagen").style.display = "none";
         document.getElementById("formSolicitudMaterial").style.display = "none";
     });
 
@@ -199,6 +226,9 @@
 
     document.getElementById("btnCancelar").addEventListener("click", function() {
         document.getElementById("formSolicitudMaterial").style.display = "none";
+        document.getElementById("ImagenInput").value = "";
+        document.getElementById("PreviewImagen").src = "";
+        document.getElementById("PreviewImagen").style.display = "none";
     });
 
     document.getElementById("btnDescargarExcel").addEventListener("click", function() {
@@ -206,21 +236,3 @@
     });
 </script>
 
-<!-- Estilos CSS -->
-<style>
-    .btn-orange {
-        background-color: #f06529 !important;
-        border-radius: 5px;
-        border-color: #f06529 !important;
-        color: white !important;
-    }
-
-        .btn-orange:hover {
-            background-color: #d9531e !important;
-            border-color: #d9531e !important;
-        }
-
-    .table-hover tbody tr:hover {
-        background-color: #ffcebf;
-    }
-</style>
