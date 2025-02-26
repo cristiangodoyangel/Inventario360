@@ -6,7 +6,7 @@
 
 <!-- Botones para agregar solicitudes -->
 <div class="mb-3">
-    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalInventario">
+    <button type="button" class="btn btn-secondary" id="btnAgregarInventario" data-bs-toggle="modal" data-bs-target="#modalInventario">
         Agregar desde Inventario
     </button>
 
@@ -15,7 +15,7 @@
     </button>
 </div>
 
-<!-- Tabla vacía con columnas requeridas -->
+<!-- Tabla de solicitudes -->
 <table id="tablaSolicitudes" class="table table-striped mt-3">
     <thead>
         <tr>
@@ -40,11 +40,11 @@
     <h2>Crear Solicitud de Material</h2>
 
     <input type="hidden" id="ITEM" />
-    <input type="hidden" id="Imagen" />
 
     <div class="mb-3">
         <label class="form-label">Imagen del Producto</label>
-        <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-bottom: 10px;">
+        <input type="file" class="form-control" id="ImagenInput" accept="image/*">
+        <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-top: 10px;">
     </div>
 
     <div class="mb-3">
@@ -88,9 +88,10 @@
 
 <!-- Botón "Crear Solicitud de Material" ubicado abajo a la derecha -->
 <div style="text-align: right; margin-top: 20px;">
-    <button type="button" class="btn btn-orange" id="btnDescargarExcel">
-        Crear Solicitud de Material (Descargar Excel)
+    <button type="button" class="btn btn-orange" id="btnDescargarPDF">
+        Descargar Solicitudes en PDF
     </button>
+
 </div>
 
 <!-- Modal para seleccionar productos desde el inventario -->
@@ -111,7 +112,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Aquí se llenarán los productos dinámicamente -->
+                        <!-- Se llenarán los productos dinámicamente -->
                     </tbody>
                 </table>
             </div>
@@ -124,11 +125,11 @@
 
 <!-- Script -->
 <script>
-    document.getElementById("btnNuevoProducto").addEventListener("click", function() {
-        document.getElementById("formSolicitudMaterial").style.display = "block";
+    document.addEventListener("DOMContentLoaded", function() {
+        cargarProductosInventario();
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
+    function cargarProductosInventario() {
         fetch('/Solicitudes/ObtenerProductos')
             .then(response => response.json())
             .then(data => {
@@ -136,16 +137,21 @@
                 tbody.innerHTML = "";
                 data.forEach(producto => {
                     let row = `<tr>
-                        <td><button class="btn btn-sm btn-success" onclick="seleccionarProducto(${producto.item}, '${producto.nombreTecnico}', '${producto.descripcion}', '${producto.marca}', '${producto.imagen}', '${producto.posibleProveedor}')">Seleccionar</button></td>
+                        <td><button class="btn btn-sm btn-success" onclick="seleccionarProducto('${producto.item}', '${producto.nombreTecnico}', '${producto.descripcion}', '${producto.marca}', '${producto.imagen}', '${producto.posibleProveedor}')">Seleccionar</button></td>
                         <td>${producto.nombreTecnico}</td>
                         <td>${producto.descripcion}</td>
                     </tr>`;
                     tbody.innerHTML += row;
                 });
-            });
+            })
+            .catch(error => console.error("Error al cargar productos:", error));
+    }
+
+    document.getElementById("btnAgregarInventario").addEventListener("click", function() {
+        cargarProductosInventario();
     });
 
-           function seleccionarProducto(item, nombre, descripcion, marca, imagen, posibleProveedor) {
+    function seleccionarProducto(item, nombre, descripcion, marca, imagen, posibleProveedor) {
         document.getElementById("formSolicitudMaterial").style.display = "block";
 
         document.getElementById("ITEM").value = item;
@@ -155,9 +161,7 @@
         document.getElementById("PosibleProveedor").value = posibleProveedor || '';
 
         let imgElement = document.getElementById("PreviewImagen");
-
         if (imagen && imagen.trim() !== "") {
-            // Verifica que la imagen esté en la carpeta correcta y arma la URL
             let imageUrl = `/images/${imagen}`;
             imgElement.src = imageUrl;
             imgElement.style.display = "block";
@@ -166,16 +170,30 @@
             imgElement.style.display = "none";
         }
 
-        // ✅ Cerrar el modal después de seleccionar un producto
-        var modal = bootstrap.Modal.getInstance(document.getElementById('modalInventario'));
+        let modal = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
         modal.hide();
     }
 
+    document.getElementById("btnNuevoProducto").addEventListener("click", function() {
+        document.getElementById("formSolicitudMaterial").style.display = "block";
+    });
 
-
+    document.getElementById("ImagenInput").addEventListener("change", function(event) {
+        let file = event.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("PreviewImagen").src = e.target.result;
+                document.getElementById("PreviewImagen").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 
     document.getElementById("btnGuardar").addEventListener("click", function() {
         let tbody = document.querySelector("#tablaSolicitudes tbody");
+        let imagenSrc = document.getElementById("PreviewImagen").src;
+
         let newRow = `<tr>
             <td>${document.getElementById("NombreTecnico").value}</td>
             <td>${document.getElementById("Cantidad").value}</td>
@@ -183,13 +201,23 @@
             <td>${document.getElementById("UnidadMedida").value}</td>
             <td>${document.getElementById("Marca").value}</td>
             <td>${document.getElementById("Descripcion").value}</td>
-            <td><img src="${document.getElementById("Imagen").value}" style="max-width:50px;"></td>
+            <td><img src="${imagenSrc}" style="max-width:50px;"></td>
             <td>${document.getElementById("PosibleProveedor").value}</td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
+
         tbody.innerHTML += newRow;
 
+        // **Reactivar el botón "Agregar desde Inventario"**
+        document.getElementById("btnAgregarInventario").disabled = false;
+
+        // **Forzar la recarga del modal de Bootstrap para evitar el error**
+        let modalInventario = new bootstrap.Modal(document.getElementById("modalInventario"));
+        document.getElementById("btnAgregarInventario").setAttribute("data-bs-target", "#modalInventario");
+
+        // **Limpieza del formulario después de guardar**
         document.getElementById("formSolicitudMaterial").reset();
+        document.getElementById("PreviewImagen").style.display = "none";
         document.getElementById("formSolicitudMaterial").style.display = "none";
     });
 
@@ -199,14 +227,79 @@
 
     document.getElementById("btnCancelar").addEventListener("click", function() {
         document.getElementById("formSolicitudMaterial").style.display = "none";
+        document.getElementById("ImagenInput").value = "";
+        document.getElementById("PreviewImagen").src = "";
+        document.getElementById("PreviewImagen").style.display = "none";
     });
 
-    document.getElementById("btnDescargarExcel").addEventListener("click", function() {
-        window.location.href = "/Solicitudes/DescargarExcel";
+        document.getElementById("btnDescargarPDF").addEventListener("click", function () {
+        let filas = document.querySelectorAll("#tablaSolicitudes tbody tr");
+
+        if (filas.length === 0) {
+            alert("No hay productos en la lista para exportar.");
+            return;
+        }
+
+        let solicitudes = [];
+
+        filas.forEach(fila => {
+            let columnas = fila.querySelectorAll("td");
+            let imgTag = columnas[6].querySelector("img");
+
+            let solicitud = {
+                nombreTecnico: columnas[0].innerText.trim(),
+                cantidad: parseInt(columnas[1].innerText.trim()) || 0,
+                medida: columnas[2].innerText.trim(),
+                unidadMedida: columnas[3].innerText.trim(),
+                marca: columnas[4].innerText.trim(),
+                descripcion: columnas[5].innerText.trim(),
+                imagen: imgTag ? getBase64Image(imgTag) : ""
+            };
+
+            solicitudes.push(solicitud);
+        });
+
+        fetch("/Solicitudes/DescargarPDF", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(solicitudes)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error al generar el archivo PDF.");
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            a.download = "Solicitudes_Material.pdf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Error al descargar el archivo.");
+        });
     });
+
+    // Función para convertir imagen en base64
+    function getBase64Image(img) {
+        let canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        return canvas.toDataURL("image/png");
+    }
+
+
 </script>
 
-<!-- Estilos CSS -->
 <style>
     .btn-orange {
         background-color: #f06529 !important;
@@ -220,7 +313,42 @@
             border-color: #d9531e !important;
         }
 
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
     .table-hover tbody tr:hover {
         background-color: #ffcebf;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
     }
 </style>
