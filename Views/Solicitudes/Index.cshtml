@@ -88,9 +88,10 @@
 
 <!-- Botón "Crear Solicitud de Material" ubicado abajo a la derecha -->
 <div style="text-align: right; margin-top: 20px;">
-    <button type="button" class="btn btn-orange" id="btnDescargarExcel">
-        Crear Solicitud de Material (Descargar Excel)
+    <button type="button" class="btn btn-orange" id="btnDescargarPDF">
+        Descargar Solicitudes en PDF
     </button>
+
 </div>
 
 <!-- Modal para seleccionar productos desde el inventario -->
@@ -231,8 +232,123 @@
         document.getElementById("PreviewImagen").style.display = "none";
     });
 
-    document.getElementById("btnDescargarExcel").addEventListener("click", function() {
-        window.location.href = "/Solicitudes/DescargarExcel";
+        document.getElementById("btnDescargarPDF").addEventListener("click", function () {
+        let filas = document.querySelectorAll("#tablaSolicitudes tbody tr");
+
+        if (filas.length === 0) {
+            alert("No hay productos en la lista para exportar.");
+            return;
+        }
+
+        let solicitudes = [];
+
+        filas.forEach(fila => {
+            let columnas = fila.querySelectorAll("td");
+            let imgTag = columnas[6].querySelector("img");
+
+            let solicitud = {
+                nombreTecnico: columnas[0].innerText.trim(),
+                cantidad: parseInt(columnas[1].innerText.trim()) || 0,
+                medida: columnas[2].innerText.trim(),
+                unidadMedida: columnas[3].innerText.trim(),
+                marca: columnas[4].innerText.trim(),
+                descripcion: columnas[5].innerText.trim(),
+                imagen: imgTag ? getBase64Image(imgTag) : ""
+            };
+
+            solicitudes.push(solicitud);
+        });
+
+        fetch("/Solicitudes/DescargarPDF", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(solicitudes)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error al generar el archivo PDF.");
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            a.download = "Solicitudes_Material.pdf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Error al descargar el archivo.");
+        });
     });
+
+    // Función para convertir imagen en base64
+    function getBase64Image(img) {
+        let canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        return canvas.toDataURL("image/png");
+    }
+
+
 </script>
 
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #ffcebf;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+</style>

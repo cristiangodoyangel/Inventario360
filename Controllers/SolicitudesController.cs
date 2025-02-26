@@ -5,6 +5,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using OfficeOpenXml;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.IO;
+using System.Net.Http;
+
 
 namespace Inventario360.Controllers
 {
@@ -172,6 +177,111 @@ namespace Inventario360.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("Solicitudes/DescargarPDF")]
+        public async Task<IActionResult> DescargarPDF([FromBody] List<SolicitudDeMaterial> solicitudes)
+        {
+            if (solicitudes == null || !solicitudes.Any())
+            {
+                return BadRequest("No hay datos para exportar.");
+            }
+
+            try
+            {
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    Document document = new Document(PageSize.A4);
+                    PdfWriter.GetInstance(document, stream);
+                    document.Open();
+
+                    // Agregar título
+                    Font titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
+                    document.Add(new Paragraph("Lista de Solicitudes de Material", titleFont));
+                    document.Add(new Paragraph("\n"));
+
+                    // Crear tabla con columnas
+                    PdfPTable table = new PdfPTable(7);
+                    table.WidthPercentage = 100;
+                    table.SetWidths(new float[] { 3, 1, 1, 2, 2, 3, 2 });
+
+                    // Encabezados
+                    string[] headers = { "Nombre", "Cantidad", "Medida", "Unidad", "Marca", "Descripción", "Imagen" };
+                    foreach (var header in headers)
+                    {
+                        PdfPCell cell = new PdfPCell(new Phrase(header, FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12)));
+                        cell.BackgroundColor = new BaseColor(211, 211, 211);
+                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        table.AddCell(cell);
+                    }
+
+                    // Agregar datos
+                    foreach (var solicitud in solicitudes)
+                    {
+                        table.AddCell(new Phrase(solicitud.NombreTecnico));
+                        table.AddCell(new Phrase(solicitud.Cantidad.ToString()));
+                        table.AddCell(new Phrase(solicitud.Medida));
+                        table.AddCell(new Phrase(solicitud.UnidadMedida));
+                        table.AddCell(new Phrase(solicitud.Marca));
+                        table.AddCell(new Phrase(solicitud.Descripcion));
+
+                        // Convertir imagen desde URL base64 o ruta local
+                        if (!string.IsNullOrEmpty(solicitud.Imagen))
+                        {
+                            try
+                            {
+                                Image img;
+                                if (solicitud.Imagen.StartsWith("data:image")) // Verificar si es base64
+                                {
+                                    byte[] imageBytes = Convert.FromBase64String(solicitud.Imagen.Split(',')[1]);
+                                    img = Image.GetInstance(imageBytes);
+                                }
+                                else // Si es una ruta local
+                                {
+                                    string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", solicitud.Imagen);
+                                    if (System.IO.File.Exists(imagePath))
+                                    {
+                                        img = Image.GetInstance(imagePath);
+                                    }
+                                    else
+                                    {
+                                        img = null;
+                                    }
+                                }
+
+                                if (img != null)
+                                {
+                                    img.ScaleAbsolute(50f, 50f);
+                                    PdfPCell imgCell = new PdfPCell(img);
+                                    imgCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                                    table.AddCell(imgCell);
+                                }
+                                else
+                                {
+                                    table.AddCell(new Phrase("No disponible"));
+                                }
+                            }
+                            catch
+                            {
+                                table.AddCell(new Phrase("Error al cargar"));
+                            }
+                        }
+                        else
+                        {
+                            table.AddCell(new Phrase("Sin imagen"));
+                        }
+                    }
+
+                    document.Add(table);
+                    document.Close();
+
+                    return File(stream.ToArray(), "application/pdf", "Solicitudes_Material.pdf");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al generar el PDF: {ex.Message}");
+            }
+        }
 
 
     }
