@@ -201,7 +201,8 @@
             <td>${document.getElementById("UnidadMedida").value}</td>
             <td>${document.getElementById("Marca").value}</td>
             <td>${document.getElementById("Descripcion").value}</td>
-            <td><img src="${imagenSrc}" style="max-width:50px;"></td>
+         <td><img src="${imagenSrc}" style="max-width:50px; margin-top: 10px; margin-bottom: 10px;"></td>
+
             <td>${document.getElementById("PosibleProveedor").value}</td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
@@ -350,5 +351,22 @@
 
     .table td {
         vertical-align: middle;
+        padding: 10px; /* 🔹 Aumentado el padding en todas las celdas */
     }
+
+        /* 🔹 Ajuste de la celda que contiene la imagen */
+        .table td:nth-child(7) {
+            text-align: center;
+            padding: 10px 10px; /* 🔹 Más espacio arriba y abajo */
+        }
+
+        /* 🔹 Ajuste de la imagen dentro de la celda */
+        .table td img {
+            margin: 10px auto; /* 🔹 Aumentado el margen arriba y abajo */
+            display: block;
+            max-width: 60px; /* 🔹 Ajuste del tamaño para mejorar la visualización */
+        }
+
+
+
 </style>
