@@ -211,20 +211,26 @@ namespace Inventario360.Controllers
                         PdfPCell cell = new PdfPCell(new Phrase(header, FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12)));
                         cell.BackgroundColor = new BaseColor(211, 211, 211);
                         cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        cell.Padding = 5f;  // 🔹 Espaciado en todas las celdas
                         table.AddCell(cell);
                     }
 
                     // Agregar datos
                     foreach (var solicitud in solicitudes)
                     {
-                        table.AddCell(new Phrase(solicitud.NombreTecnico));
-                        table.AddCell(new Phrase(solicitud.Cantidad.ToString()));
-                        table.AddCell(new Phrase(solicitud.Medida));
-                        table.AddCell(new Phrase(solicitud.UnidadMedida));
-                        table.AddCell(new Phrase(solicitud.Marca));
-                        table.AddCell(new Phrase(solicitud.Descripcion));
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.NombreTecnico)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Cantidad.ToString())) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Medida)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.UnidadMedida)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Marca)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Descripcion)) { Padding = 5f });
 
-                        // Convertir imagen desde URL base64 o ruta local
+                        // 🔹 Configuración de la imagen en la celda con espacio
+                        PdfPCell imgCell = new PdfPCell();
+                        imgCell.PaddingTop = 15f;   // 🔹 Más espacio arriba
+                        imgCell.PaddingBottom = 15f; // 🔹 Más espacio abajo
+                        imgCell.HorizontalAlignment = Element.ALIGN_CENTER;
+
                         if (!string.IsNullOrEmpty(solicitud.Imagen))
                         {
                             try
@@ -250,25 +256,25 @@ namespace Inventario360.Controllers
 
                                 if (img != null)
                                 {
-                                    img.ScaleAbsolute(50f, 50f);
-                                    PdfPCell imgCell = new PdfPCell(img);
-                                    imgCell.HorizontalAlignment = Element.ALIGN_CENTER;
-                                    table.AddCell(imgCell);
+                                    img.ScaleAbsolute(50f, 50f); // 🔹 Ajusta tamaño
+                                    imgCell.AddElement(img);
                                 }
                                 else
                                 {
-                                    table.AddCell(new Phrase("No disponible"));
+                                    imgCell.AddElement(new Phrase("No disponible"));
                                 }
                             }
                             catch
                             {
-                                table.AddCell(new Phrase("Error al cargar"));
+                                imgCell.AddElement(new Phrase("Error al cargar"));
                             }
                         }
                         else
                         {
-                            table.AddCell(new Phrase("Sin imagen"));
+                            imgCell.AddElement(new Phrase("Sin imagen"));
                         }
+
+                        table.AddCell(imgCell);
                     }
 
                     document.Add(table);
@@ -282,6 +288,7 @@ namespace Inventario360.Controllers
                 return BadRequest($"Error al generar el PDF: {ex.Message}");
             }
         }
+
 
 
     }
