@@ -1,31 +1,88 @@
-﻿@model IEnumerable<Inventario360.Models.Reporte>
-
-@{
-    ViewData["Title"] = "Reportes";
+﻿@{
+    ViewData["Title"] = "Dashboard de Reportes";
 }
 
-<h2>Reportes</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">📊 Dashboard de Reportes</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Fecha</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var reporte in Model)
-        {
-            <tr>
-                <td>@reporte.Id</td>
-                <td>@reporte.Nombre</td>
-                <td>@reporte.Fecha.ToShortDateString()</td>
-                <td>
-                    <a asp-action="Detalles" asp-route-id="@reporte.Id" class="btn btn-info">Ver Detalles</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <!-- 📊 Gráficos -->
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="chartEstado"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="chartCategoria"></canvas>
+        </div>
+    </div>
+
+    <!-- 📦 Tarjetas de Resumen -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow p-3 text-center">
+                <h4 class="fw-bold">📦 Total Inventario</h4>
+                <h3 id="totalInventario" class="text-primary">0</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow p-3 text-center">
+                <h4 class="fw-bold text-danger">⚠️ Stock Bajo (&lt;10)</h4>
+                <h3 id="productosStockBajo" class="text-danger">0</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow p-3 text-center">
+                <h4 class="fw-bold text-warning">🔴 Overstock (&gt;300)</h4>
+                <h3 id="productosOverstock" class="text-warning">0</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/Reportes/Index",
+                type: "GET",
+                success: function (data) {
+                    // 📊 Gráfico de Productos por Estado
+                    const ctxEstado = document.getElementById('chartEstado').getContext('2d');
+                    new Chart(ctxEstado, {
+                        type: 'pie',
+                        data: {
+                            labels: data.productosPorEstado.map(e => e.Estado),
+                            datasets: [{
+                                data: data.productosPorEstado.map(e => e.Cantidad),
+                                backgroundColor: ['#4CAF50', '#FF5733']
+                            }]
+                        }
+                    });
+
+                    // 📊 Gráfico de Productos por Categoría
+                    const ctxCategoria = document.getElementById('chartCategoria').getContext('2d');
+                    new Chart(ctxCategoria, {
+                        type: 'bar',
+                        data: {
+                            labels: data.productosPorCategoria.map(c => c.Categoria),
+                            datasets: [{
+                                label: 'Cantidad',
+                                data: data.productosPorCategoria.map(c => c.Cantidad),
+                                backgroundColor: '#007bff'
+                            }]
+                        }
+                    });
+
+                    // 📦 Actualizar métricas de tarjetas
+                    $("#totalInventario").text(data.totalInventario);
+                    $("#productosStockBajo").text(data.productosStockBajo);
+                    $("#productosOverstock").text(data.productosOverstock);
+                },
+                error: function () {
+                    alert("Error al cargar los datos del reporte.");
+                }
+            });
+        });
+    </script>
+}

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Inventario360.Data;
 using Inventario360.Models;
 using Microsoft.EntityFrameworkCore;
-using Inventario360.Data;
-using Newtonsoft.Json;
-using System.Linq;
-
 
 namespace Inventario360.Services
 {
@@ -21,7 +19,7 @@ namespace Inventario360.Services
 
         public async Task<IEnumerable<SalidaDeBodega>> ObtenerTodas()
         {
-            return await _context.SalidasDeBodega
+            return await _context.SalidaDeBodega
                 .Include(s => s.SolicitanteObj)
                 .Include(s => s.ResponsableEntregaObj)
                 .Include(s => s.ProyectoObj)
@@ -31,30 +29,34 @@ namespace Inventario360.Services
         public async Task<SalidaDeBodega> ObtenerPorId(int id)
         {
             return await _context.SalidaDeBodega
-                .Include(s => s.SolicitanteObj) // Incluye el solicitante
-                .Include(s => s.ResponsableEntregaObj) // Incluye el responsable de entrega
-                .Include(s => s.ProyectoObj) // Incluye el proyecto asignado
-                .Include(s => s.Detalles) // Incluye los detalles de la salida
-                .ThenInclude(d => d.Producto) // Incluye el producto en cada detalle
+                .Include(s => s.SolicitanteObj)
+                .Include(s => s.ResponsableEntregaObj)
+                .Include(s => s.ProyectoObj)
+                .Include(s => s.Detalles)
+                .ThenInclude(d => d.Producto) // ✅ Incluir producto en cada detalle
                 .FirstOrDefaultAsync(s => s.ID == id);
         }
 
+        public async Task<List<DetalleSalidaDeBodega>> ObtenerDetallesPorSalida(int id)
+        {
+            return await _context.DetalleSalidaDeBodega
+                .Where(d => d.SalidaDeBodegaID == id)
+                .Include(d => d.Producto) // ✅ Solo incluir Producto
+                .ToListAsync();
+        }
 
         public async Task<bool> RegistrarSalidaConProductos(SalidaDeBodega salida, List<DetalleSalidaDeBodega> productos)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Validar que haya al menos un producto
                 if (productos == null || productos.Count == 0)
                     return false;
 
-                // Registrar la salida de bodega
                 salida.Fecha = DateTime.Now;
                 _context.SalidaDeBodega.Add(salida);
-                await _context.SaveChangesAsync(); // Se guarda para obtener el ID
+                await _context.SaveChangesAsync();
 
-                // Procesar cada producto en la salida
                 foreach (var detalle in productos)
                 {
                     var producto = await _context.Producto.FindAsync(detalle.ProductoID);
@@ -64,16 +66,13 @@ namespace Inventario360.Services
                         return false;
                     }
 
-                    // Reducir stock del producto
                     producto.Cantidad -= detalle.Cantidad;
                     _context.Producto.Update(producto);
 
-                    // Asociar el detalle con la salida creada
                     detalle.SalidaDeBodegaID = salida.ID;
                     _context.DetalleSalidaDeBodega.Add(detalle);
                 }
 
-                // Guardar cambios y confirmar la transacción
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -88,24 +87,49 @@ namespace Inventario360.Services
 
         public async Task Eliminar(int id)
         {
-            var salida = await _context.SalidasDeBodega.FindAsync(id);
+            var salida = await _context.SalidaDeBodega.FindAsync(id);
             if (salida != null)
             {
-                _context.SalidasDeBodega.Remove(salida);
+                _context.SalidaDeBodega.Remove(salida);
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task EliminarDetalles(int salidaId) // ✅ Agregar implementación
+        public async Task EliminarDetalles(int salidaId)
         {
-            var detalles = _context.DetallesSalidasDeBodega.Where(d => d.SalidaDeBodegaID == salidaId);
-            _context.DetallesSalidasDeBodega.RemoveRange(detalles);
+            var detalles = _context.DetalleSalidaDeBodega.Where(d => d.SalidaDeBodegaID == salidaId);
+            _context.DetalleSalidaDeBodega.RemoveRange(detalles);
             await _context.SaveChangesAsync();
         }
-        
-    
+
+        public async Task RevertirStock(int salidaId)
+        {
+            Console.WriteLine($"⏳ Revertiendo stock para la salida de bodega ID: {salidaId}");
+
+            var detalles = await _context.DetalleSalidaDeBodega
+                .Where(d => d.SalidaDeBodegaID == salidaId)
+                .Include(d => d.Producto)
+                .ToListAsync();
+
+            if (detalles == null || detalles.Count == 0)
+            {
+                Console.WriteLine("⚠️ No se encontraron detalles para esta salida.");
+                return;
+            }
+
+            foreach (var detalle in detalles)
+            {
+                if (detalle.Producto != null)
+                {
+                    Console.WriteLine($"🔄 Producto ID {detalle.ProductoID}: sumando {detalle.Cantidad} unidades.");
+                    detalle.Producto.Cantidad += detalle.Cantidad; // ✅ Restaurar stock
+                    _context.Producto.Update(detalle.Producto);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            Console.WriteLine("✅ Stock revertido correctamente.");
+        }
+
     }
-        
-   
-    
 }

@@ -10,10 +10,7 @@ namespace Inventario360.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateIndex(
-                name: "IX_SalidaDeBodega_Producto",
-                table: "SalidaDeBodega",
-                column: "Producto");
+            // ✅ Solo agregar lo que no existe en la BD
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalidaDeBodega_ProyectoAsignado",
@@ -45,13 +42,6 @@ namespace Inventario360.Migrations
                 principalColumn: "ID");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_SalidaDeBodega_Producto_Producto",
-                table: "SalidaDeBodega",
-                column: "Producto",
-                principalTable: "Producto",
-                principalColumn: "ITEM");
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_SalidaDeBodega_Proyecto_ProyectoAsignado",
                 table: "SalidaDeBodega",
                 column: "ProyectoAsignado",
@@ -71,15 +61,7 @@ namespace Inventario360.Migrations
                 table: "SalidaDeBodega");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_SalidaDeBodega_Producto_Producto",
-                table: "SalidaDeBodega");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_SalidaDeBodega_Proyecto_ProyectoAsignado",
-                table: "SalidaDeBodega");
-
-            migrationBuilder.DropIndex(
-                name: "IX_SalidaDeBodega_Producto",
                 table: "SalidaDeBodega");
 
             migrationBuilder.DropIndex(

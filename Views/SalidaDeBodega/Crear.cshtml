@@ -14,12 +14,19 @@
                 <option value="">Seleccione un producto</option>
                 @foreach (var producto in ViewBag.Productos)
                 {
-                    <option value="@producto.ITEM" data-stock="@producto.Cantidad">
-                        @producto.NombreTecnico - (Stock: @producto.Cantidad)
+                    <option value="@producto.ITEM"
+                            data-stock="@producto.Cantidad"
+                            data-categoria="@producto.Categoria">
+                        @producto.NombreTecnico - (@producto.Categoria) - (Stock: @producto.Cantidad)
                     </option>
                 }
             </select>
             <div class="invalid-feedback">Debe seleccionar un producto válido.</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Categoría</label>
+            <input type="text" id="categoriaSeleccionada" class="form-control" disabled />
         </div>
 
         <div class="mb-3">
@@ -34,6 +41,7 @@
             <thead>
                 <tr>
                     <th>Producto</th>
+                    <th>Categoría</th> <!-- ✅ Nueva columna -->
                     <th>Cantidad</th>
                     <th>Acción</th>
                 </tr>
@@ -84,11 +92,19 @@
     <script>
         let productosSeleccionados = [];
 
+        document.getElementById("productoSeleccionado").addEventListener("change", function () {
+            let select = document.getElementById("productoSeleccionado");
+            let categoriaInput = document.getElementById("categoriaSeleccionada");
+            let categoria = select.options[select.selectedIndex].getAttribute("data-categoria");
+            categoriaInput.value = categoria ? categoria : "Sin categoría";
+        });
+
         document.getElementById("btnAgregarProducto").addEventListener("click", function () {
             let select = document.getElementById("productoSeleccionado");
             let cantidadInput = document.getElementById("cantidad");
             let productoId = select.value;
             let productoNombre = select.options[select.selectedIndex].text;
+            let categoria = select.options[select.selectedIndex].getAttribute("data-categoria");
             let stockDisponible = select.options[select.selectedIndex].getAttribute("data-stock");
             let cantidad = parseInt(cantidadInput.value);
 
@@ -98,13 +114,14 @@
             }
 
             // Agregar el producto a la lista
-            productosSeleccionados.push({ ProductoID: productoId, Cantidad: cantidad, Nombre: productoNombre });
+            productosSeleccionados.push({ ProductoID: productoId, Categoria: categoria, Cantidad: cantidad, Nombre: productoNombre });
 
             // Renderizar en la tabla
             let tbody = document.getElementById("productosSeleccionados");
             let tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${productoNombre}</td>
+                <td>${categoria}</td>
                 <td>${cantidad}</td>
                 <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(${productoId})">Eliminar</button></td>
             `;
@@ -116,6 +133,7 @@
             // Resetear campos
             select.value = "";
             cantidadInput.value = "";
+            document.getElementById("categoriaSeleccionada").value = "";
         });
 
         function eliminarProducto(id) {
@@ -127,6 +145,7 @@
                 let tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td>${p.Nombre}</td>
+                    <td>${p.Categoria}</td>
                     <td>${p.Cantidad}</td>
                     <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(${p.ProductoID})">Eliminar</button></td>
                 `;
@@ -134,7 +153,7 @@
             });
         }
 
-                document.getElementById("formSalida").addEventListener("submit", function (event) {
+        document.getElementById("formSalida").addEventListener("submit", function (event) {
             event.preventDefault();
 
             if (productosSeleccionados.length === 0) {
@@ -152,7 +171,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                                       window.location.href = "/SalidaDeBodega/Index";
+                    window.location.href = "/SalidaDeBodega/Index";
                 } else {
                     alert("Error al registrar la salida: " + data.message);
                 }
@@ -162,6 +181,5 @@
                 alert("Hubo un problema al procesar la solicitud.");
             });
         });
-
     </script>
 }

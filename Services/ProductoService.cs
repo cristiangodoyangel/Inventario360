@@ -25,9 +25,6 @@ namespace Inventario360.Services
             return await _context.Producto.ToListAsync();
         }
 
-
-
-
         public async Task<Producto?> ObtenerPorId(int id)
         {
             return await _context.Producto.FindAsync(id);
@@ -38,7 +35,6 @@ namespace Inventario360.Services
             return await _context.Producto.FindAsync(id);
         }
 
-
         public async Task Agregar(Producto producto)
         {
             await _context.Producto.AddAsync(producto);
@@ -47,8 +43,25 @@ namespace Inventario360.Services
 
         public async Task Actualizar(Producto producto)
         {
-            _context.Entry(producto).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var productoExistente = await _context.Producto.FindAsync(producto.ITEM);
+            if (productoExistente != null)
+            {
+                // Actualizar todos los campos, incluyendo la categoría
+                productoExistente.Cantidad = producto.Cantidad;
+                productoExistente.NombreTecnico = producto.NombreTecnico;
+                productoExistente.Medida = producto.Medida;
+                productoExistente.UnidadMedida = producto.UnidadMedida;
+                productoExistente.Marca = producto.Marca;
+                productoExistente.Descripcion = producto.Descripcion;
+                productoExistente.Imagen = producto.Imagen;
+                productoExistente.Proveedor = producto.Proveedor;
+                productoExistente.Ubicacion = producto.Ubicacion;
+                productoExistente.Estado = producto.Estado;
+                productoExistente.Categoria = producto.Categoria; // ✅ Se agregó la categoría
+
+                _context.Entry(productoExistente).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task Eliminar(int id)

@@ -14,8 +14,12 @@ namespace Inventario360.Models
 
         [ForeignKey("Producto")]
         public int ProductoID { get; set; }
-        public Producto? Producto { get; set; } // ✅ Corregido, debe llamarse `Producto`
+        public Producto? Producto { get; set; } // ✅ Relación con Producto
 
         public int Cantidad { get; set; }
+
+        // ✅ Nueva propiedad para acceder directamente a la categoría del producto
+        [NotMapped]
+        public string? Categoria => Producto?.Categoria;
     }
 }

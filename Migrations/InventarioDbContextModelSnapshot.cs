@@ -22,32 +22,6 @@ namespace Inventario360.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Inventario360.Models.DetalleSalidaDeBodega", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductoID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SalidaDeBodegaID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("ProductoID");
-
-                    b.HasIndex("SalidaDeBodegaID");
-
-                    b.ToTable("DetalleSalidaDeBodega");
-                });
-
             modelBuilder.Entity("Inventario360.Models.Empleado", b =>
                 {
                     b.Property<int>("ID")
@@ -64,7 +38,7 @@ namespace Inventario360.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Empleado");
+                    b.ToTable("Empleado", (string)null);
                 });
 
             modelBuilder.Entity("Inventario360.Models.Producto", b =>
@@ -97,8 +71,8 @@ namespace Inventario360.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Proveedor")
-                        .HasColumnType("int");
+                    b.Property<string>("Proveedor")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ubicacion")
                         .HasColumnType("nvarchar(max)");
@@ -108,7 +82,7 @@ namespace Inventario360.Migrations
 
                     b.HasKey("ITEM");
 
-                    b.ToTable("Producto");
+                    b.ToTable("Producto", (string)null);
                 });
 
             modelBuilder.Entity("Inventario360.Models.Proveedor", b =>
@@ -127,7 +101,7 @@ namespace Inventario360.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Proveedor");
+                    b.ToTable("Proveedor", (string)null);
                 });
 
             modelBuilder.Entity("Inventario360.Models.Proyecto", b =>
@@ -146,7 +120,7 @@ namespace Inventario360.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Proyecto");
+                    b.ToTable("Proyecto", (string)null);
                 });
 
             modelBuilder.Entity("Inventario360.Models.SalidaDeBodega", b =>
@@ -157,8 +131,14 @@ namespace Inventario360.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<int?>("Cantidad")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("Fecha")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("Producto")
+                        .HasColumnType("int");
 
                     b.Property<int?>("ProyectoAsignado")
                         .HasColumnType("int");
@@ -171,13 +151,15 @@ namespace Inventario360.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("Producto");
+
                     b.HasIndex("ProyectoAsignado");
 
                     b.HasIndex("ResponsableEntrega");
 
                     b.HasIndex("Solicitante");
 
-                    b.ToTable("SalidaDeBodega");
+                    b.ToTable("SalidaDeBodega", (string)null);
                 });
 
             modelBuilder.Entity("Inventario360.Models.SolicitudDeMaterial", b =>
@@ -194,13 +176,6 @@ namespace Inventario360.Migrations
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("ITEM")
                         .HasColumnType("int");
@@ -225,9 +200,8 @@ namespace Inventario360.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Solicitante")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Producto")
+                        .HasColumnType("int");
 
                     b.Property<string>("UnidadMedida")
                         .IsRequired()
@@ -235,7 +209,7 @@ namespace Inventario360.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("SolicitudDeMaterial");
+                    b.ToTable("SolicitudDeMaterial", (string)null);
                 });
 
             modelBuilder.Entity("Inventario360.Models.Usuario", b =>
@@ -440,27 +414,12 @@ namespace Inventario360.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Inventario360.Models.DetalleSalidaDeBodega", b =>
-                {
-                    b.HasOne("Inventario360.Models.Producto", "Producto")
-                        .WithMany()
-                        .HasForeignKey("ProductoID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Inventario360.Models.SalidaDeBodega", "SalidaDeBodega")
-                        .WithMany("Detalles")
-                        .HasForeignKey("SalidaDeBodegaID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Producto");
-
-                    b.Navigation("SalidaDeBodega");
-                });
-
             modelBuilder.Entity("Inventario360.Models.SalidaDeBodega", b =>
                 {
+                    b.HasOne("Inventario360.Models.Producto", "ProductoObj")
+                        .WithMany()
+                        .HasForeignKey("Producto");
+
                     b.HasOne("Inventario360.Models.Proyecto", "ProyectoObj")
                         .WithMany()
                         .HasForeignKey("ProyectoAsignado");
@@ -472,6 +431,8 @@ namespace Inventario360.Migrations
                     b.HasOne("Inventario360.Models.Empleado", "SolicitanteObj")
                         .WithMany()
                         .HasForeignKey("Solicitante");
+
+                    b.Navigation("ProductoObj");
 
                     b.Navigation("ProyectoObj");
 
@@ -529,11 +490,6 @@ namespace Inventario360.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Inventario360.Models.SalidaDeBodega", b =>
-                {
-                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Detalle de la Salida de Bodega";
+    var detalles = ViewBag.Detalles as List<Inventario360.Models.DetalleSalidaDeBodega>; // ✅ Casting explícito
 }
 
 <div class="container mt-4">
@@ -41,16 +42,18 @@
                     <thead>
                         <tr>
                             <th>Producto</th>
+                            <th>Categoría</th> <!-- ✅ Nueva columna para la categoría -->
                             <th>Cantidad</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model.Detalles != null && Model.Detalles.Any())
+                        @if (detalles != null && detalles.Any()) // ✅ Verificación corregida
                         {
-                            foreach (var detalle in Model.Detalles)
+                            foreach (var detalle in detalles)
                             {
                                 <tr>
                                     <td>@(detalle.Producto?.NombreTecnico ?? "Sin nombre")</td>
+                                    <td>@(detalle.Producto?.Categoria ?? "Sin categoría")</td> <!-- ✅ Mostrar la categoría -->
                                     <td>@detalle.Cantidad</td>
                                 </tr>
                             }
@@ -58,7 +61,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="2" class="text-center">No hay productos en esta salida.</td>
+                                <td colspan="3" class="text-center">No hay productos en esta salida.</td>
                             </tr>
                         }
                     </tbody>
