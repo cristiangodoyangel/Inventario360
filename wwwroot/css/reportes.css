@@ -1,0 +1,43 @@
+﻿body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7f6;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.card-body {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.bg-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3) !important;
+}
+
+.bg-success {
+    background: linear-gradient(45deg, #28a745, #218838) !important;
+}
+
+.bg-warning {
+    background: linear-gradient(45deg, #ffc107, #d39e00) !important;
+}
+
+.card h3 {
+    font-size: 32px;
+    font-weight: bold;
+}

@@ -1,0 +1,33 @@
+[33mda565af[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mavance[m[33m, [m[1;31morigin/avance[m[33m)[m feat: imagen con espacio en tabla de solicitud de materiales
+[33mbe28016[m feat: - botón descargar solicitud de material - se descarga tabla en PDF
+[33ma37f060[m feat: se agrega desde inventario y se agrega desde Crear No listado
+[33mbd59fc0[m feat: - Ahora el modal se cierra al seleccionar producto en Solicitar Materiales - Al seleccionar material, se visualiza la imagen del producto.
+[33m2a34917[m feat: Tabla de Salida de Bodega es Datatable, responsiva y siempre visible fecha y solicitante
+[33m1ebfe2b[m feat: se realiza la salida de bodega de varios productos. - el inventario se actualiza automáticamente. - se crea la tabla de Salida de Bodega.
+[33m44f1c86[m feat: se revisan las relaciones de la DB, se modifica el modelo SalidaDeBodega y se crea el modelo DetalleSalidaDeBodega
+[33m8a7eefa[m[33m ([m[1;31morigin/feature-multiple-productos[m[33m, [m[1;32mfeature-multiple-productos[m[33m)[m feat: inventario ahora es responsivo, siempre se verá el nombre del producto. Entrega de Material es responsivo, siempre con fecha y solicitante.
+[33m80c76c8[m feat: - Se protege la app con login, no es accesible si no está iniciada la sesión. - Se corrige error de SalidasDeBodega, se renombra clase de SalidasBodega a --> SalidaDeBodega. - Se corrige Logout.
+[33m7cdaf37[m[33m ([m[1;32mmaster[m[33m)[m Se visualiza el nombre de solicitante, resposabel de entrega y proyecto
+[33mf2f55b5[m Merge pull request #1 from cristiangodoyangel/test
+[33m7e98b5c[m feat: Mejora el flujo de login y acceso
+[33m2ce773b[m feat: se mejora el inicio de sesión
+[33m6cef811[m feat: login funcionando, con iniciar/cerrar sesión y emoticón de usuario
+[33mba6406a[m feat: se crea usuario test de inicio de sesion
+[33m209f200[m feat: Después de la caída de todo el sistema, vuelve a funcionar todo Inventario y Salida de Bodega. Solicitud de materiales al 50%
+[33mdbb842a[m feat: después de la caída de todo el sistema, vuelve a funcionar todo Inventario y Salida de Bodega.
+[33mc03d6e7[m feat: funciona el link a solicitudes
+[33m8169e18[m feat: AHORA SI se pueden crear, editar y eliminar productos del inventario Se pueden editar las imágenes del inventario Se crea vista de salida de bodega Se crea el egreso de bodega y automáticamente actualiza la cantidad desde el inventario
+[33m85b1a81[m feat: se pueden crear, editar y eliminar productos del inventario style: se modifica el estilo de index
+[33mdba2c8c[m feat: se pueden crear productos en inventario style: se modifica el estilo de index
+[33m4c671ef[m feat: se agrega la función de ver detalle de producto, se agrega función de editar producto, se puede agregar fotografía
+[33mc21caca[m ✨ Se agregaron nuevos productos a la base de datos y se mejoró el diseño de la interfaz
+[33m18f8acb[m Se agregó la vista de productos con mejoras en el diseño y funcionalidad
+[33m3246fd4[m feat: Se creó Login.cshtml y se diseñó correctamente
+[33ma2faea5[m 🎨 Establecido el diseño base del proyecto Inventario360. Se alineó la imagen 'Control360', se ajustó el color de los botones y el menú, y se definió la estructura principal.
+[33m45c62ed[m Se crearon todos los controladores en el proyecto
+[33m8e008b2[m Agregados todos los Models y Services con lógica de negocio
+[33m9ffabe0[m Modelos completos y estructura base de Services agregada
+[33md5c63d3[m 🚀 Configuración inicial completa: Conexión a SQL Server, Entity Framework, Identity y vistas básicas
+[33mdbcb879[m Create README.md
+[33meccc0c4[m Agregar archivos de proyecto.
+[33mcee1b67[m Agregar .gitattributes y .gitignore.
