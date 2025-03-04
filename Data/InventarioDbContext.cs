@@ -11,17 +11,15 @@ namespace Inventario360.Data
 
         // Definir las tablas (DbSet) para que Entity Framework las reconozca
 
-        public DbSet<SalidaDeBodega> SalidasDeBodega { get; set; }
-        public DbSet<DetalleSalidaDeBodega> DetallesSalidasDeBodega { get; set; }
+        public DbSet<SalidaDeBodega> SalidaDeBodega { get; set; }
         public DbSet<DetalleSalidaDeBodega> DetalleSalidaDeBodega { get; set; }
-
-
+       
         public DbSet<Producto> Producto { get; set; }
         public DbSet<SolicitudDeMaterial> SolicitudDeMaterial { get; set; }
         public DbSet<Empleado> Empleado { get; set; }
         public DbSet<Proveedor> Proveedor { get; set; }
         public DbSet<Proyecto> Proyecto { get; set; }
-        public DbSet<SalidaDeBodega> SalidaDeBodega { get; set; }
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

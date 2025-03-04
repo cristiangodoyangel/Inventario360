@@ -1,38 +1,57 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Inventario360.Services;
-using Inventario360.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Inventario360.Controllers
 {
     public class ReportesController : Controller
     {
-        private readonly IReporteService _reporteService;
+        private readonly IProductoService _productoService;
 
-        public ReportesController(IReporteService reporteService)
+
+
+        public ReportesController(IProductoService productoService)
         {
-            _reporteService = reporteService;
+            _productoService = productoService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var reportes = await _reporteService.ObtenerDatosReportes();
-            return View(reportes);
-        }
+            var productos = await _productoService.ObtenerTodos();
 
-        public async Task<IActionResult> Detalles(int id)
-        {
-            var reporte = await _reporteService.ObtenerDetalleReporte(id);
-            if (reporte == null)
+            // 📊 Productos por estado (Nuevos vs. Usados)
+            var productosPorEstado = productos
+                .GroupBy(p => p.Estado)
+                .Select(g => new { Estado = g.Key, Cantidad = g.Count() })
+                .ToList();
+
+            // 📊 Productos por categoría
+            var productosPorCategoria = productos
+                .GroupBy(p => p.Categoria)
+                .Select(g => new { Categoria = g.Key ?? "Sin Categoría", Cantidad = g.Count() })
+                .ToList();
+
+            // 📦 Total de productos en inventario
+
+            int total = miVariableNullable ?? 0;
+
+
+
+            // ⚠️ Productos con stock bajo (Menos de 10)
+            int productosStockBajo = productos.Count(p => p.Cantidad < 10);
+
+            // 🔴 Productos en overstock (Más de 300)
+            int productosOverstock = productos.Count(p => p.Cantidad > 300);
+
+            return Json(new
             {
-                return NotFound();
-            }
-            var reportes = await _reporteService.ObtenerDatosReportes();
-            return View("~/Views/Reportes/Index.cshtml", reportes);
-
-
+                productosPorEstado,
+                productosPorCategoria,
+                totalInventario,
+                productosStockBajo,
+                productosOverstock
+            });
         }
     }
 }

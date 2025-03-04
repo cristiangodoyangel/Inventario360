@@ -25,6 +25,7 @@
                     <th class="p-3">Cantidad</th>
                     <th class="p-3">Ubicación</th>
                     <th class="p-3">Estado</th>
+                    <th class="p-3">Categoría</th> <!-- ✅ Nueva columna -->
                     <th class="p-3">Imagen</th>
                     <th class="p-3">Acciones</th>
                 </tr>
@@ -45,12 +46,16 @@
                         <td class="@(producto.Cantidad == 0 ? "text-danger fw-bold" : "")">@producto.Cantidad</td>
                         <td>@producto.Ubicacion</td>
                         <td>@producto.Estado</td>
+                        <td>@producto.Categoria</td> <!-- ✅ Nueva columna -->
                         <td>
                             <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
                         </td>
                         <td>
                             <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
-                            <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@producto.ITEM)">🗑️</button>
+                            <button type="button" class="btn btn-icon"
+                                    onclick="confirmarEliminacion(@producto.ITEM, '@producto.NombreTecnico', '@producto.Categoria')">
+                                🗑️
+                            </button>
                         </td>
                     </tr>
                 }
@@ -68,7 +73,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                ¿Seguro que deseas eliminar este producto?
+                <p><strong>Producto:</strong> <span id="modalProductoNombre"></span></p>
+                <p><strong>Categoría:</strong> <span id="modalProductoCategoria"></span></p>
+                <p>¿Seguro que deseas eliminar este producto?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -118,13 +125,15 @@
 
         var productoIdAEliminar = null;
 
-        function confirmarEliminacion(id) {
+        function confirmarEliminacion(id, nombre, categoria) {
             productoIdAEliminar = id;
+            $("#modalProductoNombre").text(nombre);
+            $("#modalProductoCategoria").text(categoria || "Sin categoría");
             var modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
             modal.show();
         }
 
-                $(document).ready(function () {
+        $(document).ready(function () {
             $("#btnConfirmarEliminar").click(function () {
                 if (productoIdAEliminar) {
                     $.ajax({
@@ -133,7 +142,8 @@
                         data: { id: productoIdAEliminar },
                         success: function (response) {
                             if (response.success) {
-                                $("#fila-" + productoIdAEliminar).fadeOut(300, function () { $(this).remove(); });
+                                        var table = $('#productosTable').DataTable();
+        table.row($("#fila-" + productoIdAEliminar)).remove().draw();
                                 $("#confirmarEliminarModal").modal('hide');
                             } else {
                                 alert(response.message);
@@ -147,11 +157,9 @@
                 }
             });
         });
-
     </script>
 }
 
-<!-- Estilos personalizados -->
 <style>
     .btn-orange {
         background-color: #f06529 !important;
