@@ -45,10 +45,7 @@
         <div class="col-3 col-md-2">
             <div class="card shadow p-2 text-center">
                 <h6 class="fw-bold d-flex align-items-center justify-content-center text-warning">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                        <path d="M12 16h.01" />
-                        <path d="M12 8v4" />
-                    </svg> Bajo
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg> Bajo
                 </h6>
                 <h5 id="productosStockBajo" class="text-warning">0</h5>
             </div>
@@ -56,19 +53,18 @@
         <div class="col-3 col-md-2">
             <div class="card shadow p-2 text-center">
                 <h6 class="fw-bold d-flex align-items-center justify-content-center text-danger">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 7h-3a2 2 0 0 1-2-2V2" />
-                    </svg> Overstock
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-stack"><path d="M21 7h-3a2 2 0 0 1-2-2V2" /><path d="M21 6v6.5c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5v-9c0-.8.7-1.5 1.5-1.5H17Z" /><path d="M7 8v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H15" /><path d="M3 12v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H11" /></svg>Overstock
                 </h6>
                 <h5 id="productosOverstock" class="text-danger">0</h5>
             </div>
         </div>
     </div>
 
-    <!-- 📄 Botón para descargar el reporte en Excel -->
+    <!-- 📄 Botón para ir a la página de Inventario -->
     <div class="text-center mt-3">
-        <button id="btnDescargarExcel" class="btn btn-success">📥 Descargar Excel</button>
+        <a href="/Reportes/Inventario" class="btn btn-success">MÁS INFORMACIÓN</a>
     </div>
+
 
     <hr style="border: 2px solid #333; margin-top: 20px;">
 </div>
@@ -85,13 +81,9 @@
                 success: function (data) {
                     console.log("Datos recibidos:", data);
 
-                       data.inventarioCompleto = data.inventarioCompleto || [];
-            data.stockCritico = data.stockCritico || [];
-            data.overstock = data.overstock || [];
-
-            $("#totalInventario").text(data.totalInventario ?? 0);
-            $("#productosStockBajo").text(data.stockCritico.length ?? 0);
-            $("#productosOverstock").text(data.overstock.length ?? 0);
+                    $("#totalInventario").text(data.totalInventario ?? 0);
+                    $("#productosStockBajo").text(data.productosStockBajo ?? 0);  // ✅ Muestra correctamente
+                    $("#productosOverstock").text(data.productosOverstock ?? 0);  // ✅ Muestra correctamente
 
 
                     // 📊 Gráfico de Productos por Estado
@@ -126,32 +118,8 @@
                         options: { responsive: true, maintainAspectRatio: false }
                     });
 
-                            // 📥 Descargar Reporte en Excel
-                    $("#btnDescargarExcel").click(function () {
-                        let wb = XLSX.utils.book_new();
-
-                        if (data.inventarioCompleto.length > 0) {
-                            let wsInventario = XLSX.utils.json_to_sheet(data.inventarioCompleto);
-                            XLSX.utils.book_append_sheet(wb, wsInventario, "Inventario");
-                        }
-
-                        if (data.stockCritico.length > 0) {
-                            let wsBajo = XLSX.utils.json_to_sheet(data.stockCritico);
-                            XLSX.utils.book_append_sheet(wb, wsBajo, "Stock Crítico");
-                        }
-
-                        if (data.overstock.length > 0) {
-                            let wsOverstock = XLSX.utils.json_to_sheet(data.overstock);
-                            XLSX.utils.book_append_sheet(wb, wsOverstock, "Overstock");
-                        }
-
-                        if (wb.SheetNames.length === 0) {
-                            alert("No hay datos disponibles para exportar.");
-                            return;
-                        }
-
-                        XLSX.writeFile(wb, "Reporte_Inventario.xlsx");
-                    });
+                           
+                   
                 },
                 error: function (xhr) {
                     console.error("Error al cargar los datos:", xhr.responseText);

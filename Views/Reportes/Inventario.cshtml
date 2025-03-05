@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Inventario - Reporte Detallado";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Inventario - Reporte Detallado</h2>
+
+    <!-- Botón para volver -->
+    <a href="/Reportes" class="btn btn-secondary mb-3">&#8592; Volver al Resumen</a>
+
+    <!-- Botones de acción -->
+    <div class="d-flex justify-content-between mb-3">
+        <button id="btnExportarInventario" class="btn btn-success">&#128190; Descargar Excel</button>
+        <button id="btnImprimir" class="btn btn-primary">&#128438; Imprimir</button>
+    </div>
+
+    <!-- 📋 Tabla de Inventario Completo -->
+    <h4>Inventario Completo</h4>
+    <table id="tablaInventario" class="table table-striped nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>ITEM</th>
+                <th>Nombre Técnico</th>
+                <th>Medida</th>
+                <th>Unidad de Medida</th>
+                <th>Marca</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- 📉 Tabla de Stock Crítico -->
+    <h4 class="text-warning">Stock Crítico (Menos de 5)</h4>
+    <table id="tablaStockBajo" class="table table-striped nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>ITEM</th>
+                <th>Nombre Técnico</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- 📈 Tabla de Overstock -->
+    <h4 class="text-danger">Overstock (Más de 100)</h4>
+    <table id="tablaOverstock" class="table table-striped nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>ITEM</th>
+                <th>Nombre Técnico</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/Reportes/ObtenerInventario",
+                type: "GET",
+                success: function (data) {
+                    console.log("📊 Datos recibidos:", data);
+
+                    if (!data || !Array.isArray(data.inventarioCompleto) || !Array.isArray(data.stockCritico) || !Array.isArray(data.overstock)) {
+                        alert("No hay datos disponibles.");
+                        return;
+                    }
+
+                    // 📌 Llenar tabla de Inventario Completo
+                    $('#tablaInventario').DataTable({
+                        responsive: true,
+                        data: data.inventarioCompleto,
+                        columns: [
+                            { data: 'item', defaultContent: '-' },
+                            { data: 'nombreTecnico', defaultContent: '-' },
+                            { data: 'medida', defaultContent: '-' },
+                            { data: 'unidadMedida', defaultContent: '-' },
+                            { data: 'marca', defaultContent: '-' },
+                            { data: 'descripcion', defaultContent: '-' },
+                            { data: 'cantidad', defaultContent: '-' },
+                            { data: 'estado', defaultContent: '-' }
+                        ],
+                        language: {
+                            lengthMenu: "Mostrar _MENU_ registros por página",
+                            zeroRecords: "No hay registros disponibles",
+                            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                            infoEmpty: "No hay registros",
+                            search: "Buscar:",
+                            paginate: {
+                                first: "Primero",
+                                last: "Último",
+                                next: "Siguiente",
+                                previous: "Anterior"
+                            }
+                        }
+                    });
+
+                    // 📌 Llenar tabla de Stock Crítico
+                    $('#tablaStockBajo').DataTable({
+                        responsive: true,
+                        data: data.stockCritico,
+                        columns: [
+                            { data: 'item', defaultContent: '-' },
+                            { data: 'nombreTecnico', defaultContent: '-' },
+                            { data: 'cantidad', defaultContent: '-', render: function (data) { return `<span class="text-warning fw-bold">${data}</span>`; } }
+                        ]
+                    });
+
+                    // 📌 Llenar tabla de Overstock
+                    $('#tablaOverstock').DataTable({
+                        responsive: true,
+                        data: data.overstock,
+                        columns: [
+                            { data: 'item', defaultContent: '-' },
+                            { data: 'nombreTecnico', defaultContent: '-' },
+                            { data: 'cantidad', defaultContent: '-', render: function (data) { return `<span class="text-danger fw-bold">${data}</span>`; } }
+                        ]
+                    });
+                },
+                error: function (xhr) {
+                    console.error("❌ Error al cargar datos:", xhr.responseText);
+                    alert("Error al cargar datos.");
+                }
+            });
+
+            // 📥 Exportar a Excel
+            $("#btnExportarInventario").click(function () {
+                let wb = XLSX.utils.book_new();
+                let wsInventario = XLSX.utils.table_to_sheet(document.getElementById("tablaInventario"));
+                let wsStockBajo = XLSX.utils.table_to_sheet(document.getElementById("tablaStockBajo"));
+                let wsOverstock = XLSX.utils.table_to_sheet(document.getElementById("tablaOverstock"));
+
+                XLSX.utils.book_append_sheet(wb, wsInventario, "Inventario");
+                XLSX.utils.book_append_sheet(wb, wsStockBajo, "Stock Crítico");
+                XLSX.utils.book_append_sheet(wb, wsOverstock, "Overstock");
+
+                XLSX.writeFile(wb, "Reporte_Inventario.xlsx");
+            });
+
+            // 🖨 Botón de impresión
+            $("#btnImprimir").click(function () {
+                window.print();
+            });
+        });
+    </script>
+}
