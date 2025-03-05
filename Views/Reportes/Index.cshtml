@@ -3,86 +3,162 @@
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">📊 Dashboard de Reportes</h2>
+
+    <!-- 🔹 Línea separadora superior -->
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
+    <!-- 📌 Título con icono alineado -->
+    <h2 class="mb-4 text-center d-flex align-items-center justify-content-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-building-warehouse me-2">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 21v-13l9 -4l9 4v13" />
+            <path d="M13 13h4v8h-10v-6h6" />
+            <path d="M13 21v-9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3" />
+        </svg>
+        Inventario
+    </h2>
 
     <!-- 📊 Gráficos -->
-    <div class="row">
-        <div class="col-md-6">
-            <canvas id="chartEstado"></canvas>
+    <div class="row d-flex justify-content-center align-items-center flex-wrap">
+        <div class="col-6 col-md-4 d-flex justify-content-center">
+            <canvas id="chartEstado" style="max-width: 220px; height: 220px;"></canvas>
         </div>
-        <div class="col-md-6">
-            <canvas id="chartCategoria"></canvas>
+        <div class="col-6 col-md-4 d-flex justify-content-center">
+            <canvas id="chartCategoria" style="max-width: 220px; height: 220px;"></canvas>
         </div>
     </div>
 
     <!-- 📦 Tarjetas de Resumen -->
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card shadow p-3 text-center">
-                <h4 class="fw-bold">📦 Total Inventario</h4>
-                <h3 id="totalInventario" class="text-primary">0</h3>
+    <div class="row mt-3 d-flex justify-content-center">
+        <div class="col-3 col-md-2">
+            <div class="card shadow p-2 text-center">
+                <h6 class="fw-bold d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"></path>
+                        <path d="M3.3 7L12 12l8.7-5"></path>
+                        <path d="M12 22V12"></path>
+                    </svg> Total
+                </h6>
+                <h5 id="totalInventario" class="text-center">0</h5>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow p-3 text-center">
-                <h4 class="fw-bold text-danger">⚠️ Stock Bajo (&lt;10)</h4>
-                <h3 id="productosStockBajo" class="text-danger">0</h3>
+        <div class="col-3 col-md-2">
+            <div class="card shadow p-2 text-center">
+                <h6 class="fw-bold d-flex align-items-center justify-content-center text-warning">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                        <path d="M12 16h.01" />
+                        <path d="M12 8v4" />
+                    </svg> Bajo
+                </h6>
+                <h5 id="productosStockBajo" class="text-warning">0</h5>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow p-3 text-center">
-                <h4 class="fw-bold text-warning">🔴 Overstock (&gt;300)</h4>
-                <h3 id="productosOverstock" class="text-warning">0</h3>
+        <div class="col-3 col-md-2">
+            <div class="card shadow p-2 text-center">
+                <h6 class="fw-bold d-flex align-items-center justify-content-center text-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 7h-3a2 2 0 0 1-2-2V2" />
+                    </svg> Overstock
+                </h6>
+                <h5 id="productosOverstock" class="text-danger">0</h5>
             </div>
         </div>
     </div>
+
+    <!-- 📄 Botón para descargar el reporte en Excel -->
+    <div class="text-center mt-3">
+        <button id="btnDescargarExcel" class="btn btn-success">📥 Descargar Excel</button>
+    </div>
+
+    <hr style="border: 2px solid #333; margin-top: 20px;">
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: "/Reportes/Index",
+                url: "/Reportes/ObtenerDatosReportes",
                 type: "GET",
                 success: function (data) {
+                    console.log("Datos recibidos:", data);
+
+                       data.inventarioCompleto = data.inventarioCompleto || [];
+            data.stockCritico = data.stockCritico || [];
+            data.overstock = data.overstock || [];
+
+            $("#totalInventario").text(data.totalInventario ?? 0);
+            $("#productosStockBajo").text(data.stockCritico.length ?? 0);
+            $("#productosOverstock").text(data.overstock.length ?? 0);
+
+
                     // 📊 Gráfico de Productos por Estado
                     const ctxEstado = document.getElementById('chartEstado').getContext('2d');
                     new Chart(ctxEstado, {
                         type: 'pie',
                         data: {
-                            labels: data.productosPorEstado.map(e => e.Estado),
+                            labels: data.productosPorEstado.map(e => e.estado),
                             datasets: [{
-                                data: data.productosPorEstado.map(e => e.Cantidad),
-                                backgroundColor: ['#4CAF50', '#FF5733']
+                                data: data.productosPorEstado.map(e => e.cantidad),
+                                backgroundColor: ['#D3D3D3', '#F06529'],
+                                borderColor: ['#FFFFFF', '#FFFFFF'],
+                                borderWidth: 2
                             }]
-                        }
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
                     });
 
                     // 📊 Gráfico de Productos por Categoría
                     const ctxCategoria = document.getElementById('chartCategoria').getContext('2d');
                     new Chart(ctxCategoria, {
-                        type: 'bar',
+                        type: 'pie',
                         data: {
-                            labels: data.productosPorCategoria.map(c => c.Categoria),
+                            labels: data.productosPorCategoria.map(c => c.categoria),
                             datasets: [{
-                                label: 'Cantidad',
-                                data: data.productosPorCategoria.map(c => c.Cantidad),
-                                backgroundColor: '#007bff'
+                                data: data.productosPorCategoria.map(c => c.cantidad),
+                                backgroundColor: ['#F06529', '#D3D3D3'],
+                                borderColor: ['#FFFFFF', '#FFFFFF'],
+                                borderWidth: 2
                             }]
-                        }
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
                     });
 
-                    // 📦 Actualizar métricas de tarjetas
-                    $("#totalInventario").text(data.totalInventario);
-                    $("#productosStockBajo").text(data.productosStockBajo);
-                    $("#productosOverstock").text(data.productosOverstock);
+                            // 📥 Descargar Reporte en Excel
+                    $("#btnDescargarExcel").click(function () {
+                        let wb = XLSX.utils.book_new();
+
+                        if (data.inventarioCompleto.length > 0) {
+                            let wsInventario = XLSX.utils.json_to_sheet(data.inventarioCompleto);
+                            XLSX.utils.book_append_sheet(wb, wsInventario, "Inventario");
+                        }
+
+                        if (data.stockCritico.length > 0) {
+                            let wsBajo = XLSX.utils.json_to_sheet(data.stockCritico);
+                            XLSX.utils.book_append_sheet(wb, wsBajo, "Stock Crítico");
+                        }
+
+                        if (data.overstock.length > 0) {
+                            let wsOverstock = XLSX.utils.json_to_sheet(data.overstock);
+                            XLSX.utils.book_append_sheet(wb, wsOverstock, "Overstock");
+                        }
+
+                        if (wb.SheetNames.length === 0) {
+                            alert("No hay datos disponibles para exportar.");
+                            return;
+                        }
+
+                        XLSX.writeFile(wb, "Reporte_Inventario.xlsx");
+                    });
                 },
-                error: function () {
-                    alert("Error al cargar los datos del reporte.");
+                error: function (xhr) {
+                    console.error("Error al cargar los datos:", xhr.responseText);
+                    alert("Error al cargar los datos.");
                 }
             });
         });
     </script>
 }
+

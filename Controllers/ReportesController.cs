@@ -9,39 +9,35 @@ namespace Inventario360.Controllers
     {
         private readonly IProductoService _productoService;
 
-
-
         public ReportesController(IProductoService productoService)
         {
             _productoService = productoService;
         }
 
-        public async Task<IActionResult> Index()
+        // 📌 MÉTODO QUE DEVUELVE LA VISTA (NO JSON)
+        public IActionResult Index()
+        {
+            return View(); // ✅ Ahora solo devuelve la vista, sin datos JSON
+        }
+
+        // 📌 MÉTODO QUE DEVUELVE LOS DATOS JSON
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDatosReportes()
         {
             var productos = await _productoService.ObtenerTodos();
 
-            // 📊 Productos por estado (Nuevos vs. Usados)
             var productosPorEstado = productos
                 .GroupBy(p => p.Estado)
                 .Select(g => new { Estado = g.Key, Cantidad = g.Count() })
                 .ToList();
 
-            // 📊 Productos por categoría
             var productosPorCategoria = productos
                 .GroupBy(p => p.Categoria)
                 .Select(g => new { Categoria = g.Key ?? "Sin Categoría", Cantidad = g.Count() })
                 .ToList();
 
-            // 📦 Total de productos en inventario
-
-            int total = miVariableNullable ?? 0;
-
-
-
-            // ⚠️ Productos con stock bajo (Menos de 10)
+            int totalInventario = productos.Count();
             int productosStockBajo = productos.Count(p => p.Cantidad < 10);
-
-            // 🔴 Productos en overstock (Más de 300)
             int productosOverstock = productos.Count(p => p.Cantidad > 300);
 
             return Json(new
