@@ -14,13 +14,19 @@ namespace Inventario360.Controllers
             _productoService = productoService;
         }
 
-        // 📌 MÉTODO QUE DEVUELVE LA VISTA (NO JSON)
+        // 📌 Página principal de reportes
         public IActionResult Index()
         {
-            return View(); // ✅ Ahora solo devuelve la vista, sin datos JSON
+            return View();
         }
 
-        // 📌 MÉTODO QUE DEVUELVE LOS DATOS JSON
+        // 📌 Página de Inventario con Tablas
+        public IActionResult Inventario()
+        {
+            return View();
+        }
+
+        // 📌 Datos para gráficos en Reportes/Index
         [HttpGet]
         public async Task<IActionResult> ObtenerDatosReportes()
         {
@@ -37,8 +43,8 @@ namespace Inventario360.Controllers
                 .ToList();
 
             int totalInventario = productos.Count();
-            int productosStockBajo = productos.Count(p => p.Cantidad < 10);
-            int productosOverstock = productos.Count(p => p.Cantidad > 300);
+            int productosStockBajo = productos.Count(p => p.Cantidad < 5);
+            int productosOverstock = productos.Count(p => p.Cantidad > 100);
 
             return Json(new
             {
@@ -49,5 +55,29 @@ namespace Inventario360.Controllers
                 productosOverstock
             });
         }
+
+        // 📌 Datos para tablas en Reportes/Inventario
+        [HttpGet]
+        public async Task<IActionResult> ObtenerInventario()
+        {
+            var productos = await _productoService.ObtenerTodos();
+
+            var inventarioCompleto = productos.ToList();
+            var stockCritico = productos.Where(p => p.Cantidad < 5).ToList();
+            var overstock = productos.Where(p => p.Cantidad > 100).ToList();
+
+            Console.WriteLine($"Inventario: {System.Text.Json.JsonSerializer.Serialize(inventarioCompleto)}");
+            Console.WriteLine($"Stock Crítico: {System.Text.Json.JsonSerializer.Serialize(stockCritico)}");
+            Console.WriteLine($"Overstock: {System.Text.Json.JsonSerializer.Serialize(overstock)}");
+
+            return Json(new
+            {
+                inventarioCompleto,
+                stockCritico,
+                overstock
+            });
+        }
+
+
     }
 }
