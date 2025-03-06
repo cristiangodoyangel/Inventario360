@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<Inventario360.Models.SalidaDeBodega>
+
+@{
     ViewData["Title"] = "Dashboard de Reportes";
 }
 
@@ -9,13 +11,13 @@
 
     <!-- 📌 Título con icono alineado -->
     <h2 class="mb-4 text-center d-flex align-items-center justify-content-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-building-warehouse me-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M3 21v-13l9 -4l9 4v13" />
             <path d="M13 13h4v8h-10v-6h6" />
             <path d="M13 21v-9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3" />
         </svg>
-        Inventario
+        inventario
     </h2>
 
     <!-- 📊 Gráficos -->
@@ -31,47 +33,86 @@
     <!-- 📦 Tarjetas de Resumen -->
     <div class="row mt-3 d-flex justify-content-center">
         <div class="col-3 col-md-2">
-            <div class="card shadow p-2 text-center">
-                <h6 class="fw-bold d-flex align-items-center justify-content-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"></path>
-                        <path d="M3.3 7L12 12l8.7-5"></path>
-                        <path d="M12 22V12"></path>
-                    </svg> Total
-                </h6>
+            <div class="card shadow p-3 text-center">
+                <h6 class="fw-bold">total</h6>
                 <h5 id="totalInventario" class="text-center">0</h5>
             </div>
         </div>
         <div class="col-3 col-md-2">
-            <div class="card shadow p-2 text-center">
-                <h6 class="fw-bold d-flex align-items-center justify-content-center text-warning">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg> Bajo
-                </h6>
-                <h5 id="productosStockBajo" class="text-warning">0</h5>
+            <div class="card shadow p-3 text-center">
+                <h6 class="fw-bold text-warning">bajo</h6>
+                <h5 id="productosStockBajo">0</h5>
             </div>
         </div>
         <div class="col-3 col-md-2">
-            <div class="card shadow p-2 text-center">
-                <h6 class="fw-bold d-flex align-items-center justify-content-center text-danger">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-stack"><path d="M21 7h-3a2 2 0 0 1-2-2V2" /><path d="M21 6v6.5c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5v-9c0-.8.7-1.5 1.5-1.5H17Z" /><path d="M7 8v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H15" /><path d="M3 12v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H11" /></svg>Overstock
-                </h6>
-                <h5 id="productosOverstock" class="text-danger">0</h5>
+            <div class="card shadow p-3 text-center">
+                <h6 class="fw-bold text-danger">overstock</h6>
+                <h5 id="productosOverstock">0</h5>
             </div>
         </div>
     </div>
 
     <!-- 📄 Botón para ir a la página de Inventario -->
     <div class="text-center mt-3">
-        <a href="/Reportes/Inventario" class="btn btn-success">MÁS INFORMACIÓN</a>
+        <a href="/Reportes/Inventario" class="btn btn-success">más información</a>
     </div>
 
-
     <hr style="border: 2px solid #333; margin-top: 20px;">
+
+    <!-- 📦 Sección de Salidas de Bodega -->
+    <h2 class="mb-4 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out me-2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" x2="9" y1="12" y2="12" />
+        </svg>
+        salidas de bodega
+    </h2>
+
+    <!-- 🔹 Gráficos de barras encima de cada tarjeta -->
+    <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-12 col-md-4 text-center">
+            <canvas id="chartMateriales"></canvas>
+        </div>
+        <div class="col-12 col-md-4 text-center">
+            <canvas id="chartEmpleados"></canvas>
+        </div>
+        <div class="col-12 col-md-4 text-center">
+            <canvas id="chartProyectos"></canvas>
+        </div>
+    </div>
+
+    <!-- 🔹 Tarjetas de estadísticas -->
+    <div class="row mt-4 d-flex justify-content-center">
+        <div class="col-12 col-md-4">
+            <div class="card shadow p-3 text-center" style="min-height: 100px;">
+                <h6 class="fw-bold text-primary">top 3 materiales más solicitados (mes)</h6>
+                <h5 id="topMateriales">cargando...</h5>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card shadow p-3 text-center" style="min-height: 100px;">
+                <h6 class="fw-bold text-success">empleado con más solicitudes (mes)</h6>
+                <h5 id="empleadoMasSolicitante">cargando...</h5>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card shadow p-3 text-center" style="min-height: 100px;">
+                <h6 class="fw-bold text-warning">proyecto con más solicitudes (mes)</h6>
+                <h5 id="proyectoMasSolicitado">cargando...</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📄 Botón para ir a la página de Salidas de Bodega -->
+    <div class="text-center mt-3">
+        <a href="/Reportes/Salidas" class="btn btn-primary">más información</a>
+    </div>
+
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -82,44 +123,91 @@
                     console.log("Datos recibidos:", data);
 
                     $("#totalInventario").text(data.totalInventario ?? 0);
-                    $("#productosStockBajo").text(data.productosStockBajo ?? 0);  // ✅ Muestra correctamente
-                    $("#productosOverstock").text(data.productosOverstock ?? 0);  // ✅ Muestra correctamente
+                    $("#productosStockBajo").text(data.productosStockBajo ?? 0);
+                    $("#productosOverstock").text(data.productosOverstock ?? 0);
+
+                    // Convertir a minúsculas los textos de las tarjetas
+                    $("#topMateriales").text(
+                        data.materialesMasSolicitados?.length
+                            ? data.materialesMasSolicitados.map(m => `${m.material.toLowerCase() || "sin nombre"} (${m.totalSolicitudes || 0})`).join(", ")
+                            : "sin datos"
+                    );
+
+                    $("#empleadoMasSolicitante").text(data.empleadoMasSolicitante?.empleado.toLowerCase() ?? "sin datos");
+                    $("#proyectoMasSolicitado").text(data.proyectoMasSolicitado?.proyecto.toLowerCase() ?? "sin datos");
+
+                    if (Array.isArray(data.productosPorEstado) && data.productosPorEstado.length > 0) {
+                        const ctxEstado = document.getElementById('chartEstado').getContext('2d');
+                        new Chart(ctxEstado, {
+                            type: 'pie',
+                            data: {
+                                labels: data.productosPorEstado.map(e => e.estado),
+                                datasets: [{
+                                    data: data.productosPorEstado.map(e => e.cantidad),
+                                    backgroundColor: ['#D3D3D3', '#F06529'],
+                                    borderColor: ['#FFFFFF', '#FFFFFF'],
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    }
+
+                    if (Array.isArray(data.productosPorCategoria) && data.productosPorCategoria.length > 0) {
+                        const ctxCategoria = document.getElementById('chartCategoria').getContext('2d');
+                        new Chart(ctxCategoria, {
+                            type: 'pie',
+                            data: {
+                                labels: data.productosPorCategoria.map(c => c.categoria),
+                                datasets: [{
+                                    data: data.productosPorCategoria.map(c => c.cantidad),
+                                    backgroundColor: ['#F06529', '#D3D3D3'],
+                                    borderColor: ['#FFFFFF', '#FFFFFF'],
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    }
 
 
-                    // 📊 Gráfico de Productos por Estado
-                    const ctxEstado = document.getElementById('chartEstado').getContext('2d');
-                    new Chart(ctxEstado, {
-                        type: 'pie',
+                    // 📊 Gráficos de barras
+                    new Chart(document.getElementById('chartMateriales').getContext('2d'), {
+                        type: 'bar',
                         data: {
-                            labels: data.productosPorEstado.map(e => e.estado),
+                            labels: data.materialesMasSolicitados.map(m => m.material.toLowerCase()),
                             datasets: [{
-                                data: data.productosPorEstado.map(e => e.cantidad),
-                                backgroundColor: ['#D3D3D3', '#F06529'],
-                                borderColor: ['#FFFFFF', '#FFFFFF'],
-                                borderWidth: 2
+                                label: 'Solicitudes',
+                                data: data.materialesMasSolicitados.map(m => m.totalSolicitudes),
+                                backgroundColor: '#007bff'
                             }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false }
+                        }
                     });
 
-                    // 📊 Gráfico de Productos por Categoría
-                    const ctxCategoria = document.getElementById('chartCategoria').getContext('2d');
-                    new Chart(ctxCategoria, {
-                        type: 'pie',
+                    new Chart(document.getElementById('chartEmpleados').getContext('2d'), {
+                        type: 'bar',
                         data: {
-                            labels: data.productosPorCategoria.map(c => c.categoria),
+                            labels: [data.empleadoMasSolicitante?.empleado.toLowerCase()],
                             datasets: [{
-                                data: data.productosPorCategoria.map(c => c.cantidad),
-                                backgroundColor: ['#F06529', '#D3D3D3'],
-                                borderColor: ['#FFFFFF', '#FFFFFF'],
-                                borderWidth: 2
+                                label: 'Solicitudes',
+                                data: [data.empleadoMasSolicitante?.totalSolicitudes],
+                                backgroundColor: '#28a745'
                             }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false }
+                        }
                     });
 
-                           
-                   
+                    new Chart(document.getElementById('chartProyectos').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: [data.proyectoMasSolicitado?.proyecto.toLowerCase()],
+                            datasets: [{
+                                label: 'Solicitudes',
+                                data: [data.proyectoMasSolicitado?.totalSolicitudes],
+                                backgroundColor: '#ffc107'
+                            }]
+                        }
+                    });
+
                 },
                 error: function (xhr) {
                     console.error("Error al cargar los datos:", xhr.responseText);
@@ -129,4 +217,3 @@
         });
     </script>
 }
-
