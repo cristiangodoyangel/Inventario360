@@ -27,14 +27,14 @@
             <thead class="table-light">
                 <tr>
                     <th class="p-3">ITEM</th>
-                    <th class="p-3 all">Nombre Técnico</th> <!-- Siempre visible -->
+                    <th class="p-3 all">Nombre Técnico</th>
+                    <th class="p-3">Cantidad</th> <!-- Movido a la derecha de Nombre Técnico -->
                     <th class="p-3">Medida</th>
-                    <th class="p-3">Unidad de Medida</th>
-                    <th class="p-3">Marca</th>
-                    <th class="p-3">Cantidad</th>
+                    <th class="p-3 d-none">Unidad de Medida</th> <!-- Oculto -->
+                    <th class="p-3 d-none">Marca</th> <!-- Oculto -->
                     <th class="p-3">Ubicación</th>
                     <th class="p-3">Estado</th>
-                    <th class="p-3">Categoría</th> <!-- ✅ Nueva columna -->
+                    <th class="p-3">Categoría</th>
                     <th class="p-3">Imagen</th>
                     <th class="p-3">Acciones</th>
                 </tr>
@@ -45,17 +45,17 @@
                     <tr id="fila-@producto.ITEM">
                         <td>@producto.ITEM</td>
                         <td class="all">
-                            <a href="@Url.Action("Detalle", "Productos", new { id = producto.ITEM })" class="text-primary fw-bold">
-                                @producto.NombreTecnico
+                            <a href="@Url.Action("Detalle", "Productos", new { id = producto.ITEM })" class="fw-bold text-dark">
+                                @(char.ToUpper(producto.NombreTecnico[0]) + producto.NombreTecnico.Substring(1).ToLower())
                             </a>
                         </td>
-                        <td>@producto.Medida</td>
-                        <td>@producto.UnidadMedida</td>
-                        <td>@producto.Marca</td>
                         <td class="@(producto.Cantidad == 0 ? "text-danger fw-bold" : "")">@producto.Cantidad</td>
+                        <td>@producto.Medida</td>
+                        <td class="d-none">@producto.UnidadMedida</td>
+                        <td class="d-none">@producto.Marca</td>
                         <td>@producto.Ubicacion</td>
                         <td>@producto.Estado</td>
-                        <td>@producto.Categoria</td> <!-- ✅ Nueva columna -->
+                        <td>@producto.Categoria</td>
                         <td>
                             <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
                         </td>
