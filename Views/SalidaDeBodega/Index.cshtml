@@ -29,7 +29,7 @@
             <tbody>
                 @foreach (var salida in Model)
                 {
-                    <tr id="fila-@salida.ID">
+                    <tr id="fila-@salida.ID" class="fila-hover">
                         <td>@salida.ID</td>
                         <td>@(salida.Fecha?.ToString("dd-MM-yyyy HH:mm") ?? "Sin fecha")</td>
                         <td>@(salida.SolicitanteObj?.Nombre ?? "No asignado")</td>
@@ -187,5 +187,9 @@
 
     .table td {
         vertical-align: middle;
+    }
+
+    .fila-hover:hover {
+        background-color: #ffcebf;
     }
 </style>
