@@ -2,28 +2,147 @@
     ViewData["Title"] = "Biblioteca de Documentos";
 }
 
-<h2>📂 Biblioteca de Documentos</h2>
+<div class="container mt-4">
+    <h2 class="text-center mb-4 d-flex align-items-center justify-content-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-library me-2">
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+            <path d="M7 7v10" />
+            <path d="M11 7v10" />
+            <path d="m15 7 2 10" />
+        </svg>
+        Biblioteca de Documentos
+    </h2>
+    <div class="row">
+        <!-- Tarjeta para Camionetas -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-orange text-white d-flex align-items-center">
+                    <i class="fas fa-folder me-2"></i> Camionetas
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Archivo</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CheckList Camionetas PMT.pdf</td>
+                                <td class="text-end">
+                                    <a href="/docs/Camionetas/CheckList Camionetas PMT.pdf" target="_blank" class="btn btn-secondary btn-sm">📥 Descargar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-@foreach (var categoria in ViewBag.ArchivosPorCategoria.Keys)
-{
-    <h3>@categoria</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nombre del Archivo</th>
-                <th class="text-end">Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var archivo in ViewBag.ArchivosPorCategoria[categoria])
-            {
-                <tr>
-                    <td>@archivo</td>
-                    <td class="text-end">
-                        <a href="@Url.Action("Descargar", "Biblioteca", new { categoria = categoria, nombreArchivo = archivo })" class="btn btn-primary">📥 Descargar</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        <!-- Tarjeta para Proyectos -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-orange text-white d-flex align-items-center">
+                    <i class="fas fa-folder me-2"></i> Proyectos
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Archivo</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Formato_Reporte_Diario_v2.pdf</td>
+                                <td class="text-end">
+                                    <a href="/docs/Proyectos/Formato_Reporte_Diario_v2.pdf" target="_blank" class="btn btn-secondary btn-sm">📥 Descargar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta para Trabajadores -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-orange text-white d-flex align-items-center">
+                    <i class="fas fa-folder me-2"></i> Trabajadores
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Archivo</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Formulario Rendición de Gastos.docx</td>
+                                <td class="text-end">
+                                    <a href="/docs/Trabajadores/FormularioRendiciondeGastos.docx" target="_blank" class="btn btn-secondary btn-sm">📥 Descargar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta para HSEC -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-orange text-white d-flex align-items-center">
+                    <i class="fas fa-folder me-2"></i> HSEC
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Archivo</th>
+                                <th class="text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Data Sheet - No Aplica.pdf</td>
+                                <td class="text-end">
+                                    <a href="/docs/Hsec/Data Sheet - No Aplica.pdf" target="_blank" class="btn btn-secondary btn-sm">📥 Descargar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-orange {
+        background-color: #f1663b;
+    }
+
+    .text-white {
+        color: white !important;
+    }
+
+    .card {
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+    .table thead {
+        background-color: #f1663b;
+        color: white;
+    }
+</style>
