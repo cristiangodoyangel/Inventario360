@@ -131,5 +131,37 @@ namespace Inventario360.Services
             Console.WriteLine("✅ Stock revertido correctamente.");
         }
 
+        public async Task<object> ObtenerDatosResumenSalidas(int mes, int año)
+        {
+            var resumen = new
+            {
+                proyectosMasSolicitados = await _context.SalidaDeBodega
+                    .Where(s => s.Fecha.HasValue && s.Fecha.Value.Month == mes && s.Fecha.Value.Year == año)
+                    .GroupBy(s => s.ProyectoAsignado)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => new { Proyecto = g.Key, Total = g.Count() })
+                    .FirstOrDefaultAsync(),
+
+                empleadosMasSolicitantes = await _context.SalidaDeBodega
+                    .Where(s => s.Fecha.HasValue && s.Fecha.Value.Month == mes && s.Fecha.Value.Year == año)
+                    .GroupBy(s => s.Solicitante)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => new { Empleado = g.Key, Total = g.Count() })
+                    .FirstOrDefaultAsync(),
+
+                materialesMasSolicitados = await _context.DetalleSalidaDeBodega
+                    .Where(d => d.SalidaDeBodega.Fecha.HasValue && d.SalidaDeBodega.Fecha.Value.Month == mes && d.SalidaDeBodega.Fecha.Value.Year == año)
+                    .Include(d => d.Producto)
+                    .GroupBy(d => d.Producto.NombreTecnico)
+                    .OrderByDescending(g => g.Sum(d => d.Cantidad))
+                    .Select(g => new { Material = g.Key, TotalCantidad = g.Sum(d => d.Cantidad) })
+                    .Take(3)
+                    .ToListAsync()
+            };
+
+            return resumen;
+        }
+
+
     }
 }

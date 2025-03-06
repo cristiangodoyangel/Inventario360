@@ -13,5 +13,7 @@ namespace Inventario360.Services
         Task Eliminar(int id);
         Task EliminarDetalles(int salidaId);
         Task RevertirStock(int salidaId); // ✅ Nuevo método para restaurar stock
+
+        Task<object> ObtenerDatosResumenSalidas(int mes, int año);
     }
 }

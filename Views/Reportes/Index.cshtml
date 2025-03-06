@@ -54,7 +54,7 @@
 
     <!-- 📄 Botón para ir a la página de Inventario -->
     <div class="text-center mt-3">
-        <a href="/Reportes/Inventario" class="btn btn-success">más información</a>
+        <a href="/Reportes/Inventario" class="btn btn-secondary">más información</a>
     </div>
 
     <hr style="border: 2px solid #333; margin-top: 20px;">
@@ -106,7 +106,7 @@
 
     <!-- 📄 Botón para ir a la página de Salidas de Bodega -->
     <div class="text-center mt-3">
-        <a href="/Reportes/Salidas" class="btn btn-primary">más información</a>
+        <a href="/Reportes/Salidas" class="btn btn-secondary">más información</a>
     </div>
 
 </div>
@@ -126,16 +126,16 @@
                     $("#productosStockBajo").text(data.productosStockBajo ?? 0);
                     $("#productosOverstock").text(data.productosOverstock ?? 0);
 
-                    // Convertir a minúsculas los textos de las tarjetas
                     $("#topMateriales").text(
                         data.materialesMasSolicitados?.length
-                            ? data.materialesMasSolicitados.map(m => `${m.material.toLowerCase() || "sin nombre"} (${m.totalSolicitudes || 0})`).join(", ")
+                            ? data.materialesMasSolicitados.slice(0,3).map(m => `${m.material.toLowerCase()} (${m.totalSolicitudes})`).join(", ")
                             : "sin datos"
                     );
 
                     $("#empleadoMasSolicitante").text(data.empleadoMasSolicitante?.empleado.toLowerCase() ?? "sin datos");
                     $("#proyectoMasSolicitado").text(data.proyectoMasSolicitado?.proyecto.toLowerCase() ?? "sin datos");
 
+                    // 📊 Restauración de Pie Charts (Inventario)
                     if (Array.isArray(data.productosPorEstado) && data.productosPorEstado.length > 0) {
                         const ctxEstado = document.getElementById('chartEstado').getContext('2d');
                         new Chart(ctxEstado, {
@@ -144,7 +144,7 @@
                                 labels: data.productosPorEstado.map(e => e.estado),
                                 datasets: [{
                                     data: data.productosPorEstado.map(e => e.cantidad),
-                                    backgroundColor: ['#D3D3D3', '#F06529'],
+                                    backgroundColor: ['#FF8C42', '#FF5733'],
                                     borderColor: ['#FFFFFF', '#FFFFFF'],
                                     borderWidth: 2
                                 }]
@@ -161,7 +161,7 @@
                                 labels: data.productosPorCategoria.map(c => c.categoria),
                                 datasets: [{
                                     data: data.productosPorCategoria.map(c => c.cantidad),
-                                    backgroundColor: ['#F06529', '#D3D3D3'],
+                                    backgroundColor: ['#FFB347', '#FF7043'],
                                     borderColor: ['#FFFFFF', '#FFFFFF'],
                                     borderWidth: 2
                                 }]
@@ -170,43 +170,54 @@
                         });
                     }
 
+                    // 📊 Gráficos de barras (Salidas de Bodega)
+                    if (Array.isArray(data.materialesMasSolicitados) && data.materialesMasSolicitados.length > 0) {
+                        const ctxMateriales = document.getElementById('chartMateriales').getContext('2d');
+                        new Chart(ctxMateriales, {
+                            type: 'bar',
+                            data: {
+                                labels: data.materialesMasSolicitados.slice(0,3).map(m => m.material.toLowerCase()),
+                                datasets: [{
+                                    label: 'Solicitudes',
+                                    data: data.materialesMasSolicitados.slice(0,3).map(m => m.totalSolicitudes),
+                                    backgroundColor: ['#FF8C42', '#FF7043', '#FF5733']
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    }
 
-                    // 📊 Gráficos de barras
-                    new Chart(document.getElementById('chartMateriales').getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: data.materialesMasSolicitados.map(m => m.material.toLowerCase()),
-                            datasets: [{
-                                label: 'Solicitudes',
-                                data: data.materialesMasSolicitados.map(m => m.totalSolicitudes),
-                                backgroundColor: '#007bff'
-                            }]
-                        }
-                    });
+                    if (data.empleadoMasSolicitante && data.empleadoMasSolicitante.empleado) {
+                        const ctxEmpleados = document.getElementById('chartEmpleados').getContext('2d');
+                        new Chart(ctxEmpleados, {
+                            type: 'bar',
+                            data: {
+                                labels: [data.empleadoMasSolicitante.empleado.toLowerCase()],
+                                datasets: [{
+                                    label: 'Solicitudes',
+                                    data: [data.empleadoMasSolicitante.totalSolicitudes],
+                                    backgroundColor: ['#FF7043']
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    }
 
-                    new Chart(document.getElementById('chartEmpleados').getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: [data.empleadoMasSolicitante?.empleado.toLowerCase()],
-                            datasets: [{
-                                label: 'Solicitudes',
-                                data: [data.empleadoMasSolicitante?.totalSolicitudes],
-                                backgroundColor: '#28a745'
-                            }]
-                        }
-                    });
-
-                    new Chart(document.getElementById('chartProyectos').getContext('2d'), {
-                        type: 'bar',
-                        data: {
-                            labels: [data.proyectoMasSolicitado?.proyecto.toLowerCase()],
-                            datasets: [{
-                                label: 'Solicitudes',
-                                data: [data.proyectoMasSolicitado?.totalSolicitudes],
-                                backgroundColor: '#ffc107'
-                            }]
-                        }
-                    });
+                    if (data.proyectoMasSolicitado && data.proyectoMasSolicitado.proyecto) {
+                        const ctxProyectos = document.getElementById('chartProyectos').getContext('2d');
+                        new Chart(ctxProyectos, {
+                            type: 'bar',
+                            data: {
+                                labels: [data.proyectoMasSolicitado.proyecto.toLowerCase()],
+                                datasets: [{
+                                    label: 'Solicitudes',
+                                    data: [data.proyectoMasSolicitado.totalSolicitudes],
+                                    backgroundColor: ['#FF5733']
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    }
 
                 },
                 error: function (xhr) {
