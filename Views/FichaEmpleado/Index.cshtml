@@ -72,18 +72,20 @@
                     }
 
                     <tr class="@estadoClase">
+
                         <td>
                             <a asp-action="Detalle" asp-route-id="@ficha.ID" class="fw-bold text-dark">
                                 @ficha.Empleado.Nombre
                             </a>
                         </td>
-                        <td>@ficha.FechaIngreso.ToString("dd-MM-yyyy")</td>
+                                                <td>@ficha.FechaIngreso.ToString("dd-MM-yyyy")</td>
                         <td>@(ficha.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</td>
                         <td>@(ficha.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</td>
                         <td>@(ficha.CursoAltura ? "✅ Sí" : "❌ No")</td>
                         <td>@(string.IsNullOrEmpty(ficha.Acreditaciones) ? "N/A" : ficha.Acreditaciones)</td>
                         <td>
-                            <a asp-action="Editar" asp-route-id="@ficha.ID" class="btn btn-icon">✏️</a>
+                            <a asp-action="Detalle" asp-route-id="@ficha.ID" class="btn btn-icon">🔍 </a>
+                            <a asp-action="Editar" asp-route-id="@ficha.ID" class="btn btn-icon">✏️ </a>
                             <a asp-action="Eliminar" asp-route-id="@ficha.ID" class="btn btn-icon" onclick="return confirm('¿Seguro que deseas eliminar esta ficha?')">🗑️</a>
                         </td>
                     </tr>
@@ -93,82 +95,71 @@
     </table>
 
     <!-- Gráfico de barras -->
+    <!-- Gráfico de barras -->
     <canvas id="graficoEstado" class="mt-4"></canvas>
 </div>
+
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Agregada esta línea -->
 
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
 
     <script>
         $(document).ready(function () {
-            $('#productosTable').DataTable({
-                "paging": true,
-                "pageLength": 8,
-                "responsive": true,
-                "lengthMenu": [8, 25, 50],
-                "language": {
-                    "lengthMenu": "Mostrar _MENU_ registros por página",
-                    "zeroRecords": "No se encontraron productos",
-                    "info": "Mostrando página _PAGE_ de _PAGES_",
-                    "infoEmpty": "No hay registros disponibles",
-                    "infoFiltered": "(filtrado de _MAX_ registros en total)",
-                    "search": "Buscar:",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Último",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
-                    }
-                },
-                "columnDefs": [
-                    { "responsivePriority": 1, "targets": 1 } // Prioridad alta en "Nombre Técnico"
-                ],
-                "drawCallback": function () {
-                    $('.dataTables_paginate > .pagination').addClass('pagination-separated');
-                }
+            $('#tablaEmpleados').DataTable();
+
+            var vigentes = 0, porVencer = 0, vencidos = 0;
+
+            $("tbody tr").each(function () {
+                if ($(this).hasClass("table-danger")) vencidos++;
+                else if ($(this).hasClass("table-warning")) porVencer++;
+                else vigentes++;
             });
-        });
 
-        var productoIdAEliminar = null;
+            // Actualizar tarjetas
+            $("#vigentes").text(vigentes);
+            $("#porVencer").text(porVencer);
+            $("#vencidos").text(vencidos);
 
-        function confirmarEliminacion(id, nombre, categoria) {
-            productoIdAEliminar = id;
-            $("#modalProductoNombre").text(nombre);
-            $("#modalProductoCategoria").text(categoria || "Sin categoría");
-            var modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
-            modal.show();
-        }
+            // Verificar si el canvas existe antes de intentar crear el gráfico
+            var canvas = document.getElementById('graficoEstado');
+            if (canvas) {
+                var ctx = canvas.getContext('2d');
 
-        $(document).ready(function () {
-            $("#btnConfirmarEliminar").click(function () {
-                if (productoIdAEliminar) {
-                    $.ajax({
-                        url: "/Productos/Eliminar",
-                        type: "POST",
-                        data: { id: productoIdAEliminar },
-                        success: function (response) {
-                            if (response.success) {
-                                        var table = $('#productosTable').DataTable();
-        table.row($("#fila-" + productoIdAEliminar)).remove().draw();
-                                $("#confirmarEliminarModal").modal('hide');
-                            } else {
-                                alert(response.message);
+                // Destruir el gráfico existente si ya se ha creado antes
+                if (window.miGraficoEstado instanceof Chart) {
+                    window.miGraficoEstado.destroy();
+                }
+
+                // Crear nuevo gráfico y guardarlo en una variable global
+                window.miGraficoEstado = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Vigentes', 'Por Vencer', 'Vencidos'],
+                        datasets: [{
+                            label: 'Estado de Empleados',
+                            data: [vigentes, porVencer, vencidos],
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
                             }
-                        },
-                        error: function (xhr) {
-                            console.error(xhr.responseText);
-                            alert("Hubo un error al eliminar el producto.");
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
         });
     </script>
+}
+
 }
 
 <style>
@@ -222,4 +213,5 @@
     .table td {
         vertical-align: middle;
     }
-</style>
+
+    </style >
