@@ -3,10 +3,18 @@
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">📊 Resumen de Salidas de Bodega</h2>
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
-    <!-- Filtro por mes -->
-    <div class="mb-3 d-flex justify-content-center">
+    <h2 class="mb-4 text-center d-flex align-items-center justify-content-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+            <path d="M3 21v-13l9 -4l9 4v13" />
+            <path d="M13 13h4v8h-10v-6h6" />
+            <path d="M13 21v-9a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v3" />
+        </svg>
+        Resumen de Salidas de Bodega
+    </h2>
+
+    <div class="mb-4 d-flex justify-content-center">
         <label for="selectMes" class="me-2 fw-bold">Seleccionar Mes:</label>
         <select id="selectMes" class="form-select w-auto">
             <option value="1">Enero</option>
@@ -24,35 +32,34 @@
         </select>
     </div>
 
-    <!-- Tarjetas de Resumen -->
-    <div class="row text-center">
-        <div class="col-md-4">
+    <div class="row text-center d-flex justify-content-center mb-4">
+        <div class="col-md-3 mx-3">
             <div class="card p-3 shadow">
                 <h5>📌 Proyecto más solicitado</h5>
-                <h4 id="proyectoMasSolicitado">-</h4>
+                <h4 id="proyectoMasSolicitado">No hay datos</h4>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3 mx-3">
             <div class="card p-3 shadow">
                 <h5>👤 Empleado con más solicitudes</h5>
-                <h4 id="empleadoMasSolicitante">-</h4>
+                <h4 id="empleadoMasSolicitante">No hay datos</h4>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3 mx-3">
             <div class="card p-3 shadow">
                 <h5>📦 Material más solicitado</h5>
-                <h4 id="materialMasSolicitado">-</h4>
+                <h4 id="materialMasSolicitado">No hay datos</h4>
             </div>
         </div>
     </div>
 
-    <!-- Gráficos -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h5 class="text-center">Top 3 Materiales Solicitados</h5>
+    <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-md-6 mb-4">
+            <h5 class="text-center">📊 Top 3 Materiales Solicitados</h5>
             <canvas id="chartMateriales"></canvas>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 mb-4">
+            <h5 class="text-center">📋 Detalles de Materiales Solicitados</h5>
             <table id="tablaMateriales" class="table table-striped">
                 <thead>
                     <tr>
@@ -63,6 +70,10 @@
                 <tbody></tbody>
             </table>
         </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="/Reportes/Index" class="btn btn-secondary">Volver a Reportes</a>
     </div>
 </div>
 
@@ -78,43 +89,116 @@
                     success: function (data) {
                         console.log("📊 Datos recibidos:", data);
 
-                        // Actualizar tarjetas de resumen
-                        $("#proyectoMasSolicitado").text(data.proyectosMasSolicitados?.Proyecto ?? "No hay datos");
-                        $("#empleadoMasSolicitante").text(data.empleadosMasSolicitantes?.Empleado ?? "No hay datos");
-                        $("#materialMasSolicitado").text(data.materialesMasSolicitados.length > 0 ? data.materialesMasSolicitados[0].Material : "No hay datos");
+                        $("#proyectoMasSolicitado").text(data.proyectosMasSolicitados?.nombreProyecto ?? "No hay datos");
+                        $("#empleadoMasSolicitante").text(data.empleadosMasSolicitantes?.nombreEmpleado ?? "No hay datos");
 
-                        // Gráfico de materiales más solicitados
-                        let chartMateriales = new Chart(document.getElementById('chartMateriales'), {
-                            type: 'doughnut',
-                            data: {
-                                labels: data.materialesMasSolicitados.map(m => m.Material),
-                                datasets: [{
-                                    data: data.materialesMasSolicitados.map(m => m.TotalCantidad),
-                                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
-                                }]
-                            }
-                        });
+                        let materiales = data.materialesMasSolicitados || [];
+                        let materialMasSolicitado = materiales.length > 0
+                            ? `${materiales[0].material} (${materiales[0].totalCantidad})`
+                            : "No hay datos";
 
-                        // Tabla de materiales más solicitados
-                        let tableMateriales = $('#tablaMateriales tbody');
-                        tableMateriales.empty();
-                        data.materialesMasSolicitados.forEach(m => {
-                            tableMateriales.append(`<tr><td>${m.Material}</td><td>${m.TotalCantidad}</td></tr>`);
-                        });
+                        $("#materialMasSolicitado").text(materialMasSolicitado);
+
+                        actualizarGraficoMateriales(materiales);
+                        actualizarTablaMateriales(materiales);
                     },
                     error: function () {
-                        alert("Error al cargar datos");
+                        console.error("❌ Error al cargar los datos.");
                     }
                 });
             }
 
-            // Cargar datos al cambiar el mes
+            function actualizarGraficoMateriales(materiales) {
+                let ctx = document.getElementById("chartMateriales").getContext("2d");
+
+                if (window.graficoMateriales) {
+                    window.graficoMateriales.destroy();
+                }
+
+                window.graficoMateriales = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: materiales.map(m => m.material),
+                        datasets: [{
+                            label: "Solicitudes",
+                            data: materiales.map(m => m.totalCantidad),
+                            backgroundColor: ["#FF8C42", "#FF7043", "#FF5733"]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: Math.max(...materiales.map(m => m.totalCantidad), 100) + 50
+                            }
+                        }
+                    }
+                });
+            }
+
+            function actualizarTablaMateriales(materiales) {
+                let tableMateriales = $('#tablaMateriales tbody');
+                tableMateriales.empty();
+
+                if (materiales.length === 0) {
+                    tableMateriales.append("<tr><td colspan='2' class='text-center'>No hay datos</td></tr>");
+                    return;
+                }
+
+                materiales.forEach(m => {
+                    tableMateriales.append(`
+                        <tr>
+                            <td>${m.material}</td>
+                            <td>${m.totalCantidad}</td>
+                        </tr>
+                    `);
+                });
+            }
+
             $('#selectMes').change(function () {
                 cargarDatos($(this).val());
             });
 
-            // Cargar datos del mes actual al inicio
+            // Cargar datos iniciales
             cargarDatos(new Date().getMonth() + 1);
+
+                    function actualizarGraficoMateriales(materiales) {
+            let canvas = document.getElementById("chartMateriales");
+            let ctx = canvas.getContext("2d");
+
+            // 🔹 LIMPIAR CANVAS ANTES DE CREAR UN NUEVO GRÁFICO
+            if (window.graficoMateriales) {
+                window.graficoMateriales.destroy();
+            }
+
+            // 🔹 RESETAR CANVAS PARA EVITAR EXPANSIÓN INDEFINIDA
+            canvas.width = canvas.width;
+
+            window.graficoMateriales = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: materiales.map(m => m.material),
+                    datasets: [{
+                        label: "Solicitudes",
+                        data: materiales.map(m => m.totalCantidad),
+                        backgroundColor: ["#FF8C42", "#FF7043", "#FF5733"]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true, // 🔹 EVITAR QUE EL GRÁFICO CREZCA INDEFINIDAMENTE
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: Math.max(...materiales.map(m => m.totalCantidad), 100) + 50
+                        }
+                    }
+                }
+            });
+        }
+
         });
     </script>
 }

@@ -38,6 +38,10 @@ namespace Inventario360.Controllers
         {
             return View();
         }
+        public IActionResult Salidas()
+        {
+            return View();
+        }
 
         // 📌 Datos para gráficos en Reportes/Index
         [HttpGet]
