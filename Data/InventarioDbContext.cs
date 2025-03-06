@@ -19,7 +19,9 @@ namespace Inventario360.Data
         public DbSet<Empleado> Empleado { get; set; }
         public DbSet<Proveedor> Proveedor { get; set; }
         public DbSet<Proyecto> Proyecto { get; set; }
-       
+        public DbSet<FichaEmpleado> FichaEmpleado { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

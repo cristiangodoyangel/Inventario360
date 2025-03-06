@@ -1,0 +1,40 @@
+﻿<!-- Editar.cshtml - Formulario para modificar una ficha existente -->
+@model Inventario360.Models.FichaEmpleado
+@{
+    ViewData["Title"] = "Editar Ficha de Empleado";
+}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">✏️ Editar Ficha de Empleado</h2>
+    <form asp-action="Editar" method="post" class="card p-4 shadow">
+        <input type="hidden" asp-for="ID" />
+        <div class="mb-3">
+            <label class="form-label">Empleado</label>
+            <select asp-for="EmpleadoID" class="form-control" asp-items="ViewBag.Empleados"></select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha de Ingreso</label>
+            <input asp-for="FechaIngreso" type="date" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha de Término de Contrato</label>
+            <input asp-for="FechaTerminoContrato" type="date" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha de Vencimiento de Examen</label>
+            <input asp-for="FechaVencimientoExamen" type="date" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Curso Altura</label>
+            <select asp-for="CursoAltura" class="form-control">
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Acreditaciones</label>
+            <input asp-for="Acreditaciones" type="text" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

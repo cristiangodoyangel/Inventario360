@@ -1,0 +1,17 @@
+﻿<!-- Detalle.cshtml - Vista de detalles de una ficha de empleado -->
+@model Inventario360.Models.FichaEmpleado
+@{
+    ViewData["Title"] = "Detalles de Ficha de Empleado";
+}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">👁 Detalles de la Ficha de Empleado</h2>
+    <div class="card p-4 shadow">
+        <p><strong>Empleado:</strong> @Model.EmpleadoID</p>
+        <p><strong>Fecha de Ingreso:</strong> @Model.FechaIngreso.ToString("dd-MM-yyyy")</p>
+        <p><strong>Contrato Vence:</strong> @(Model.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</p>
+        <p><strong>Examen Vence:</strong> @(Model.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</p>
+        <p><strong>Curso Altura:</strong> @(Model.CursoAltura ? "✅ Sí" : "❌ No")</p>
+        <p><strong>Acreditaciones:</strong> @(string.IsNullOrEmpty(Model.Acreditaciones) ? "N/A" : Model.Acreditaciones)</p>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
