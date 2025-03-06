@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Resumen de Salidas de Bodega";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">📊 Resumen de Salidas de Bodega</h2>
+
+    <!-- Filtro por mes -->
+    <div class="mb-3 d-flex justify-content-center">
+        <label for="selectMes" class="me-2 fw-bold">Seleccionar Mes:</label>
+        <select id="selectMes" class="form-select w-auto">
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+        </select>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card p-3 shadow">
+                <h5>📌 Proyecto más solicitado</h5>
+                <h4 id="proyectoMasSolicitado">-</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 shadow">
+                <h5>👤 Empleado con más solicitudes</h5>
+                <h4 id="empleadoMasSolicitante">-</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 shadow">
+                <h5>📦 Material más solicitado</h5>
+                <h4 id="materialMasSolicitado">-</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h5 class="text-center">Top 3 Materiales Solicitados</h5>
+            <canvas id="chartMateriales"></canvas>
+        </div>
+        <div class="col-md-6">
+            <table id="tablaMateriales" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Total Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            function cargarDatos(mes) {
+                $.ajax({
+                    url: "/SalidaDeBodega/ObtenerResumenSalidas",
+                    type: "GET",
+                    data: { mes: mes, año: new Date().getFullYear() },
+                    success: function (data) {
+                        console.log("📊 Datos recibidos:", data);
+
+                        // Actualizar tarjetas de resumen
+                        $("#proyectoMasSolicitado").text(data.proyectosMasSolicitados?.Proyecto ?? "No hay datos");
+                        $("#empleadoMasSolicitante").text(data.empleadosMasSolicitantes?.Empleado ?? "No hay datos");
+                        $("#materialMasSolicitado").text(data.materialesMasSolicitados.length > 0 ? data.materialesMasSolicitados[0].Material : "No hay datos");
+
+                        // Gráfico de materiales más solicitados
+                        let chartMateriales = new Chart(document.getElementById('chartMateriales'), {
+                            type: 'doughnut',
+                            data: {
+                                labels: data.materialesMasSolicitados.map(m => m.Material),
+                                datasets: [{
+                                    data: data.materialesMasSolicitados.map(m => m.TotalCantidad),
+                                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+                                }]
+                            }
+                        });
+
+                        // Tabla de materiales más solicitados
+                        let tableMateriales = $('#tablaMateriales tbody');
+                        tableMateriales.empty();
+                        data.materialesMasSolicitados.forEach(m => {
+                            tableMateriales.append(`<tr><td>${m.Material}</td><td>${m.TotalCantidad}</td></tr>`);
+                        });
+                    },
+                    error: function () {
+                        alert("Error al cargar datos");
+                    }
+                });
+            }
+
+            // Cargar datos al cambiar el mes
+            $('#selectMes').change(function () {
+                cargarDatos($(this).val());
+            });
+
+            // Cargar datos del mes actual al inicio
+            cargarDatos(new Date().getMonth() + 1);
+        });
+    </script>
+}
