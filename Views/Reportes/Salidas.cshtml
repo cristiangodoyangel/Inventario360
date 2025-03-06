@@ -74,6 +74,7 @@
 
     <div class="text-center mt-3">
         <a href="/Reportes/Index" class="btn btn-secondary">Volver a Reportes</a>
+        <button id="btnImprimir" class="btn btn-secondary">&#128438; Imprimir</button>
     </div>
 </div>
 
@@ -172,6 +173,11 @@
             if (window.graficoMateriales) {
                 window.graficoMateriales.destroy();
             }
+
+            // 🖨 Botón de impresión
+            $("#btnImprimir").click(function () {
+                window.print();
+            });
 
             // 🔹 RESETAR CANVAS PARA EVITAR EXPANSIÓN INDEFINIDA
             canvas.width = canvas.width;
