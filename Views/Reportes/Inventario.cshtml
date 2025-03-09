@@ -10,7 +10,7 @@
 
     <!-- Botones de acción -->
     <div class="d-flex justify-content-between mb-3">
-        <button id="btnExportarInventario" class="btn btn-success">&#128190; Descargar Excel</button>
+        <button id="btnExportarInventario" class="btn btn-orange">&#128190; Descargar Excel</button>
         <button id="btnImprimir" class="btn btn-secondary">&#128438; Imprimir</button>
     </div>
     <hr class="separador">
@@ -22,7 +22,7 @@
     <table id="tablaInventario" class="table table-striped table-bordered table-hover nowrap" style="width:100%">
         <thead class="table-secondary">
             <tr>
-                <th>ITEM</th>
+                <th class="d-none">ITEM</th>
                 <th>Nombre Técnico</th>
                 <th>Medida</th>
                 <th>Unidad de Medida</th>
@@ -42,7 +42,7 @@
     <table id="tablaStockBajo" class="table table-striped table-bordered table-hover nowrap" style="width:100%">
         <thead class="table-secondary">
             <tr>
-                <th>ITEM</th>
+                <th class="data-none">ITEM</th>
                 <th>Nombre Técnico</th>
                 <th>Cantidad</th>
             </tr>
@@ -57,7 +57,7 @@
     <table id="tablaOverstock" class="table table-striped table-bordered table-hover nowrap" style="width:100%">
         <thead class="table-secondary">
             <tr>
-                <th>ITEM</th>
+                <th class="d-none">ITEM</th>
                 <th>Nombre Técnico</th>
                 <th>Cantidad</th>
             </tr>
@@ -93,7 +93,7 @@
                         responsive: true,
                         data: data.inventarioCompleto,
                         columns: [
-                            { data: 'item', defaultContent: '-' },
+                             { data: 'item', defaultContent: '-', className: "d-none" },
                             { data: 'nombreTecnico', defaultContent: '-' },
                             { data: 'medida', defaultContent: '-' },
                             { data: 'unidadMedida', defaultContent: '-' },
@@ -122,7 +122,7 @@
                         responsive: true,
                         data: data.stockCritico,
                         columns: [
-                            { data: 'item', defaultContent: '-' },
+                              { data: 'item', defaultContent: '-', className: "d-none" },
                             { data: 'nombreTecnico', defaultContent: '-' },
                             { data: 'cantidad', defaultContent: '-', render: function (data) { return `<span class="text-warning fw-bold">${data}</span>`; } }
                         ]
@@ -133,7 +133,7 @@
                         responsive: true,
                         data: data.overstock,
                         columns: [
-                            { data: 'item', defaultContent: '-' },
+                          { data: 'item', defaultContent: '-', className: "d-none" },
                             { data: 'nombreTecnico', defaultContent: '-' },
                             { data: 'cantidad', defaultContent: '-', render: function (data) { return `<span class="text-danger fw-bold">${data}</span>`; } }
                         ]
@@ -180,4 +180,39 @@
     .table-hover tbody tr:hover {
         background-color: #ffcebf !important; /* Color de fila al pasar el mouse */
     }
+
+
+   
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+    .btn-orange:hover {
+        background-color: #d9531e !important;
+        border-color: #d9531e !important;
+    }
+
+    /* 🔹 Cambia el color del "+" cuando la tabla es responsiva */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
+        background-color: #f06529 !important; /* Naranja */
+        color: white !important; /* Color del "+" */
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+    }
+
+    /* 🔹 Cambia el color del "-" cuando la fila está expandida */
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
+        background-color: #d9531e !important; /* Gris */
+        color: black !important; /* Color del "-" */
+    }
+
+
 </style>
