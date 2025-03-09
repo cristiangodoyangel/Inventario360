@@ -88,9 +88,24 @@
             </div>
 
             <div class="text-end">
-                <button type="submit" class="btn btn-secondary">💾 Guardar Cambios</button>
+                <button type="submit" class="btn btn-orange">💾 Guardar Cambios</button>
                 <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>
 </div>
+
+
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+</style>
