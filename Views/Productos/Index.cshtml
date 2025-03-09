@@ -1,99 +1,101 @@
-﻿@model IEnumerable<Inventario360.Models.FichaEmpleado>
+﻿@model IEnumerable<Inventario360.Models.Producto>
 
 @{
-    ViewData["Title"] = "Fichas de Empleados";
+    ViewData["Title"] = "Inventario de Productos";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4 text-center">📋 Fichas de Empleados</h2>
+<div class="container mt-3">
+    <!-- Reducimos el margen superior -->
+    <h2 class="text-center my-2 d-flex align-items-center justify-content-center">
+        <!-- Reducimos los márgenes superior e inferior -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-warehouse me-2">
+            <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z" />
+            <path d="M6 18h12" />
+            <path d="M6 14h12" />
+            <rect width="12" height="12" x="6" y="10" />
+        </svg>
+        Inventario de Bodega
+    </h2>
 
-    <!-- Tarjetas Resumen -->
-    <div class="row text-center">
-        <div class="col-md-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Vigentes</h5>
-                    <p class="card-text fs-4" id="vigentes">0</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h5 class="card-title">Por Vencer</h5>
-                    <p class="card-text fs-4" id="porVencer">0</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Vencidos</h5>
-                    <p class="card-text fs-4" id="vencidos">0</p>
-                </div>
-            </div>
+    <div class="row mb-3">
+        <!-- Reducimos el margen inferior -->
+        <div class="col-md-6"></div>
+        <div class="col-md-6 text-end">
+            <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
         </div>
     </div>
-
-    <div class="text-end mt-3">
-        <a asp-action="Crear" class="btn btn-success">➕ Nueva Ficha</a>
-    </div>
-
-    <!-- Tabla de empleados -->
-    <table id="tablaEmpleados" class="table table-striped table-bordered mt-3">
-        <thead class="table-light">
-            <tr>
-                <th>Empleado</th>
-                <th>Fecha de Ingreso</th>
-                <th>Contrato Vence</th>
-                <th>Examen Vence</th>
-                <th>Curso Altura</th>
-                <th>Acreditaciones</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                var fichasOrdenadas = Model.OrderBy(f =>
-                f.FechaTerminoContrato <= DateTime.Now || f.FechaVencimientoExamen <= DateTime.Now ? 2 :
-                f.FechaTerminoContrato <= DateTime.Now.AddMonths(1) || f.FechaVencimientoExamen <= DateTime.Now.AddMonths(1) ? 1 :
-                0);
-
-                foreach (var ficha in fichasOrdenadas)
+    <div class="table-responsive">
+        <table id="productosTable" class="table table-striped table-bordered table-hover nowrap" width="100%">
+            <thead class="table-secondary">
+                <tr>
+                    <th class="p-3 d-none">ITEM</th>
+                    <th class="p-3 all">Nombre Técnico</th>
+                    <th class="p-3">Cantidad</th>
+                    <th class="p-3">Medida</th>
+                    <th class="p-3 d-none">Unidad de Medida</th>
+                    <th class="p-3 d-none">Marca</th>
+                    <th class="p-3">Ubicación</th>
+                    <th class="p-3">Estado</th>
+                    <th class="p-3">Categoría</th>
+                    <th class="p-3">Imagen</th>
+                    <th class="p-3">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var producto in Model)
                 {
-                    var estadoClase = "table-success"; // Default verde
-                    if (ficha.FechaTerminoContrato <= DateTime.Now || ficha.FechaVencimientoExamen <= DateTime.Now)
-                    {
-                        estadoClase = "table-danger"; // Rojo (vencido)
-                    }
-                    else if (ficha.FechaTerminoContrato <= DateTime.Now.AddMonths(1) || ficha.FechaVencimientoExamen <= DateTime.Now.AddMonths(1))
-                    {
-                        estadoClase = "table-warning"; // Amarillo (por vencer)
-                    }
-
-                    <tr class="@estadoClase">
-                        <td>
-                            <a asp-action="Detalle" asp-route-id="@ficha.ID" class="fw-bold text-dark">
-                                @ficha.Empleado.Nombre
+                    <tr id="fila-@producto.ITEM">
+                        <td class="d-none">@producto.ITEM</td>
+                        <td class="all">
+                            <a href="@Url.Action("Detalle", "Productos", new { id = producto.ITEM })" class="fw-bold text-dark">
+                                @(char.ToUpper(producto.NombreTecnico[0]) + producto.NombreTecnico.Substring(1).ToLower())
                             </a>
                         </td>
-                        <td>@ficha.FechaIngreso.ToString("dd-MM-yyyy")</td>
-                        <td>@(ficha.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</td>
-                        <td>@(ficha.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</td>
-                        <td>@(ficha.CursoAltura ? "✅ Sí" : "❌ No")</td>
-                        <td>@(string.IsNullOrEmpty(ficha.Acreditaciones) ? "N/A" : ficha.Acreditaciones)</td>
+                        <td class="@(producto.Cantidad == 0 ? "text-danger fw-bold" : "")">@producto.Cantidad</td>
+                        <td>@producto.Medida</td>
+                        <td class="d-none">@producto.UnidadMedida</td>
+                        <td class="d-none">@producto.Marca</td>
+                        <td>@producto.Ubicacion</td>
+                        <td>@producto.Estado</td>
+                        <td>@producto.Categoria</td>
                         <td>
-                            <a asp-action="Editar" asp-route-id="@ficha.ID" class="btn btn-icon">✏️</a>
-                            <a asp-action="Eliminar" asp-route-id="@ficha.ID" class="btn btn-icon" onclick="return confirm('¿Seguro que deseas eliminar esta ficha?')">🗑️</a>
+                            <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
+                        </td>
+                        <td>
+                            <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
+                            <button type="button" class="btn btn-icon"
+                                    onclick="confirmarEliminacion(@producto.ITEM, '@producto.NombreTecnico', '@producto.Categoria')">
+                                🗑️
+                            </button>
                         </td>
                     </tr>
                 }
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    <!-- Gráfico de barras -->
-    <canvas id="graficoEstado" class="mt-4"></canvas>
+
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmarEliminarLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Producto:</strong> <span id="modalProductoNombre"></span></p>
+                <p><strong>Categoría:</strong> <span id="modalProductoCategoria"></span></p>
+                <p>¿Seguro que deseas eliminar este producto?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-orange" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -171,55 +173,100 @@
     </script>
 }
 
-<style>
-    .btn-orange {
-        background-color: #f06529 !important;
-        border-radius: 5px;
-        border-color: #f06529 !important;
-        color: white !important;
-    }
-
-        .btn-orange:hover {
-            background-color: #d9531e !important;
-            border-color: #d9531e !important;
+    <style>
+        .btn-orange {
+            background-color: #f06529 !important;
+            border-radius: 5px;
+            border-color: #f06529 !important;
+            color: white !important;
         }
 
-    .btn-icon {
-        background-color: transparent !important;
-        border: 1px solid #000000 !important;
-        color: #f06529 !important;
-        border-radius: 5px;
-        font-size: 1.2rem;
-        padding: 0.3rem;
-    }
+            .btn-orange:hover {
+                background-color: #d9531e !important;
+                border-color: #d9531e !important;
+            }
 
-        .btn-icon:hover {
-            color: #d9531e !important;
+        .btn-icon {
+            background-color: transparent !important;
+            border: 1px solid #000000 !important;
+            color: #f06529 !important;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            padding: 0.3rem;
         }
 
-    .table-responsive {
-        overflow-x: auto;
-    }
+            .btn-icon:hover {
+                color: #d9531e !important;
+            }
 
-    .pagination-separated .paginate_button {
-        margin: 0 8px;
-    }
+        .table-responsive {
+            overflow-x: auto;
+        }
 
-    .table-hover tbody tr:hover {
-        background-color: #ffcebf;
-    }
+        .pagination-separated .paginate_button {
+            margin: 0 8px;
+        }
 
-    .mb-4 {
-        margin-bottom: 3rem !important;
-    }
+        .table-hover tbody tr:hover {
+            background-color: #fcd8b7;
+        }
 
-    .table-light th {
-        background-color: #f8f9fa;
-        font-weight: bold;
-        text-align: center;
-    }
+        .fila-hover:hover {
+            /*background-color: #ffcebf;*/
 
-    .table td {
-        vertical-align: middle;
-    }
-</style>
+            background-color: #fbdfc5;
+        }
+
+        .mb-4 {
+            margin-bottom: 3rem !important;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .pagination-separated .paginate_button {
+            margin: 0 8px;
+        }
+
+        .table-hover tbody tr:hover {
+            /*background-color: #ede6df;*/
+            background-color: #fbdfc5;
+        }
+
+        .mb-4 {
+            margin-bottom: 3rem !important;
+        }
+        /* background-color: #f8f9fa;*/
+        .table-light th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .fila-hover:hover {
+           
+
+            background-color: #fbdfc5;
+        }
+
+
+
+        /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 15px;
+        }
+        /* Agregar borde superior e inferior a la tabla */
+        .table-bordered {
+            border: 1px solid #333 !important; /* Mismo color y grosor del borde inferior */
+        }
+
+            .table-bordered th,
+            .table-bordered td {
+                border: 0.5px solid #ccc !important; /* Color más claro para las celdas internas */
+            }
+    </style>

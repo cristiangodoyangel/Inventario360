@@ -16,8 +16,8 @@
 
     <div class="table-responsive">
         <table id="salidasTable" class="table table-striped table-bordered nowrap" width="100%">
-            <thead class="table-secondary"">
-                ">
+            <thead class="table-secondary">
+                
                 <tr>
                     <th>ID</th>
                     <th>Fecha</th>
@@ -173,13 +173,15 @@
     }
 
     .table-hover tbody tr:hover {
-        background-color: #ffcebf;
+        /*background-color: #ede6df;*/
+        background-color: #dcfffc;
+
     }
 
     .mb-4 {
         margin-bottom: 3rem !important;
     }
-
+    /* background-color: #f8f9fa;*/
     .table-light th {
         background-color: #f8f9fa;
         font-weight: bold;
@@ -191,6 +193,26 @@
     }
 
     .fila-hover:hover {
-        background-color: #ffcebf;
+        
+
+        background-color: #fbdfc5;
+
+	}
+
+    
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
     }
+    /* Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important; /* Mismo color y grosor del borde inferior */
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important; /* Color más claro para las celdas internas */
+        }
+
 </style>
