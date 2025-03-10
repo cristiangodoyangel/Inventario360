@@ -73,13 +73,14 @@
                 <label class="form-label">Imagen Actual</label><br>
                 @if (!string.IsNullOrEmpty(Model.Imagen))
                 {
-                    <img src="~/uploads/@Model.Imagen" class="img-fluid rounded shadow-sm" width="150" />
+                    <img src="@Url.Content("~/images/" + Model.Imagen)" class="img-fluid rounded shadow-sm" width="150" />
                 }
                 else
                 {
                     <p class="text-muted">No hay imagen cargada</p>
                 }
             </div>
+
 
             <!-- Subida de nueva imagen -->
             <div class="mb-3">
