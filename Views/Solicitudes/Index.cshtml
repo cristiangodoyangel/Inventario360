@@ -27,8 +27,7 @@
             <th>Medida</th>
             <th>Unidad de Medida</th>
             <th>Marca</th>
-            <th>Descripción</th>
-            <th>Imagen del Producto</th>
+                        <th>Imagen del Producto</th>
             <th>Posible Proveedor</th>
             <th>Acciones</th>
         </tr>
@@ -75,12 +74,7 @@
         <input type="text" class="form-control" id="Marca">
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Descripción</label>
-        <textarea class="form-control" id="Descripcion"></textarea>
-    </div>
-
-    <div class="mb-3">
+     <div class="mb-3">
         <label class="form-label">Posible Proveedor</label>
         <input type="text" class="form-control" id="PosibleProveedor">
     </div>
@@ -99,19 +93,26 @@
 
 <!-- Modal para seleccionar productos desde el inventario -->
 <div class="modal fade" id="modalInventario" tabindex="-1" aria-labelledby="modalInventarioLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-xl">
+        <!-- 🔹 Cambiado de modal-lg a modal-xl -->
+        <div class="modal-content" style="background-color: #fff;">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalInventarioLabel">Seleccionar Producto del Inventario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered" id="tablaInventario">
+                <table id="tablaInventario" class="table table-striped table-bordered nowrap" width="100%">
                     <thead>
                         <tr>
                             <th>Seleccionar</th>
                             <th>Nombre</th>
-                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Medida</th>
+                            <th>Unidad de Medida</th>
+                            <th>Marca</th>
+                            <th>Ubicación</th>
+                            <th>Estado</th>
+                            <th>Imagen</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -132,50 +133,70 @@
         cargarProductosInventario();
     });
 
-    function cargarProductosInventario() {
-        fetch('/Solicitudes/ObtenerProductos')
-            .then(response => response.json())
+     function cargarProductosInventario() {
+        fetch('/Productos/ObtenerProductos') // 🔹 Ruta corregida
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al obtener productos");
+                }
+                return response.json();
+            })
             .then(data => {
                 let tbody = document.querySelector("#tablaInventario tbody");
                 tbody.innerHTML = "";
                 data.forEach(producto => {
+                    let imagenSrc = producto.imagen && producto.imagen.trim() !== ""
+                        ? `/images/${producto.imagen}`
+                        : "/images/no-image.png"; // Imagen por defecto
+
                     let row = `<tr>
-                        <td><button class="btn btn-sm btn-success" onclick="seleccionarProducto('${producto.item}', '${producto.nombreTecnico}', '${producto.descripcion}', '${producto.marca}', '${producto.imagen}', '${producto.posibleProveedor}')">Seleccionar</button></td>
-                        <td>${producto.nombreTecnico}</td>
-                        <td>${producto.descripcion}</td>
+                        <td><button class="btn btn-sm btn-success"
+                            onclick="seleccionarProducto('${producto.item}', '${producto.nombreTecnico}',
+                            '${producto.cantidad}', '${producto.medida}', '${producto.unidadMedida}',
+                            '${producto.marca}', '${producto.ubicacion}', '${producto.estado}', '${producto.imagen}')">
+                            Seleccionar</button></td>
+                        <td>${producto.nombreTecnico || '-'}</td>
+                        <td>${producto.cantidad || '-'}</td>
+                        <td>${producto.medida || '-'}</td>
+                        <td>${producto.unidadMedida || '-'}</td>
+                        <td>${producto.marca || '-'}</td>
+                        <td>${producto.ubicacion || '-'}</td>
+                        <td>${producto.estado || '-'}</td>
+                        <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img"></td>
                     </tr>`;
+
                     tbody.innerHTML += row;
                 });
             })
             .catch(error => console.error("Error al cargar productos:", error));
     }
 
+
     document.getElementById("btnAgregarInventario").addEventListener("click", function() {
         cargarProductosInventario();
     });
 
-    function seleccionarProducto(item, nombre, descripcion, marca, imagen, posibleProveedor) {
-        document.getElementById("formSolicitudMaterial").style.display = "block";
+        function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen) {
+        let tbody = document.querySelector("#tablaSolicitudes tbody");
 
-        document.getElementById("ITEM").value = item;
-        document.getElementById("NombreTecnico").value = nombre || '';
-        document.getElementById("Descripcion").value = descripcion || '';
-        document.getElementById("Marca").value = marca || '';
-        document.getElementById("PosibleProveedor").value = posibleProveedor || '';
+        let newRow = `<tr>
+            <td>${nombre}</td>
+            <td><input type="number" class="form-control cantidad-input" value="1" min="1" style="width: 80px;"></td>
+            <td>${medida || '-'}</td>
+            <td>${unidadMedida || '-'}</td>
+            <td>${marca || '-'}</td>
+            <td><img src="/images/${imagen}" alt="Imagen Producto" class="producto-img"></td>
+            <td><input type="text" class="form-control proveedor-input" placeholder="Ingrese proveedor" style="width: 150px;"></td>
+            <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
+        </tr>`;
 
-        let imgElement = document.getElementById("PreviewImagen");
-        if (imagen && imagen.trim() !== "") {
-            let imageUrl = `/images/${imagen}`;
-            imgElement.src = imageUrl;
-            imgElement.style.display = "block";
-        } else {
-            imgElement.src = "";
-            imgElement.style.display = "none";
-        }
+        tbody.innerHTML += newRow;
 
+        // **Cerrar el modal después de seleccionar un producto**
         let modal = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
         modal.hide();
     }
+
 
     document.getElementById("btnNuevoProducto").addEventListener("click", function() {
         document.getElementById("formSolicitudMaterial").style.display = "block";
@@ -193,37 +214,31 @@
         }
     });
 
-    document.getElementById("btnGuardar").addEventListener("click", function() {
+        document.getElementById("btnGuardar").addEventListener("click", function() {
         let tbody = document.querySelector("#tablaSolicitudes tbody");
         let imagenSrc = document.getElementById("PreviewImagen").src;
 
         let newRow = `<tr>
             <td>${document.getElementById("NombreTecnico").value}</td>
-            <td>${document.getElementById("Cantidad").value}</td>
+            <td><input type="number" class="form-control cantidad-input" value="${document.getElementById("Cantidad").value}" min="1" style="width: 80px;"></td>
             <td>${document.getElementById("Medida").value}</td>
             <td>${document.getElementById("UnidadMedida").value}</td>
             <td>${document.getElementById("Marca").value}</td>
-            <td>${document.getElementById("Descripcion").value}</td>
-         <td><img src="${imagenSrc}" style="max-width:50px; margin-top: 10px; margin-bottom: 10px;"></td>
-
-            <td>${document.getElementById("PosibleProveedor").value}</td>
+            <td><img src="${imagenSrc}" style="max-width:50px; margin-top: 10px; margin-bottom: 10px;"></td>
+            <td><input type="text" class="form-control proveedor-input" value="${document.getElementById("PosibleProveedor").value}" style="width: 150px;"></td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
 
         tbody.innerHTML += newRow;
 
-        // **Reactivar el botón "Agregar desde Inventario"**
-        document.getElementById("btnAgregarInventario").disabled = false;
+        // **Ocultar el formulario después de agregar el producto**
+        document.getElementById("formSolicitudMaterial").style.display = "none";
 
-        // **Forzar la recarga del modal de Bootstrap para evitar el error**
-        let modalInventario = new bootstrap.Modal(document.getElementById("modalInventario"));
-        document.getElementById("btnAgregarInventario").setAttribute("data-bs-target", "#modalInventario");
-
-        // **Limpieza del formulario después de guardar**
+        // **Limpiar el formulario para una nueva entrada**
         document.getElementById("formSolicitudMaterial").reset();
         document.getElementById("PreviewImagen").style.display = "none";
-        document.getElementById("formSolicitudMaterial").style.display = "none";
     });
+
 
     function eliminarFila(button) {
         button.closest("tr").remove();
@@ -236,7 +251,7 @@
         document.getElementById("PreviewImagen").style.display = "none";
     });
 
-        document.getElementById("btnDescargarPDF").addEventListener("click", function () {
+         document.getElementById("btnDescargarPDF").addEventListener("click", function () {
         let filas = document.querySelectorAll("#tablaSolicitudes tbody tr");
 
         if (filas.length === 0) {
@@ -248,16 +263,18 @@
 
         filas.forEach(fila => {
             let columnas = fila.querySelectorAll("td");
-            let imgTag = columnas[6].querySelector("img");
+            let imgTag = columnas[5].querySelector("img");
+            let inputCantidad = columnas[1].querySelector("input");
+            let inputProveedor = columnas[6].querySelector("input");
 
             let solicitud = {
                 nombreTecnico: columnas[0].innerText.trim(),
-                cantidad: parseInt(columnas[1].innerText.trim()) || 0,
+                cantidad: inputCantidad ? parseInt(inputCantidad.value.trim()) || 0 : 0,
                 medida: columnas[2].innerText.trim(),
                 unidadMedida: columnas[3].innerText.trim(),
                 marca: columnas[4].innerText.trim(),
-                descripcion: columnas[5].innerText.trim(),
-                imagen: imgTag ? getBase64Image(imgTag) : ""
+                posibleProveedor: inputProveedor ? inputProveedor.value.trim() : "",
+                imagen: imgTag ? getBase64Image(imgTag) : "Sin imagen"
             };
 
             solicitudes.push(solicitud);
@@ -291,7 +308,7 @@
         });
     });
 
-    // Función para convertir imagen en base64
+    // ✅ Función para convertir imágenes en base64
     function getBase64Image(img) {
         let canvas = document.createElement("canvas");
         canvas.width = img.naturalWidth;
@@ -300,6 +317,7 @@
         ctx.drawImage(img, 0, 0);
         return canvas.toDataURL("image/png");
     }
+
 
 
 </script>
@@ -370,6 +388,33 @@
             max-width: 60px; /* 🔹 Ajuste del tamaño para mejorar la visualización */
         }
 
+    /* 🔹 Forzar un modal más ancho */
+    .modal-xl {
+        max-width: 95vw !important;
+    }
+
+    /* 🔹 Asegurar que la tabla use todo el ancho disponible */
+    #tablaInventario {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    /* 🔹 Ajustar imágenes dentro de la tabla */
+    .producto-img {
+        display: block;
+        max-width: 60px;
+        height: auto;
+        margin: 0 auto;
+        border-radius: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 🔹 Mejorar alineación de la tabla */
+    #tablaInventario th, #tablaInventario td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 8px;
+    }
 
 
 </style>
