@@ -16,11 +16,14 @@ namespace Inventario360.Controllers
     {
         private readonly IProductoService _productoService;
         private readonly InventarioDbContext _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public ProductosController(IProductoService productoService, InventarioDbContext context)
+        // Constructor único que inyecta las dependencias necesarias
+        public ProductosController(IProductoService productoService, InventarioDbContext context, IWebHostEnvironment hostEnvironment)
         {
             _productoService = productoService;
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         public async Task<IActionResult> Index()
@@ -49,7 +52,7 @@ namespace Inventario360.Controllers
 
             if (ImagenArchivo != null && ImagenArchivo.Length > 0)
             {
-                var rutaCarpeta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                var rutaCarpeta = Path.Combine(_hostEnvironment.WebRootPath, "images");
                 var nombreArchivo = $"{producto.ITEM}_{Path.GetFileName(ImagenArchivo.FileName)}";
                 var rutaArchivo = Path.Combine(rutaCarpeta, nombreArchivo);
 
@@ -77,47 +80,69 @@ namespace Inventario360.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Editar(Producto producto, IFormFile ImagenArchivo)
+        public async Task<IActionResult> Editar(int id, Producto producto, IFormFile ImagenArchivo)
         {
-            if (ModelState.IsValid)
+            if (id != producto.ITEM)
             {
-                var productoExistente = await _productoService.ObtenerPorId(producto.ITEM);
-                if (productoExistente == null)
-                {
-                    ModelState.AddModelError("", "El producto no existe.");
-                    return View(producto);
-                }
-
-                // Actualizar datos
-                productoExistente.Cantidad = producto.Cantidad;
-                productoExistente.NombreTecnico = producto.NombreTecnico;
-                productoExistente.Medida = producto.Medida;
-                productoExistente.UnidadMedida = producto.UnidadMedida;
-                productoExistente.Marca = producto.Marca;
-                productoExistente.Ubicacion = producto.Ubicacion;
-                productoExistente.Estado = producto.Estado;
-                productoExistente.Categoria = producto.Categoria; // ✅ Se agregó la categoría
-
-                // Guardar nueva imagen si se subió un archivo
-                if (ImagenArchivo != null && ImagenArchivo.Length > 0)
-                {
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                    var fileName = $"{Guid.NewGuid()}_{ImagenArchivo.FileName}";
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImagenArchivo.CopyToAsync(stream);
-                    }
-
-                    productoExistente.Imagen = fileName;
-                }
-
-                await _productoService.Actualizar(productoExistente);
-                return RedirectToAction("Index");
+                return NotFound();
             }
 
-            return View(producto);
+            // Obtener el producto actual desde la base de datos
+            var productoExistente = await _context.Producto.FindAsync(id);
+            if (productoExistente == null)
+            {
+                return NotFound();
+            }
+
+            // Mantener la imagen existente si no se sube una nueva
+            if (ImagenArchivo != null && ImagenArchivo.Length > 0)
+            {
+                // Guardar la nueva imagen
+                var uploadsPath = Path.Combine(_hostEnvironment.WebRootPath, "images");
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImagenArchivo.FileName);
+                var filePath = Path.Combine(uploadsPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImagenArchivo.CopyToAsync(stream);
+                }
+
+                // Eliminar la imagen anterior si existe
+                if (!string.IsNullOrEmpty(productoExistente.Imagen))
+                {
+                    var oldImagePath = Path.Combine(uploadsPath, productoExistente.Imagen);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                // Guardar el nombre de la nueva imagen en la base de datos
+                productoExistente.Imagen = fileName;
+            }
+
+            // Si no se sube una nueva imagen, mantener la actual
+            else
+            {
+                producto.Imagen = productoExistente.Imagen;
+            }
+
+            // Actualizar el resto de los campos
+            productoExistente.NombreTecnico = producto.NombreTecnico;
+            productoExistente.Medida = producto.Medida;
+            productoExistente.UnidadMedida = producto.UnidadMedida;
+            productoExistente.Marca = producto.Marca;
+            productoExistente.Cantidad = producto.Cantidad;
+            productoExistente.Descripcion = producto.Descripcion;
+            productoExistente.Ubicacion = producto.Ubicacion;
+            productoExistente.Estado = producto.Estado;
+            productoExistente.Proveedor = producto.Proveedor;
+            productoExistente.Categoria = producto.Categoria;
+
+            _context.Update(productoExistente);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
