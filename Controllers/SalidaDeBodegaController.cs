@@ -140,14 +140,31 @@ namespace Inventario360.Controllers
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
-            var salida = await _salidaBodegaService.ObtenerPorId(id);
+            var salida = await _context.SalidaDeBodega
+                .Include(s => s.Detalles)
+                .ThenInclude(d => d.Producto)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
             if (salida == null)
                 return Json(new { success = false, message = "No se encontró la salida." });
 
             try
             {
-                await _salidaBodegaService.EliminarDetalles(id);
-                await _salidaBodegaService.Eliminar(id);
+                // Restaurar stock de cada producto en la salida eliminada
+                foreach (var detalle in salida.Detalles)
+                {
+                    var producto = await _context.Producto.FindAsync(detalle.ProductoID);
+                    if (producto != null)
+                    {
+                        producto.Cantidad += detalle.Cantidad;
+                        _context.Update(producto);
+                    }
+                }
+
+                // Eliminar la salida de bodega y guardar cambios
+                _context.SalidaDeBodega.Remove(salida);
+                await _context.SaveChangesAsync();
+
                 return Json(new { success = true });
             }
             catch (Exception ex)
@@ -155,6 +172,7 @@ namespace Inventario360.Controllers
                 return Json(new { success = false, message = "Error al eliminar: " + ex.Message });
             }
         }
+
 
         // 📌 Método para eliminar salida y revertir stock
         [HttpPost]
