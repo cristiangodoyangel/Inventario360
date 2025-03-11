@@ -8,4 +8,5 @@ public interface ISolicitudService
     Task AddSolicitudAsync(SolicitudDeMaterial solicitud);
     Task UpdateSolicitudAsync(SolicitudDeMaterial solicitud);
     Task DeleteSolicitudAsync(int id);
+    Task<string> SubirImagenAsync(IFormFile file);
 }
