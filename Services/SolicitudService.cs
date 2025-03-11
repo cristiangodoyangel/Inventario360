@@ -4,16 +4,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.IO;
 
 namespace Inventario360.Services
 {
     public class SolicitudService : ISolicitudService
     {
         private readonly InventarioDbContext _context;
+        private readonly string _uploadsFolder;
 
+        // Constructor único con inyección de dependencias
         public SolicitudService(InventarioDbContext context)
         {
             _context = context;
+            _uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+            if (!Directory.Exists(_uploadsFolder))
+            {
+                Directory.CreateDirectory(_uploadsFolder);
+            }
         }
 
         public async Task<IEnumerable<SolicitudDeMaterial>> GetAllSolicitudesAsync()
@@ -25,7 +36,6 @@ namespace Inventario360.Services
         {
             return await _context.SolicitudDeMaterial.ToListAsync();
         }
-
 
         public async Task<SolicitudDeMaterial> GetSolicitudByIdAsync(int id)
         {
@@ -60,6 +70,24 @@ namespace Inventario360.Services
                 _context.SolicitudDeMaterial.Remove(solicitud);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<string> SubirImagenAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new ArgumentException("No se ha proporcionado ninguna imagen.");
+            }
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string filePath = Path.Combine(_uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fileName;
         }
     }
 }

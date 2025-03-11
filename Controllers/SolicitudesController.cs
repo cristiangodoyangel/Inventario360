@@ -179,7 +179,7 @@ namespace Inventario360.Controllers
 
         [HttpPost]
         [Route("Solicitudes/DescargarPDF")]
-        public async Task<IActionResult> DescargarPDF([FromBody] List<SolicitudDeMaterial> solicitudes)
+        public IActionResult DescargarPDF([FromBody] List<SolicitudDeMaterial> solicitudes)
         {
             if (solicitudes == null || !solicitudes.Any())
             {
@@ -190,58 +190,62 @@ namespace Inventario360.Controllers
             {
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    Document document = new Document(PageSize.A4);
+                    Document document = new Document(PageSize.A4.Rotate()); // 📌 Se establece la orientación horizontal
                     PdfWriter.GetInstance(document, stream);
                     document.Open();
 
-                    // Agregar título
+                    // **Título y mensaje de solicitud**
                     Font titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
-                    document.Add(new Paragraph("Lista de Solicitudes de Material", titleFont));
+                    Font normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 12);
+                    document.Add(new Paragraph("Solicitud de Materiales", titleFont));
+                    document.Add(new Paragraph("\n"));
+                    document.Add(new Paragraph("Solicito estos materiales para esta semana:", normalFont));
                     document.Add(new Paragraph("\n"));
 
-                    // Crear tabla con columnas
-                    PdfPTable table = new PdfPTable(7);
+                    // **Tabla**
+                    PdfPTable table = new PdfPTable(8);
                     table.WidthPercentage = 100;
-                    table.SetWidths(new float[] { 3, 1, 1, 2, 2, 3, 2 });
+                    table.SetWidths(new float[] { 3, 1, 1, 1, 2, 3, 2, 2 }); // 📌 Ajuste de columnas
 
-                    // Encabezados
-                    string[] headers = { "Nombre", "Cantidad", "Medida", "Unidad", "Marca", "Descripción", "Imagen" };
+                    // **Encabezados con fondo naranja**
+                    string[] headers = { "Nombre", "Cantidad", "Medida", "Unidad", "Marca", "Descripción", "Proveedor", "Imagen" };
+                    BaseColor headerColor = new BaseColor(255, 204, 153); // Naranja claro
+
                     foreach (var header in headers)
                     {
                         PdfPCell cell = new PdfPCell(new Phrase(header, FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12)));
-                        cell.BackgroundColor = new BaseColor(211, 211, 211);
+                        cell.BackgroundColor = headerColor;
                         cell.HorizontalAlignment = Element.ALIGN_CENTER;
-                        cell.Padding = 5f;  // 🔹 Espaciado en todas las celdas
+                        cell.Padding = 5f;
+                        cell.Border = Rectangle.BOX;
                         table.AddCell(cell);
                     }
 
-                    // Agregar datos
+                    // **Agregar datos**
                     foreach (var solicitud in solicitudes)
                     {
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.NombreTecnico)) { Padding = 5f });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Cantidad.ToString())) { Padding = 5f });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Medida)) { Padding = 5f });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.UnidadMedida)) { Padding = 5f });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Marca)) { Padding = 5f });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Descripcion)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.NombreTecnico)) { Padding = 5f, Border = Rectangle.BOX });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Cantidad.ToString())) { Padding = 5f, Border = Rectangle.BOX });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Medida)) { Padding = 5f, Border = Rectangle.BOX });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.UnidadMedida)) { Padding = 5f, Border = Rectangle.BOX });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Marca)) { Padding = 5f, Border = Rectangle.BOX });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Descripcion)) { Padding = 5f, Border = Rectangle.BOX });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.PosibleProveedor)) { Padding = 5f, Border = Rectangle.BOX });
 
-                        // 🔹 Configuración de la imagen en la celda con espacio
-                        PdfPCell imgCell = new PdfPCell();
-                        imgCell.PaddingTop = 15f;   // 🔹 Más espacio arriba
-                        imgCell.PaddingBottom = 15f; // 🔹 Más espacio abajo
-                        imgCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        // **Imagen**
+                        PdfPCell imgCell = new PdfPCell { Padding = 5f, Border = Rectangle.BOX, HorizontalAlignment = Element.ALIGN_CENTER };
 
                         if (!string.IsNullOrEmpty(solicitud.Imagen))
                         {
                             try
                             {
                                 Image img;
-                                if (solicitud.Imagen.StartsWith("data:image")) // Verificar si es base64
+                                if (solicitud.Imagen.StartsWith("data:image")) // Base64
                                 {
                                     byte[] imageBytes = Convert.FromBase64String(solicitud.Imagen.Split(',')[1]);
                                     img = Image.GetInstance(imageBytes);
                                 }
-                                else // Si es una ruta local
+                                else // Ruta local
                                 {
                                     string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", solicitud.Imagen);
                                     if (System.IO.File.Exists(imagePath))
@@ -256,7 +260,7 @@ namespace Inventario360.Controllers
 
                                 if (img != null)
                                 {
-                                    img.ScaleAbsolute(50f, 50f); // 🔹 Ajusta tamaño
+                                    img.ScaleAbsolute(50f, 50f);
                                     imgCell.AddElement(img);
                                 }
                                 else
@@ -280,7 +284,7 @@ namespace Inventario360.Controllers
                     document.Add(table);
                     document.Close();
 
-                    return File(stream.ToArray(), "application/pdf", "Solicitudes_Material.pdf");
+                    return File(stream.ToArray(), "application/pdf", "Solicitud_Material.pdf");
                 }
             }
             catch (Exception ex)
@@ -289,7 +293,29 @@ namespace Inventario360.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SubirImagen(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No se ha proporcionado ninguna imagen.");
+            }
 
+            string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return Json(new { fileName });
+        }
 
     }
+
+
+
 }
+

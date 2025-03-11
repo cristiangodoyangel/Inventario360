@@ -7,13 +7,12 @@
     Solicitud de Materiales
 </h2>
 
-<!-- Botones para agregar solicitudes -->
 <div class="mb-3">
     <button type="button" class="btn btn-secondary" id="btnAgregarInventario" data-bs-toggle="modal" data-bs-target="#modalInventario">
         Agregar desde Inventario
     </button>
 
-    <button type="button" class="btn btn-secondary" id="btnNuevoProducto">
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
         Agregar Producto No Listado
     </button>
 </div>
@@ -27,7 +26,8 @@
             <th>Medida</th>
             <th>Unidad de Medida</th>
             <th>Marca</th>
-                        <th>Imagen del Producto</th>
+            <th>Descripción</th>
+            <th>Imagen del Producto</th>
             <th>Posible Proveedor</th>
             <th>Acciones</th>
         </tr>
@@ -37,51 +37,67 @@
     </tbody>
 </table>
 
-<!-- Formulario oculto para agregar material -->
-<form id="formSolicitudMaterial" style="display:none;">
-    <h2>Crear Solicitud de Material</h2>
+<!-- Modal para agregar producto no listado -->
+<div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-labelledby="modalNuevoProductoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNuevoProductoLabel">Crear Solicitud de Material</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formSolicitudMaterial">
+                    <input type="hidden" id="ITEM" />
 
-    <input type="hidden" id="ITEM" />
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Material</label>
+                        <input type="text" class="form-control" id="NombreTecnico">
+                    </div>
 
-    <div class="mb-3">
-        <label class="form-label">Imagen del Producto</label>
-        <input type="file" class="form-control" id="ImagenInput" accept="image/*">
-        <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-top: 10px;">
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad</label>
+                        <input type="number" class="form-control" id="Cantidad" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Medida</label>
+                        <input type="text" class="form-control" id="Medida" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unidad de Medida</label>
+                        <input type="text" class="form-control" id="UnidadMedida" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="Marca">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="Descripcion"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imagen del Producto</label>
+                        <input type="file" class="form-control" id="ImagenInput" accept="images/*">
+                        <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-top: 10px;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Posible Proveedor</label>
+                        <input type="text" class="form-control" id="PosibleProveedor">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-orange" id="btnGuardar">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Nombre del Material</label>
-        <input type="text" class="form-control" id="NombreTecnico">
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Cantidad</label>
-        <input type="number" class="form-control" id="Cantidad" required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Medida</label>
-        <input type="text" class="form-control" id="Medida" required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Unidad de Medida</label>
-        <input type="text" class="form-control" id="UnidadMedida" required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Marca</label>
-        <input type="text" class="form-control" id="Marca">
-    </div>
-
-     <div class="mb-3">
-        <label class="form-label">Posible Proveedor</label>
-        <input type="text" class="form-control" id="PosibleProveedor">
-    </div>
-
-    <button type="button" class="btn btn-orange" id="btnGuardar">Guardar</button>
-    <button type="button" class="btn btn-secondary" id="btnCancelar">Cancelar</button>
-</form>
+</div>
 
 <!-- Botón "Crear Solicitud de Material" ubicado abajo a la derecha -->
 <div style="text-align: right; margin-top: 20px;">
@@ -129,12 +145,162 @@
 
 <!-- Script -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        cargarProductosInventario();
+       document.addEventListener("DOMContentLoaded", function() {
+        cargarProductosInventario(); // Cargar productos del inventario al inicio
+
+        let btnDescargarPDF = document.getElementById("btnDescargarPDF");
+        let imagenInput = document.getElementById("ImagenInput");
+         let btnGuardar = document.getElementById("btnGuardar");
+
+            if (btnGuardar) {
+        btnGuardar.addEventListener("click", async function () { // ⬅️ Se agrega async para permitir `await`
+            console.log("✅ Botón Guardar clickeado.");
+
+            let tbody = document.querySelector("#tablaSolicitudes tbody");
+            let nombre = document.getElementById("NombreTecnico").value.trim();
+            let cantidad = document.getElementById("Cantidad").value.trim();
+            let medida = document.getElementById("Medida").value.trim();
+            let unidadMedida = document.getElementById("UnidadMedida").value.trim();
+            let marca = document.getElementById("Marca").value.trim();
+            let descripcion = document.getElementById("Descripcion").value.trim();
+            let posibleProveedor = document.getElementById("PosibleProveedor").value.trim();
+            let imagenInput = document.getElementById("ImagenInput");
+            let imagenSrc = "/images/no-image.png"; // Imagen por defecto
+
+            console.log("📌 Datos capturados:", {
+                nombre, cantidad, medida, unidadMedida, marca, descripcion, posibleProveedor
+            });
+
+            if (!nombre || !cantidad || !medida || !unidadMedida || !marca || !descripcion || !posibleProveedor) {
+                alert("Por favor, complete todos los campos.");
+                return;
+            }
+
+            // ✅ Si el usuario subió una imagen, subirla al servidor
+            if (imagenInput.files.length > 0) {
+                let formData = new FormData();
+                formData.append("file", imagenInput.files[0]);
+
+                try {
+                    let response = await fetch("/Solicitudes/SubirImagen", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error("Error al subir la imagen.");
+
+                    let data = await response.json();
+                    imagenSrc = `/images/${data.fileName}`;
+                    console.log("✅ Imagen subida correctamente:", imagenSrc);
+                } catch (error) {
+                    console.error("⚠️ Error al subir la imagen:", error);
+                }
+            }
+
+            // ✅ Agregar fila a la tabla con la imagen correcta
+            let newRow = `<tr>
+                <td>${nombre}</td>
+                <td><input type="number" class="form-control cantidad-input" value="${cantidad}" min="1" style="width: 80px;"></td>
+                <td>${medida}</td>
+                <td>${unidadMedida}</td>
+                <td>${marca}</td>
+                <td>${descripcion}</td>
+                <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img" style="max-width: 50px; height: auto;"></td>
+                <td><input type="text" class="form-control proveedor-input" value="${posibleProveedor}" style="width: 150px;"></td>
+                <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
+            </tr>`;
+
+            tbody.innerHTML += newRow;
+
+            console.log("✅ Producto agregado correctamente a la tabla.");
+
+            let modal = bootstrap.Modal.getInstance(document.getElementById("modalNuevoProducto"));
+            if (modal) {
+                modal.hide();
+            }
+
+            // ✅ Limpiar el formulario después de agregar el producto
+            document.getElementById("formSolicitudMaterial").reset();
+            document.getElementById("PreviewImagen").style.display = "none";
+        });
+    }
+
+
+        // ✅ Evento para generar el PDF
+        if (btnDescargarPDF) {
+            btnDescargarPDF.addEventListener("click", function () {
+                let filas = document.querySelectorAll("#tablaSolicitudes tbody tr");
+
+                if (filas.length === 0) {
+                    alert("No hay productos en la lista para exportar.");
+                    return;
+                }
+
+                let solicitudes = [];
+
+                filas.forEach(fila => {
+                    let columnas = fila.querySelectorAll("td");
+
+                    if (columnas.length < 8) return;
+
+                    let inputCantidad = columnas[1]?.querySelector("input")?.value.trim() || "";
+                    let inputProveedor = columnas[7]?.querySelector("input")?.value.trim() || "";
+
+                    let solicitud = {
+                        nombreTecnico: columnas[0]?.textContent.trim() || "Sin nombre",
+                        cantidad: inputCantidad !== "" ? parseInt(inputCantidad) : 0,
+                        medida: columnas[2]?.textContent.trim() || "Sin medida",
+                        unidadMedida: columnas[3]?.textContent.trim() || "Sin unidad",
+                        marca: columnas[4]?.textContent.trim() || "Sin marca",
+                        descripcion: columnas[5]?.textContent.trim() || "Sin descripción",
+                        posibleProveedor: inputProveedor || "Sin proveedor",
+                        imagen: columnas[6]?.querySelector("img") ? getBase64Image(columnas[6].querySelector("img")) : "Sin imagen"
+                    };
+
+                    solicitudes.push(solicitud);
+                });
+
+                if (solicitudes.length === 0) {
+                    alert("No hay datos válidos para exportar.");
+                    return;
+                }
+
+                console.log("Solicitudes enviadas:", JSON.stringify(solicitudes, null, 2));
+
+                fetch("/Solicitudes/DescargarPDF", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(solicitudes)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error al generar el archivo PDF.");
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    let url = window.URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = url;
+                    a.download = "Solicitudes_Material.pdf";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Error al descargar el archivo.");
+                });
+            });
+        }
     });
 
-     function cargarProductosInventario() {
-        fetch('/Productos/ObtenerProductos') // 🔹 Ruta corregida
+
+
+        function cargarProductosInventario() {
+        fetch('/Productos/ObtenerProductos')
             .then(response => {
                 if (!response.ok) {
                     throw new Error("Error al obtener productos");
@@ -150,16 +316,18 @@
                         : "/images/no-image.png"; // Imagen por defecto
 
                     let row = `<tr>
-                        <td><button class="btn btn-sm btn-success"
+                        <td><button class="btn btn-sm btn-orange"
                             onclick="seleccionarProducto('${producto.item}', '${producto.nombreTecnico}',
                             '${producto.cantidad}', '${producto.medida}', '${producto.unidadMedida}',
-                            '${producto.marca}', '${producto.ubicacion}', '${producto.estado}', '${producto.imagen}')">
+                            '${producto.marca}', '${producto.ubicacion}', '${producto.estado}',
+                            '${producto.imagen}', '${producto.descripcion}')">
                             Seleccionar</button></td>
                         <td>${producto.nombreTecnico || '-'}</td>
                         <td>${producto.cantidad || '-'}</td>
                         <td>${producto.medida || '-'}</td>
                         <td>${producto.unidadMedida || '-'}</td>
                         <td>${producto.marca || '-'}</td>
+                        <td>${producto.descripcion || '-'}</td>
                         <td>${producto.ubicacion || '-'}</td>
                         <td>${producto.estado || '-'}</td>
                         <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img"></td>
@@ -172,11 +340,12 @@
     }
 
 
+
     document.getElementById("btnAgregarInventario").addEventListener("click", function() {
         cargarProductosInventario();
     });
 
-        function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen) {
+        function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion) {
         let tbody = document.querySelector("#tablaSolicitudes tbody");
 
         let newRow = `<tr>
@@ -185,6 +354,7 @@
             <td>${medida || '-'}</td>
             <td>${unidadMedida || '-'}</td>
             <td>${marca || '-'}</td>
+            <td>${descripcion || '-'}</td>
             <td><img src="/images/${imagen}" alt="Imagen Producto" class="producto-img"></td>
             <td><input type="text" class="form-control proveedor-input" placeholder="Ingrese proveedor" style="width: 150px;"></td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
@@ -214,27 +384,65 @@
         }
     });
 
-        document.getElementById("btnGuardar").addEventListener("click", function() {
+        document.getElementById("btnGuardar").addEventListener("click", async function () {
         let tbody = document.querySelector("#tablaSolicitudes tbody");
-        let imagenSrc = document.getElementById("PreviewImagen").src;
+        let nombre = document.getElementById("NombreTecnico").value.trim();
+        let cantidad = document.getElementById("Cantidad").value.trim();
+        let medida = document.getElementById("Medida").value.trim();
+        let unidadMedida = document.getElementById("UnidadMedida").value.trim();
+        let marca = document.getElementById("Marca").value.trim();
+        let descripcion = document.getElementById("Descripcion").value.trim();
+        let posibleProveedor = document.getElementById("PosibleProveedor").value.trim();
+        let imagenInput = document.getElementById("ImagenInput");
 
+        // Validación básica
+        if (!nombre || !cantidad || !medida || !unidadMedida || !marca || !descripcion || !posibleProveedor) {
+            alert("Por favor, complete todos los campos.");
+            return;
+        }
+
+        let imagenSrc = "/images/no-image.png"; // Imagen por defecto
+
+        // Si el usuario subió una imagen, subirla al servidor
+        if (imagenInput.files.length > 0) {
+            let formData = new FormData();
+            formData.append("file", imagenInput.files[0]);
+
+            try {
+                let response = await fetch("/Solicitudes/SubirImagen", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Error al subir la imagen.");
+
+                let data = await response.json();
+                imagenSrc = `/images/${data.fileName}`;
+            } catch (error) {
+                console.error("Error al subir la imagen:", error);
+            }
+        }
+
+        // Agregar fila a la tabla
         let newRow = `<tr>
-            <td>${document.getElementById("NombreTecnico").value}</td>
-            <td><input type="number" class="form-control cantidad-input" value="${document.getElementById("Cantidad").value}" min="1" style="width: 80px;"></td>
-            <td>${document.getElementById("Medida").value}</td>
-            <td>${document.getElementById("UnidadMedida").value}</td>
-            <td>${document.getElementById("Marca").value}</td>
-            <td><img src="${imagenSrc}" style="max-width:50px; margin-top: 10px; margin-bottom: 10px;"></td>
-            <td><input type="text" class="form-control proveedor-input" value="${document.getElementById("PosibleProveedor").value}" style="width: 150px;"></td>
+            <td>${nombre}</td>
+            <td><input type="number" class="form-control cantidad-input" value="${cantidad}" min="1" style="width: 80px;"></td>
+            <td>${medida}</td>
+            <td>${unidadMedida}</td>
+            <td>${marca}</td>
+            <td>${descripcion}</td>
+            <td><img src="${imagenSrc}" style="max-width:50px;"></td>
+            <td><input type="text" class="form-control proveedor-input" value="${posibleProveedor}" style="width: 150px;"></td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
 
         tbody.innerHTML += newRow;
 
-        // **Ocultar el formulario después de agregar el producto**
-        document.getElementById("formSolicitudMaterial").style.display = "none";
+        // Cerrar el modal después de agregar el producto
+        let modal = bootstrap.Modal.getInstance(document.getElementById("modalNuevoProducto"));
+        if (modal) modal.hide();
 
-        // **Limpiar el formulario para una nueva entrada**
+        // Limpiar el formulario
         document.getElementById("formSolicitudMaterial").reset();
         document.getElementById("PreviewImagen").style.display = "none";
     });
@@ -251,7 +459,7 @@
         document.getElementById("PreviewImagen").style.display = "none";
     });
 
-         document.getElementById("btnDescargarPDF").addEventListener("click", function () {
+     document.getElementById("btnDescargarPDF").addEventListener("click", function () {
         let filas = document.querySelectorAll("#tablaSolicitudes tbody tr");
 
         if (filas.length === 0) {
@@ -263,22 +471,29 @@
 
         filas.forEach(fila => {
             let columnas = fila.querySelectorAll("td");
-            let imgTag = columnas[5].querySelector("img");
-            let inputCantidad = columnas[1].querySelector("input");
-            let inputProveedor = columnas[6].querySelector("input");
+
+            console.log("Fila detectada:", fila.innerHTML); // ✅ Verificar si la fila existe
+
+            // Extraer datos asegurando que los índices son correctos
+            let inputCantidad = columnas[1]?.querySelector("input")?.value.trim() || "";
+            let inputProveedor = columnas[7]?.querySelector("input")?.value.trim() || "";
 
             let solicitud = {
-                nombreTecnico: columnas[0].innerText.trim(),
-                cantidad: inputCantidad ? parseInt(inputCantidad.value.trim()) || 0 : 0,
-                medida: columnas[2].innerText.trim(),
-                unidadMedida: columnas[3].innerText.trim(),
-                marca: columnas[4].innerText.trim(),
-                posibleProveedor: inputProveedor ? inputProveedor.value.trim() : "",
-                imagen: imgTag ? getBase64Image(imgTag) : "Sin imagen"
+                nombreTecnico: columnas[0]?.textContent.trim() || "",
+                cantidad: inputCantidad !== "" ? parseInt(inputCantidad) : 0,
+                medida: columnas[2]?.textContent.trim() || "",
+                unidadMedida: columnas[3]?.textContent.trim() || "",
+                marca: columnas[4]?.textContent.trim() || "",
+                descripcion: columnas[5]?.textContent.trim() || "",
+                posibleProveedor: inputProveedor,
+                imagen: columnas[6]?.querySelector("img") ? getBase64Image(columnas[6].querySelector("img")) : "Sin imagen"
             };
 
+            console.log("Solicitud generada:", solicitud); // ✅ Verifica en la consola cada solicitud
             solicitudes.push(solicitud);
         });
+
+        console.log("Solicitudes enviadas:", JSON.stringify(solicitudes, null, 2)); // ✅ Verifica JSON antes de enviarlo
 
         fetch("/Solicitudes/DescargarPDF", {
             method: "POST",
@@ -308,8 +523,7 @@
         });
     });
 
-    // ✅ Función para convertir imágenes en base64
-    function getBase64Image(img) {
+       function getBase64Image(img) {
         let canvas = document.createElement("canvas");
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
