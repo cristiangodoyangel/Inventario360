@@ -59,8 +59,11 @@
 
             <div class="mb-3">
                 <label class="form-label">Proveedor</label>
-                <input asp-for="Proveedor" class="form-control" type="number" />
+                <select asp-for="Proveedor" class="form-control" asp-items="ViewBag.Proveedores">
+                    <option value="">Seleccione un proveedor</option>
+                </select>
             </div>
+
 
             <!-- Campo de Categoría -->
             <div class="mb-3">
