@@ -1,16 +1,14 @@
 ﻿@{
-    ViewData["Title"] = "Documentos de Camionetas";
+    ViewData["Title"] = "Documentos de Trabajadores";
 }
 
 <div class="container mt-4">
-    <h2 class="text-center mb-4">Documentos de Camionetas</h2>
+    <h2 class="text-center mb-4">Documentos de Trabajadores</h2>
 
-    <!-- Botón para volver a la biblioteca -->
     <div class="mb-3">
         <a href="/Biblioteca" class="btn btn-secondary">⬅ Volver a la Biblioteca</a>
     </div>
 
-    <!-- Formulario para subir documentos -->
     <div class="card mb-4">
         <div class="card-header bg-orange text-white">
             📤 Subir Nuevo Documento
@@ -30,7 +28,6 @@
         </div>
     </div>
 
-    <!-- Lista de documentos disponibles -->
     <div class="card">
         <div class="card-header bg-orange text-white">
             📂 Documentos Disponibles
@@ -51,7 +48,7 @@
                             <tr>
                                 <td>@archivo</td>
                                 <td class="text-end">
-                                    <a href="/documentos/Camionetas/@archivo" target="_blank" class="btn btn-secondary btn-sm">📥 Descargar</a>
+                                    <a href="/documentos/Trabajadores/@archivo" target="_blank" class="btn btn-secondary btn-sm">📥 Descargar</a>
                                     <button class="btn btn-orange btn-sm btnEliminar" data-archivo="@archivo">🗑 Eliminar</button>
                                 </td>
                             </tr>
@@ -69,44 +66,7 @@
     </div>
 </div>
 
-<!-- Modal para mostrar mensajes -->
-<div class="modal fade" id="modalMensaje" tabindex="-1" aria-labelledby="modalMensajeLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalMensajeLabel">Información</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modalMensajeTexto">
-                <!-- Aquí se mostrará el mensaje -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalConfirmarEliminarLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalConfirmarEliminarLabel">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                ¿Seguro que deseas eliminar este documento?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-orange" id="btnConfirmarEliminar">Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JavaScript para la subida y eliminación de documentos -->
+<!-- JavaScript para subir y eliminar documentos -->
 <script>
     let archivoAEliminar = "";
     let botonEliminarActual = null;
@@ -116,7 +76,7 @@
         let archivo = document.getElementById("archivoDocumento").files[0];
 
         if (!titulo || !archivo) {
-            mostrarModal("Por favor, ingrese un título y seleccione un archivo.");
+            alert("Por favor, ingrese un título y seleccione un archivo.");
             return;
         }
 
@@ -125,60 +85,40 @@
         formData.append("archivo", archivo);
 
         try {
-            let response = await fetch("/Biblioteca/SubirDocumentoCamionetas", {
+            let response = await fetch("/Biblioteca/SubirDocumentoTrabajadores", {
                 method: "POST",
                 body: formData
             });
 
             let result = await response.json();
             if (result.success) {
-                location.reload(); // Recargar la página solo si la subida es exitosa
+                location.reload();
             } else {
-                mostrarModal("Error al subir el documento.");
+                alert("Error al subir el documento.");
             }
         } catch (error) {
             console.error("Error:", error);
-            mostrarModal("Hubo un problema al procesar la solicitud.");
+            alert("Hubo un problema al procesar la solicitud.");
         }
     });
 
     document.querySelectorAll(".btnEliminar").forEach(button => {
-        button.addEventListener("click", function () {
+        button.addEventListener("click", async function () {
             archivoAEliminar = this.getAttribute("data-archivo");
-            botonEliminarActual = this; // Guardar referencia al botón de eliminar
-            var modalEliminar = new bootstrap.Modal(document.getElementById("modalConfirmarEliminar"));
-            modalEliminar.show();
-        });
-    });
+            botonEliminarActual = this;
 
-    document.getElementById("btnConfirmarEliminar").addEventListener("click", async function () {
-        try {
-            let response = await fetch(`/Biblioteca/EliminarDocumentoCamionetas?archivo=${encodeURIComponent(archivoAEliminar)}`, {
+            let response = await fetch(`/Biblioteca/EliminarDocumentoTrabajadores?archivo=${encodeURIComponent(archivoAEliminar)}`, {
                 method: "DELETE"
             });
 
             let result = await response.json();
             if (result.success) {
-                let modalEliminar = bootstrap.Modal.getInstance(document.getElementById("modalConfirmarEliminar"));
-                modalEliminar.hide(); // Cerrar el modal de confirmación de eliminación
-
-                // Eliminar la fila del documento en la tabla sin recargar la página
                 let fila = botonEliminarActual.closest("tr");
                 if (fila) fila.remove();
             }
-        } catch (error) {
-            console.error("Error:", error);
-            mostrarModal("Hubo un problema al procesar la solicitud.");
-        }
+        });
     });
-
-    function mostrarModal(mensaje) {
-        document.getElementById("modalMensajeTexto").innerText = mensaje;
-        var modal = new bootstrap.Modal(document.getElementById("modalMensaje"));
-        modal.show();
-    }
 </script>
-
 
 <style>
     .bg-orange {
