@@ -6,7 +6,7 @@
 
 <div class="container mt-4">
     <h2 class="mb-4 text-center">📋 Fichas de Empleados</h2>
-
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
     <!-- Tarjetas Resumen -->
     <div class="row text-center">
         <div class="col-md-4">
@@ -34,10 +34,12 @@
             </div>
         </div>
     </div>
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
     <div class="text-end mt-3">
         <a asp-action="Crear" class="btn btn-success">➕ Nueva Ficha</a>
     </div>
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
     <!-- Tabla de empleados -->
     <table id="tablaEmpleados" class="table table-striped table-bordered mt-3">
@@ -94,16 +96,21 @@
         </tbody>
     </table>
 
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
     <!-- Gráfico de barras -->
     <!-- Gráfico de barras -->
     <canvas id="graficoEstado" class="mt-4"></canvas>
 </div>
 
-
+<hr style="border: 2px solid #333; margin-bottom: 15px;">
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Agregada esta línea -->
 
 
@@ -197,7 +204,11 @@
     }
 
     .table-hover tbody tr:hover {
-        background-color: #ffcebf;
+        background-color: #fcd8b7;
+    }
+
+    .fila-hover:hover {
+        background-color: #fbdfc5;
     }
 
     .mb-4 {
@@ -212,6 +223,40 @@
 
     .table td {
         vertical-align: middle;
+    }
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+
+    /* ✅ Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important;
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important;
+        }
+
+    /* ✅ Cambia el color del "+" cuando la tabla es responsiva */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
+        background-color: #f06529 !important; /* Naranja */
+        color: white !important; /* Color del "+" */
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+    }
+
+    /* ✅ Cambia el color del "-" cuando la fila está expandida */
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
+        background-color: #d9531e !important; /* Gris */
+        color: black !important; /* Color del "-" */
     }
 
     </style >

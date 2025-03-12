@@ -11,5 +11,7 @@ namespace Inventario360.Services
         Task<FichaEmpleado> CrearFicha(FichaEmpleado ficha);
         Task<FichaEmpleado> ActualizarFicha(FichaEmpleado ficha);
         Task<bool> EliminarFicha(int id);
+
+        Task Agregar(FichaEmpleado ficha);
     }
 }

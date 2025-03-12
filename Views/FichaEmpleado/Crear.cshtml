@@ -1,15 +1,18 @@
-﻿<!-- Crear.cshtml - Formulario para agregar una nueva ficha de empleado -->
-@model Inventario360.Models.FichaEmpleado
+﻿@model Inventario360.Models.FichaEmpleado
+
 @{
     ViewData["Title"] = "Nueva Ficha de Empleado";
 }
+
 <div class="container mt-4">
     <h2 class="mb-4 text-center">➕ Nueva Ficha de Empleado</h2>
     <form asp-action="Crear" method="post" class="card p-4 shadow">
         <div class="mb-3">
             <label class="form-label">Empleado</label>
-            <select asp-for="EmpleadoID" class="form-control" asp-items="ViewBag.Empleados"></select>
+            <input asp-for="Empleado.Nombre" type="text" class="form-control" required />
+            <span asp-validation-for="Empleado.Nombre" class="text-danger"></span>
         </div>
+
         <div class="mb-3">
             <label class="form-label">Fecha de Ingreso</label>
             <input asp-for="FechaIngreso" type="date" class="form-control" required />
@@ -33,7 +36,39 @@
             <label class="form-label">Acreditaciones</label>
             <input asp-for="Acreditaciones" type="text" class="form-control" />
         </div>
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        <button type="submit" class="btn btn-orange">Guardar</button>
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+</style>

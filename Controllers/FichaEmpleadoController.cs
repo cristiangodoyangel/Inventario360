@@ -60,66 +60,52 @@ namespace Inventario360.Controllers
         // 📌 Editar ficha (Vista)
         public async Task<IActionResult> Editar(int id)
         {
-            var ficha = await _context.FichaEmpleado.FindAsync(id);
+            var ficha = await _context.FichaEmpleado.Include(f => f.Empleado)
+                .FirstOrDefaultAsync(f => f.ID == id);
+
             if (ficha == null) return NotFound();
 
-            ViewData["Empleados"] = new SelectList(_context.Empleado, "ID", "Nombre", ficha.EmpleadoID);
             return View(ficha);
         }
+
 
         // 📌 Guardar cambios en la BD
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, [Bind("ID,EmpleadoID,FechaIngreso,FechaTerminoContrato,FechaVencimientoExamen,CursoAltura,Acreditaciones")] FichaEmpleado fichaEmpleado)
+        public async Task<IActionResult> Editar(int id, [Bind("ID,Empleado,FechaIngreso,FechaTerminoContrato,FechaVencimientoExamen,CursoAltura,Acreditaciones")] FichaEmpleado fichaEmpleado)
         {
-            if (id != fichaEmpleado.ID)
-            {
-                return NotFound();
-            }
+            if (id != fichaEmpleado.ID) return NotFound();
 
             if (ModelState.IsValid)
             {
-                var fichaExistente = await _context.FichaEmpleado.FindAsync(id);
-                if (fichaExistente == null)
+                try
                 {
-                    return NotFound();
+                    var fichaExistente = await _context.FichaEmpleado.Include(f => f.Empleado)
+                        .FirstOrDefaultAsync(f => f.ID == id);
+
+                    if (fichaExistente == null) return NotFound();
+
+                    // Actualizar manualmente los valores
+                    fichaExistente.Empleado.Nombre = fichaEmpleado.Empleado.Nombre;
+                    fichaExistente.FechaIngreso = fichaEmpleado.FechaIngreso;
+                    fichaExistente.FechaTerminoContrato = fichaEmpleado.FechaTerminoContrato;
+                    fichaExistente.FechaVencimientoExamen = fichaEmpleado.FechaVencimientoExamen;
+                    fichaExistente.CursoAltura = fichaEmpleado.CursoAltura;
+                    fichaExistente.Acreditaciones = fichaEmpleado.Acreditaciones;
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-
-                // Adjuntar la entidad al contexto y marcarla como modificada
-                _context.Attach(fichaExistente).State = EntityState.Modified;
-
-                if (await TryUpdateModelAsync(
-                    fichaExistente,
-                    "",
-                    f => f.EmpleadoID,
-                    f => f.FechaIngreso,
-                    f => f.FechaTerminoContrato,
-                    f => f.FechaVencimientoExamen,
-                    f => f.CursoAltura,
-                    f => f.Acreditaciones))
+                catch (DbUpdateConcurrencyException)
                 {
-                    try
-                    {
-                        await _context.SaveChangesAsync();
-                        return RedirectToAction(nameof(Index));
-                    }
-                    catch (DbUpdateConcurrencyException)
-                    {
-                        if (!FichaEmpleadoExists(fichaEmpleado.ID))
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
+                    if (!FichaEmpleadoExists(fichaEmpleado.ID)) return NotFound();
+                    throw;
                 }
             }
 
-            ViewData["Empleados"] = new SelectList(_context.Empleado, "ID", "Nombre", fichaEmpleado.EmpleadoID);
             return View(fichaEmpleado);
         }
+
 
         private bool FichaEmpleadoExists(int id)
         {

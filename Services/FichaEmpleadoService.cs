@@ -51,5 +51,10 @@ namespace Inventario360.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task Agregar(FichaEmpleado ficha)
+        {
+            _context.FichaEmpleado.Add(ficha);
+            await _context.SaveChangesAsync();
+        }
     }
 }
