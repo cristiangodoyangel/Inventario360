@@ -137,9 +137,16 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Biblioteca" asp-action="Index">Control Documental</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="FichaEmpleado" asp-action="Index">Control de Activos</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="controlActivosDropdown" role="button">
+                                Control de Activos
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="controlActivosDropdown">
+                                <li><a class="dropdown-item" asp-controller="FichaEmpleado" asp-action="Index">Control de Trabajadores</a></li>
+                                <li><a class="dropdown-item" asp-controller="FichaCamioneta" asp-action="Index">Control de Camionetas</a></li>
+                            </ul>
                         </li>
+
                     }
                 </ul>
             </div>
