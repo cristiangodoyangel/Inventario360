@@ -85,9 +85,16 @@
                         <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-top: 10px;">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Posible Proveedor</label>
-                        <span class="form-control-plaintext" id="PosibleProveedor"></span>
+                        <label class="form-label">Proveedor</label>
+                        <select id="Proveedor" class="form-control">
+                            <option value="">Seleccione un proveedor</option>
+                            @foreach (var proveedor in ViewBag.Proveedores)
+                            {
+                                <option value="@proveedor.Value">@proveedor.Text</option>
+                            }
+                        </select>
                     </div>
+
 
 
                 </form>
@@ -153,79 +160,85 @@
         let imagenInput = document.getElementById("ImagenInput");
          let btnGuardar = document.getElementById("btnGuardar");
 
-            if (btnGuardar) {
-        btnGuardar.addEventListener("click", async function () { // ⬅️ Se agrega async para permitir `await`
-            console.log("✅ Botón Guardar clickeado.");
+               if (btnGuardar) {
+            btnGuardar.addEventListener("click", async function () {
+                console.log("✅ Botón Guardar clickeado.");
 
-            let tbody = document.querySelector("#tablaSolicitudes tbody");
-            let nombre = document.getElementById("NombreTecnico").value.trim();
-            let cantidad = document.getElementById("Cantidad").value.trim();
-            let medida = document.getElementById("Medida").value.trim();
-            let unidadMedida = document.getElementById("UnidadMedida").value.trim();
-            let marca = document.getElementById("Marca").value.trim();
-            let descripcion = document.getElementById("Descripcion").value.trim();
-            let posibleProveedor = document.getElementById("PosibleProveedor").value.trim();
-            let imagenInput = document.getElementById("ImagenInput");
-            let imagenSrc = "/images/no-image.png"; // Imagen por defecto
+                let tbody = document.querySelector("#tablaSolicitudes tbody");
+                let nombre = document.getElementById("NombreTecnico")?.value.trim();
+                let cantidad = document.getElementById("Cantidad")?.value.trim();
+                let medida = document.getElementById("Medida")?.value.trim();
+                let unidadMedida = document.getElementById("UnidadMedida")?.value.trim();
+                let marca = document.getElementById("Marca")?.value.trim();
+                let descripcion = document.getElementById("Descripcion")?.value.trim();
 
-            console.log("📌 Datos capturados:", {
-                nombre, cantidad, medida, unidadMedida, marca, descripcion, posibleProveedor
-            });
+                // ✅ Capturar correctamente el nombre del proveedor seleccionado
+                let proveedorSelect = document.getElementById("Proveedor");
+                let proveedorNombre = proveedorSelect.options[proveedorSelect.selectedIndex].text;
 
-            if (!nombre || !cantidad || !medida || !unidadMedida || !marca || !descripcion || !posibleProveedor) {
-                alert("Por favor, complete todos los campos.");
-                return;
-            }
+                let imagenInput = document.getElementById("ImagenInput");
+                let imagenSrc = "/images/no-image.png"; // Imagen por defecto
 
-            // ✅ Si el usuario subió una imagen, subirla al servidor
-            if (imagenInput.files.length > 0) {
-                let formData = new FormData();
-                formData.append("file", imagenInput.files[0]);
+                console.log("📌 Datos capturados:", {
+                    nombre, cantidad, medida, unidadMedida, marca, descripcion, proveedorNombre
+                });
 
-                try {
-                    let response = await fetch("/Solicitudes/SubirImagen", {
-                        method: "POST",
-                        body: formData
-                    });
-
-                    if (!response.ok) throw new Error("Error al subir la imagen.");
-
-                    let data = await response.json();
-                    imagenSrc = `/images/${data.fileName}`;
-                    console.log("✅ Imagen subida correctamente:", imagenSrc);
-                } catch (error) {
-                    console.error("⚠️ Error al subir la imagen:", error);
+                if (!nombre || !cantidad || !medida || !unidadMedida || !marca || !descripcion || !proveedorNombre) {
+                    alert("Por favor, complete todos los campos.");
+                    return;
                 }
-            }
 
-            // ✅ Agregar fila a la tabla con la imagen correcta
-            let newRow = `<tr>
-                <td>${nombre}</td>
-                <td><input type="number" class="form-control cantidad-input" value="${cantidad}" min="1" style="width: 80px;"></td>
-                <td>${medida}</td>
-                <td>${unidadMedida}</td>
-                <td>${marca}</td>
-                <td>${descripcion}</td>
-                <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img" style="max-width: 50px; height: auto;"></td>
-                <td>${posibleProveedor}</td>
-                <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
-            </tr>`;
+                // ✅ Si el usuario subió una imagen, subirla al servidor
+                if (imagenInput.files.length > 0) {
+                    let formData = new FormData();
+                    formData.append("file", imagenInput.files[0]);
 
-            tbody.innerHTML += newRow;
+                    try {
+                        let response = await fetch("/Solicitudes/SubirImagen", {
+                            method: "POST",
+                            body: formData
+                        });
 
-            console.log("✅ Producto agregado correctamente a la tabla.");
+                        if (!response.ok) throw new Error("Error al subir la imagen.");
 
-            let modal = bootstrap.Modal.getInstance(document.getElementById("modalNuevoProducto"));
-            if (modal) {
-                modal.hide();
-            }
+                        let data = await response.json();
+                        imagenSrc = `/images/${data.fileName}`;
+                        console.log("✅ Imagen subida correctamente:", imagenSrc);
+                    } catch (error) {
+                        console.error("⚠️ Error al subir la imagen:", error);
+                    }
+                }
 
-            // ✅ Limpiar el formulario después de agregar el producto
-            document.getElementById("formSolicitudMaterial").reset();
-            document.getElementById("PreviewImagen").style.display = "none";
-        });
-    }
+                // ✅ Agregar fila a la tabla con el nombre del proveedor correcto
+                let newRow = `<tr>
+                    <td>${nombre}</td>
+                    <td><input type="number" class="form-control cantidad-input" value="${cantidad}" min="1" style="width: 80px;"></td>
+                    <td>${medida}</td>
+                    <td>${unidadMedida}</td>
+                    <td>${marca}</td>
+                    <td>${descripcion}</td>
+                    <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img" style="max-width: 50px; height: auto;"></td>
+                    <td>${proveedorNombre}</td> <!-- Aquí se guarda el nombre del proveedor -->
+                    <td><button class="btn btn-secondary btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
+                </tr>`;
 
+                tbody.innerHTML += newRow;
+
+                console.log("✅ Producto agregado correctamente a la tabla.");
+
+                let modal = bootstrap.Modal.getInstance(document.getElementById("modalNuevoProducto"));
+                if (modal) {
+                    modal.hide();
+                }
+
+                // ✅ Limpiar el formulario después de agregar el producto
+                document.getElementById("formSolicitudMaterial").reset();
+                document.getElementById("PreviewImagen").style.display = "none";
+            });
+        } else {
+            console.error("⚠️ No se encontró el botón Guardar.");
+        }
+    });
 
         // ✅ Evento para generar el PDF
         if (btnDescargarPDF) {
@@ -245,18 +258,19 @@
                     if (columnas.length < 8) return;
 
                     let inputCantidad = columnas[1]?.querySelector("input")?.value.trim() || "";
-                    let inputProveedor = columnas[7]?.querySelector("input")?.value.trim() || "";
+                 let inputProveedor = columnas[7]?.querySelector("input")?.value.trim() || columnas[7]?.textContent.trim() || "Sin proveedor";
 
-                    let solicitud = {
-                        nombreTecnico: columnas[0]?.textContent.trim() || "Sin nombre",
-                        cantidad: inputCantidad !== "" ? parseInt(inputCantidad) : 0,
-                        medida: columnas[2]?.textContent.trim() || "Sin medida",
-                        unidadMedida: columnas[3]?.textContent.trim() || "Sin unidad",
-                        marca: columnas[4]?.textContent.trim() || "Sin marca",
-                        descripcion: columnas[5]?.textContent.trim() || "Sin descripción",
-                        posibleProveedor: inputProveedor || "Sin proveedor",
-                        imagen: columnas[6]?.querySelector("img") ? getBase64Image(columnas[6].querySelector("img")) : "Sin imagen"
-                    };
+    let solicitud = {
+        nombreTecnico: columnas[0]?.textContent.trim() || "Sin nombre",
+        cantidad: inputCantidad !== "" ? parseInt(inputCantidad) : 0,
+        medida: columnas[2]?.textContent.trim() || "Sin medida",
+        unidadMedida: columnas[3]?.textContent.trim() || "Sin unidad",
+        marca: columnas[4]?.textContent.trim() || "Sin marca",
+        descripcion: columnas[5]?.textContent.trim() || "Sin descripción",
+        posibleProveedor: inputProveedor, // ✅ Aquí se pasa correctamente el proveedor
+        imagen: columnas[6]?.querySelector("img") ? getBase64Image(columnas[6].querySelector("img")) : "Sin imagen"
+    };
+
 
                     solicitudes.push(solicitud);
                 });
@@ -296,7 +310,7 @@
                 });
             });
         }
-    });
+    
 
 
 
@@ -347,10 +361,24 @@
     });
 
         function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion, proveedor) {
+        console.log("➡️ Producto seleccionado:");
+        console.log("Item:", item);
+        console.log("Nombre:", nombre);
+        console.log("Cantidad:", cantidad);
+        console.log("Medida:", medida);
+        console.log("Unidad de Medida:", unidadMedida);
+        console.log("Marca:", marca);
+        console.log("Ubicación:", ubicacion);
+        console.log("Estado:", estado);
+        console.log("Imagen:", imagen);
+        console.log("Descripción:", descripcion);
+        console.log("Proveedor recibido:", proveedor);
+
         let tbody = document.querySelector("#tablaSolicitudes tbody");
 
-        // Asegurar que proveedor no sea undefined ni null
-        let proveedorNombre = proveedor ? proveedor : "Proveedor no definido";
+        // Asegurar que el proveedor tiene un valor válido
+        let proveedorNombre = proveedor && proveedor.trim() !== "" ? proveedor : "Sodimac";
+        console.log("Proveedor asignado:", proveedorNombre);
 
         let imagenSrc = imagen && imagen.trim() !== "" ? `/images/${imagen}` : "/images/no-image.png";
 
@@ -368,12 +396,25 @@
 
         tbody.innerHTML += newRow;
 
-        // Asignar proveedor también en el input fuera de la tabla
-        document.getElementById("PosibleProveedor").value = proveedorNombre;
+        // ✅ Asignar proveedor en el input del formulario
+        let proveedorInput = document.getElementById("Proveedor");
+        if (proveedorInput) {
+            console.log("Asignando proveedor en el input:", proveedorNombre);
+            proveedorInput.value = proveedorNombre;
+        } else {
+            console.warn("⚠️ Input de proveedor no encontrado.");
+        }
 
-        let modal = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
-        modal.hide();
+        // ✅ Cerrar el modal correctamente
+        let modalInventario = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
+        if (modalInventario) {
+            console.log("Cerrando modal de inventario...");
+            modalInventario.hide();
+        } else {
+            console.warn("⚠️ No se pudo cerrar el modal de inventario.");
+        }
     }
+
 
 
     document.getElementById("btnNuevoProducto").addEventListener("click", function() {
@@ -467,7 +508,7 @@
         document.getElementById("PreviewImagen").style.display = "none";
     });
 
-     document.getElementById("btnDescargarPDF").addEventListener("click", function () {
+        document.getElementById("btnDescargarPDF").addEventListener("click", function () {
         let filas = document.querySelectorAll("#tablaSolicitudes tbody tr");
 
         if (filas.length === 0) {
@@ -480,28 +521,33 @@
         filas.forEach(fila => {
             let columnas = fila.querySelectorAll("td");
 
-            console.log("Fila detectada:", fila.innerHTML); // ✅ Verificar si la fila existe
+            if (columnas.length < 8) return;
 
-            // Extraer datos asegurando que los índices son correctos
             let inputCantidad = columnas[1]?.querySelector("input")?.value.trim() || "";
-            let inputProveedor = columnas[7]?.querySelector("input")?.value.trim() || "";
+
+            // ✅ Captura correcta del proveedor
+            let proveedorNombre = columnas[7]?.textContent.trim() || "Sin proveedor";
 
             let solicitud = {
-                nombreTecnico: columnas[0]?.textContent.trim() || "",
+                nombreTecnico: columnas[0]?.textContent.trim() || "Sin nombre",
                 cantidad: inputCantidad !== "" ? parseInt(inputCantidad) : 0,
-                medida: columnas[2]?.textContent.trim() || "",
-                unidadMedida: columnas[3]?.textContent.trim() || "",
-                marca: columnas[4]?.textContent.trim() || "",
-                descripcion: columnas[5]?.textContent.trim() || "",
-                posibleProveedor: inputProveedor,
+                medida: columnas[2]?.textContent.trim() || "Sin medida",
+                unidadMedida: columnas[3]?.textContent.trim() || "Sin unidad",
+                marca: columnas[4]?.textContent.trim() || "Sin marca",
+                descripcion: columnas[5]?.textContent.trim() || "Sin descripción",
+                posibleProveedor: proveedorNombre, // ✅ Aquí ahora se pasa el proveedor correctamente
                 imagen: columnas[6]?.querySelector("img") ? getBase64Image(columnas[6].querySelector("img")) : "Sin imagen"
             };
 
-            console.log("Solicitud generada:", solicitud); // ✅ Verifica en la consola cada solicitud
             solicitudes.push(solicitud);
         });
 
-        console.log("Solicitudes enviadas:", JSON.stringify(solicitudes, null, 2)); // ✅ Verifica JSON antes de enviarlo
+        if (solicitudes.length === 0) {
+            alert("No hay datos válidos para exportar.");
+            return;
+        }
+
+        console.log("Solicitudes enviadas:", JSON.stringify(solicitudes, null, 2));
 
         fetch("/Solicitudes/DescargarPDF", {
             method: "POST",
