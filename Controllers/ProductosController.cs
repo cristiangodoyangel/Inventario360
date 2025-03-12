@@ -2,13 +2,13 @@
 using Inventario360.Services;
 using Inventario360.Models;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using System;
 using Inventario360.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Inventario360.Controllers
 {
@@ -18,7 +18,6 @@ namespace Inventario360.Controllers
         private readonly InventarioDbContext _context;
         private readonly IWebHostEnvironment _hostEnvironment;
 
-        // Constructor único que inyecta las dependencias necesarias
         public ProductosController(IProductoService productoService, InventarioDbContext context, IWebHostEnvironment hostEnvironment)
         {
             _productoService = productoService;
@@ -36,11 +35,25 @@ namespace Inventario360.Controllers
         {
             var producto = await _productoService.ObtenerPorId(id);
             if (producto == null) return NotFound();
+
+            // Buscar el proveedor por su ID
+            var proveedor = await _context.Proveedor.FindAsync(producto.Proveedor);
+            ViewBag.NombreProveedor = proveedor != null ? proveedor.Nombre : "Proveedor no definido";
+
             return View(producto);
         }
 
-        public IActionResult Crear()
+
+        [HttpGet]
+        public async Task<IActionResult> Crear()
         {
+            ViewBag.Proveedores = await _context.Proveedor
+                                               .Select(p => new SelectListItem
+                                               {
+                                                   Value = p.ID.ToString(),
+                                                   Text = p.Nombre
+                                               })
+                                               .ToListAsync();
             return View();
         }
 
@@ -48,7 +61,17 @@ namespace Inventario360.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Producto producto, IFormFile ImagenArchivo)
         {
-            if (!ModelState.IsValid) return View(producto);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Proveedores = await _context.Proveedor
+                                                   .Select(p => new SelectListItem
+                                                   {
+                                                       Value = p.ID.ToString(),
+                                                       Text = p.Nombre
+                                                   })
+                                                   .ToListAsync();
+                return View(producto);
+            }
 
             if (ImagenArchivo != null && ImagenArchivo.Length > 0)
             {
@@ -61,7 +84,7 @@ namespace Inventario360.Controllers
                     await ImagenArchivo.CopyToAsync(stream);
                 }
 
-                producto.Imagen = nombreArchivo; // Guardar el nombre de la imagen en la BD
+                producto.Imagen = nombreArchivo;
             }
 
             await _productoService.Agregar(producto);
@@ -72,32 +95,28 @@ namespace Inventario360.Controllers
         public async Task<IActionResult> Editar(int id)
         {
             var producto = await _productoService.ObtenerPorId(id);
-            if (producto == null)
-            {
-                return NotFound();
-            }
+            if (producto == null) return NotFound();
+
+            ViewBag.Proveedores = await _context.Proveedor
+                                               .Select(p => new SelectListItem
+                                               {
+                                                   Value = p.ID.ToString(),
+                                                   Text = p.Nombre
+                                               })
+                                               .ToListAsync();
             return View(producto);
         }
 
         [HttpPost]
         public async Task<IActionResult> Editar(int id, Producto producto, IFormFile ImagenArchivo)
         {
-            if (id != producto.ITEM)
-            {
-                return NotFound();
-            }
+            if (id != producto.ITEM) return NotFound();
 
-            // Obtener el producto actual desde la base de datos
             var productoExistente = await _context.Producto.FindAsync(id);
-            if (productoExistente == null)
-            {
-                return NotFound();
-            }
+            if (productoExistente == null) return NotFound();
 
-            // Mantener la imagen existente si no se sube una nueva
             if (ImagenArchivo != null && ImagenArchivo.Length > 0)
             {
-                // Guardar la nueva imagen
                 var uploadsPath = Path.Combine(_hostEnvironment.WebRootPath, "images");
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImagenArchivo.FileName);
                 var filePath = Path.Combine(uploadsPath, fileName);
@@ -107,7 +126,6 @@ namespace Inventario360.Controllers
                     await ImagenArchivo.CopyToAsync(stream);
                 }
 
-                // Eliminar la imagen anterior si existe
                 if (!string.IsNullOrEmpty(productoExistente.Imagen))
                 {
                     var oldImagePath = Path.Combine(uploadsPath, productoExistente.Imagen);
@@ -117,17 +135,9 @@ namespace Inventario360.Controllers
                     }
                 }
 
-                // Guardar el nombre de la nueva imagen en la base de datos
                 productoExistente.Imagen = fileName;
             }
 
-            // Si no se sube una nueva imagen, mantener la actual
-            else
-            {
-                producto.Imagen = productoExistente.Imagen;
-            }
-
-            // Actualizar el resto de los campos
             productoExistente.NombreTecnico = producto.NombreTecnico;
             productoExistente.Medida = producto.Medida;
             productoExistente.UnidadMedida = producto.UnidadMedida;
@@ -156,7 +166,6 @@ namespace Inventario360.Controllers
                     return Json(new { success = false, message = "No se encontró el producto." });
                 }
 
-                // Verificar si el producto tiene dependencias antes de eliminarlo
                 var tieneDependencias = await _context.DetalleSalidaDeBodega.AnyAsync(d => d.ProductoID == id);
                 if (tieneDependencias)
                 {

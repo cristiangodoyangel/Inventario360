@@ -84,11 +84,12 @@
                         <input type="file" class="form-control" id="ImagenInput" accept="images/*">
                         <img id="PreviewImagen" src="" alt="Imagen del Producto" style="display:none; max-width: 150px; margin-top: 10px;">
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Posible Proveedor</label>
-                        <input type="text" class="form-control" id="PosibleProveedor">
+                        <span class="form-control-plaintext" id="PosibleProveedor"></span>
                     </div>
+
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -206,7 +207,7 @@
                 <td>${marca}</td>
                 <td>${descripcion}</td>
                 <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img" style="max-width: 50px; height: auto;"></td>
-                <td><input type="text" class="form-control proveedor-input" value="${posibleProveedor}" style="width: 150px;"></td>
+                <td>${posibleProveedor}</td>
                 <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
             </tr>`;
 
@@ -345,24 +346,31 @@
         cargarProductosInventario();
     });
 
-        function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion) {
+        function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion, proveedor) {
         let tbody = document.querySelector("#tablaSolicitudes tbody");
+
+        // Asegurar que proveedor no sea undefined ni null
+        let proveedorNombre = proveedor ? proveedor : "Proveedor no definido";
+
+        let imagenSrc = imagen && imagen.trim() !== "" ? `/images/${imagen}` : "/images/no-image.png";
 
         let newRow = `<tr>
             <td>${nombre}</td>
             <td><input type="number" class="form-control cantidad-input" value="1" min="1" style="width: 80px;"></td>
-            <td>${medida || '-'}</td>
-            <td>${unidadMedida || '-'}</td>
-            <td>${marca || '-'}</td>
-            <td>${descripcion || '-'}</td>
-            <td><img src="/images/${imagen}" alt="Imagen Producto" class="producto-img"></td>
-            <td><input type="text" class="form-control proveedor-input" placeholder="Ingrese proveedor" style="width: 150px;"></td>
+            <td>${medida}</td>
+            <td>${unidadMedida}</td>
+            <td>${marca}</td>
+            <td>${descripcion}</td>
+            <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img" style="max-width: 50px;"></td>
+            <td>${proveedorNombre}</td>
             <td><button class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
 
         tbody.innerHTML += newRow;
 
-        // **Cerrar el modal después de seleccionar un producto**
+        // Asignar proveedor también en el input fuera de la tabla
+        document.getElementById("PosibleProveedor").value = proveedorNombre;
+
         let modal = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
         modal.hide();
     }
