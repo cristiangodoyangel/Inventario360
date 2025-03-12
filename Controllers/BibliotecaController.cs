@@ -111,5 +111,207 @@ namespace Inventario360.Controllers
 
             return Json(new { success = false, message = "El archivo no existe." });
         }
+        [HttpGet]
+        public IActionResult Trabajadores()
+        {
+            string rutaCategoria = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "Trabajadores");
+
+            if (!Directory.Exists(rutaCategoria))
+            {
+                Directory.CreateDirectory(rutaCategoria);
+            }
+
+            var archivos = Directory.GetFiles(rutaCategoria).Select(Path.GetFileName).ToList();
+            ViewBag.Archivos = archivos;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SubirDocumentoTrabajadores(IFormFile archivo, string titulo)
+        {
+            if (archivo == null || archivo.Length == 0 || string.IsNullOrEmpty(titulo))
+            {
+                return Json(new { success = false, message = "Debe proporcionar un archivo y un título." });
+            }
+
+            string carpetaDestino = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "Trabajadores");
+
+            if (!Directory.Exists(carpetaDestino))
+            {
+                Directory.CreateDirectory(carpetaDestino);
+            }
+
+            string nombreArchivo = $"{titulo}{Path.GetExtension(archivo.FileName)}";
+            string rutaArchivo = Path.Combine(carpetaDestino, nombreArchivo);
+
+            using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+            {
+                archivo.CopyTo(stream);
+            }
+
+            return Json(new { success = true });
+        }
+
+        [HttpDelete]
+        public IActionResult EliminarDocumentoTrabajadores(string archivo)
+        {
+            if (string.IsNullOrEmpty(archivo))
+            {
+                return Json(new { success = false, message = "El nombre del archivo es inválido." });
+            }
+
+            string rutaArchivo = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "Trabajadores", archivo);
+
+            if (System.IO.File.Exists(rutaArchivo))
+            {
+                try
+                {
+                    System.IO.File.Delete(rutaArchivo);
+                    return Json(new { success = true });
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Error al eliminar el archivo." });
+                }
+            }
+
+            return Json(new { success = false, message = "El archivo no existe." });
+        }
+
+        [HttpGet]
+        public IActionResult HSEC()
+        {
+            string rutaCategoria = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "HSEC");
+
+            if (!Directory.Exists(rutaCategoria))
+            {
+                Directory.CreateDirectory(rutaCategoria);
+            }
+
+            var archivos = Directory.GetFiles(rutaCategoria).Select(Path.GetFileName).ToList();
+            ViewBag.Archivos = archivos;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SubirDocumentoHSEC(IFormFile archivo, string titulo)
+        {
+            if (archivo == null || archivo.Length == 0 || string.IsNullOrEmpty(titulo))
+            {
+                return Json(new { success = false, message = "Debe proporcionar un archivo y un título." });
+            }
+
+            string carpetaDestino = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "HSEC");
+
+            if (!Directory.Exists(carpetaDestino))
+            {
+                Directory.CreateDirectory(carpetaDestino);
+            }
+
+            string nombreArchivo = $"{titulo}{Path.GetExtension(archivo.FileName)}";
+            string rutaArchivo = Path.Combine(carpetaDestino, nombreArchivo);
+
+            using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+            {
+                archivo.CopyTo(stream);
+            }
+
+            return Json(new { success = true });
+        }
+
+        [HttpDelete]
+        public IActionResult EliminarDocumentoHSEC(string archivo)
+        {
+            if (string.IsNullOrEmpty(archivo))
+            {
+                return Json(new { success = false, message = "El nombre del archivo es inválido." });
+            }
+
+            string rutaArchivo = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "HSEC", archivo);
+
+            if (System.IO.File.Exists(rutaArchivo))
+            {
+                try
+                {
+                    System.IO.File.Delete(rutaArchivo);
+                    return Json(new { success = true });
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Error al eliminar el archivo." });
+                }
+            }
+
+            return Json(new { success = false, message = "El archivo no existe." });
+        }
+
+        [HttpGet]
+        public IActionResult Proyectos()
+        {
+            string rutaCategoria = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "Proyectos");
+
+            if (!Directory.Exists(rutaCategoria))
+            {
+                Directory.CreateDirectory(rutaCategoria);
+            }
+
+            var archivos = Directory.GetFiles(rutaCategoria).Select(Path.GetFileName).ToList();
+            ViewBag.Archivos = archivos;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SubirDocumentoProyectos(IFormFile archivo, string titulo)
+        {
+            if (archivo == null || archivo.Length == 0 || string.IsNullOrEmpty(titulo))
+            {
+                return Json(new { success = false, message = "Debe proporcionar un archivo y un título." });
+            }
+
+            string carpetaDestino = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "Proyectos");
+
+            if (!Directory.Exists(carpetaDestino))
+            {
+                Directory.CreateDirectory(carpetaDestino);
+            }
+
+            string nombreArchivo = $"{titulo}{Path.GetExtension(archivo.FileName)}";
+            string rutaArchivo = Path.Combine(carpetaDestino, nombreArchivo);
+
+            using (var stream = new FileStream(rutaArchivo, FileMode.Create))
+            {
+                archivo.CopyTo(stream);
+            }
+
+            return Json(new { success = true });
+        }
+
+        [HttpDelete]
+        public IActionResult EliminarDocumentoProyectos(string archivo)
+        {
+            if (string.IsNullOrEmpty(archivo))
+            {
+                return Json(new { success = false, message = "El nombre del archivo es inválido." });
+            }
+
+            string rutaArchivo = Path.Combine(_hostingEnvironment.WebRootPath, "documentos", "Proyectos", archivo);
+
+            if (System.IO.File.Exists(rutaArchivo))
+            {
+                try
+                {
+                    System.IO.File.Delete(rutaArchivo);
+                    return Json(new { success = true });
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Error al eliminar el archivo." });
+                }
+            }
+
+            return Json(new { success = false, message = "El archivo no existe." });
+        }
+
+
     }
 }
