@@ -9,7 +9,9 @@
         <input type="hidden" asp-for="ID" />
         <div class="mb-3">
             <label class="form-label">Empleado</label>
-            <select asp-for="EmpleadoID" class="form-control" asp-items="ViewBag.Empleados"></select>
+            <input asp-for="Empleado.Nombre" type="text" class="form-control" required />
+            <span asp-validation-for="Empleado.Nombre" class="text-danger"></span>
+
         </div>
         <div class="mb-3">
             <label class="form-label">Fecha de Ingreso</label>
@@ -34,7 +36,35 @@
             <label class="form-label">Acreditaciones</label>
             <input asp-for="Acreditaciones" type="text" class="form-control" />
         </div>
-        <button type="submit" class="btn btn-primary">Actualizar</button>
+        <button type="submit" class="btn btn-orange">Actualizar</button>
         <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+</style>
+
