@@ -9,6 +9,9 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.IO;
 using System.Net.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Inventario360.Data;
 
 
 namespace Inventario360.Controllers
@@ -17,17 +20,20 @@ namespace Inventario360.Controllers
     {
         private readonly ISolicitudService _solicitudService;
         private readonly IProductoService _productoService;
+        private readonly InventarioDbContext _context;
 
-        public SolicitudesController(ISolicitudService solicitudService, IProductoService productoService)
+        public SolicitudesController(ISolicitudService solicitudService, IProductoService productoService,
+                                 InventarioDbContext context)
         {
             _solicitudService = solicitudService;
             _productoService = productoService;
+            _context = context; // 🔹 Asignar contexto
         }
 
         public async Task<IActionResult> Index()
         {
-            var solicitudes = await _solicitudService.GetAllSolicitudesAsync();
-            return View(solicitudes);
+            ViewBag.Proveedores = new SelectList(await _context.Proveedor.ToListAsync(), "ID", "Nombre");
+            return View();
         }
 
         [HttpPost]
@@ -186,15 +192,20 @@ namespace Inventario360.Controllers
                 return BadRequest("No hay datos para exportar.");
             }
 
+            // ✅ DEPURACIÓN: Verificar si el proveedor está llegando correctamente al backend
+            foreach (var solicitud in solicitudes)
+            {
+                Console.WriteLine($"Proveedor recibido: {solicitud.PosibleProveedor}");
+            }
+
             try
             {
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    Document document = new Document(PageSize.A4.Rotate()); // 📌 Se establece la orientación horizontal
+                    Document document = new Document(PageSize.A4.Rotate());
                     PdfWriter.GetInstance(document, stream);
                     document.Open();
 
-                    // **Título y mensaje de solicitud**
                     Font titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
                     Font normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 12);
                     document.Add(new Paragraph("Solicitud de Materiales", titleFont));
@@ -202,14 +213,12 @@ namespace Inventario360.Controllers
                     document.Add(new Paragraph("Solicito estos materiales para esta semana:", normalFont));
                     document.Add(new Paragraph("\n"));
 
-                    // **Tabla**
                     PdfPTable table = new PdfPTable(8);
                     table.WidthPercentage = 100;
-                    table.SetWidths(new float[] { 3, 1, 1, 1, 2, 3, 2, 2 }); // 📌 Ajuste de columnas
+                    table.SetWidths(new float[] { 3, 1, 1, 1, 2, 3, 2, 2 });
 
-                    // **Encabezados con fondo naranja**
                     string[] headers = { "Nombre", "Cantidad", "Medida", "Unidad", "Marca", "Descripción", "Proveedor", "Imagen" };
-                    BaseColor headerColor = new BaseColor(255, 204, 153); // Naranja claro
+                    BaseColor headerColor = new BaseColor(255, 204, 153);
 
                     foreach (var header in headers)
                     {
@@ -217,23 +226,25 @@ namespace Inventario360.Controllers
                         cell.BackgroundColor = headerColor;
                         cell.HorizontalAlignment = Element.ALIGN_CENTER;
                         cell.Padding = 5f;
-                        cell.Border = Rectangle.BOX;
                         table.AddCell(cell);
                     }
 
-                    // **Agregar datos**
+                    // 📌 **Aquí agregamos los datos de las solicitudes**
                     foreach (var solicitud in solicitudes)
                     {
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.NombreTecnico)) { Padding = 5f, Border = Rectangle.BOX });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Cantidad.ToString())) { Padding = 5f, Border = Rectangle.BOX });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Medida)) { Padding = 5f, Border = Rectangle.BOX });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.UnidadMedida)) { Padding = 5f, Border = Rectangle.BOX });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Marca)) { Padding = 5f, Border = Rectangle.BOX });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.Descripcion)) { Padding = 5f, Border = Rectangle.BOX });
-                        table.AddCell(new PdfPCell(new Phrase(solicitud.PosibleProveedor)) { Padding = 5f, Border = Rectangle.BOX });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.NombreTecnico)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Cantidad.ToString())) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Medida)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.UnidadMedida)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Marca)) { Padding = 5f });
+                        table.AddCell(new PdfPCell(new Phrase(solicitud.Descripcion)) { Padding = 5f });
 
-                        // **Imagen**
-                        PdfPCell imgCell = new PdfPCell { Padding = 5f, Border = Rectangle.BOX, HorizontalAlignment = Element.ALIGN_CENTER };
+                        // ✅ **Asegurar que el proveedor se incluya correctamente en el PDF**
+                        string proveedorFinal = !string.IsNullOrEmpty(solicitud.PosibleProveedor) ? solicitud.PosibleProveedor : "Sin proveedor";
+                        table.AddCell(new PdfPCell(new Phrase(proveedorFinal, FontFactory.GetFont(FontFactory.HELVETICA, 10))) { Padding = 5f });
+
+                        // 📌 **Manejo de imágenes**
+                        PdfPCell imgCell = new PdfPCell { Padding = 5f, HorizontalAlignment = Element.ALIGN_CENTER };
 
                         if (!string.IsNullOrEmpty(solicitud.Imagen))
                         {
@@ -245,7 +256,7 @@ namespace Inventario360.Controllers
                                     byte[] imageBytes = Convert.FromBase64String(solicitud.Imagen.Split(',')[1]);
                                     img = Image.GetInstance(imageBytes);
                                 }
-                                else // Ruta local
+                                else
                                 {
                                     string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", solicitud.Imagen);
                                     if (System.IO.File.Exists(imagePath))
@@ -292,6 +303,7 @@ namespace Inventario360.Controllers
                 return BadRequest($"Error al generar el PDF: {ex.Message}");
             }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> SubirImagen(IFormFile file)
