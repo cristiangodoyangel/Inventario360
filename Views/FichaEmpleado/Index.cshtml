@@ -7,6 +7,7 @@
 <div class="container mt-4">
     <h2 class="mb-4 text-center">📋 Fichas de Empleados</h2>
     <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
     <!-- Tarjetas Resumen -->
     <div class="row text-center">
         <div class="col-md-4">
@@ -34,11 +35,13 @@
             </div>
         </div>
     </div>
+
     <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
     <div class="text-end mt-3">
-        <a asp-action="Crear" class="btn btn-success">➕ Nueva Ficha</a>
+        <a asp-action="Crear" class="btn btn-orange"> Nueva Ficha</a>
     </div>
+
     <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
     <!-- Tabla de empleados -->
@@ -57,30 +60,32 @@
         <tbody>
             @{
                 var fichasOrdenadas = Model.OrderBy(f =>
-                f.FechaTerminoContrato <= DateTime.Now || f.FechaVencimientoExamen <= DateTime.Now ? 2 :
-                f.FechaTerminoContrato <= DateTime.Now.AddMonths(1) || f.FechaVencimientoExamen <= DateTime.Now.AddMonths(1) ? 1 :
-                0);
+                f.FechaTerminoContrato.HasValue && f.FechaTerminoContrato <= DateTime.Now ||
+                f.FechaVencimientoExamen.HasValue && f.FechaVencimientoExamen <= DateTime.Now ? 2 :
+                f.FechaTerminoContrato.HasValue && f.FechaTerminoContrato <= DateTime.Now.AddMonths(1) ||
+                f.FechaVencimientoExamen.HasValue && f.FechaVencimientoExamen <= DateTime.Now.AddMonths(1) ? 1 : 0);
 
                 foreach (var ficha in fichasOrdenadas)
                 {
                     var estadoClase = "table-success"; // Default verde
-                    if (ficha.FechaTerminoContrato <= DateTime.Now || ficha.FechaVencimientoExamen <= DateTime.Now)
+                    if (ficha.FechaTerminoContrato.HasValue && ficha.FechaTerminoContrato <= DateTime.Now ||
+                    ficha.FechaVencimientoExamen.HasValue && ficha.FechaVencimientoExamen <= DateTime.Now)
                     {
                         estadoClase = "table-danger"; // Rojo (vencido)
                     }
-                    else if (ficha.FechaTerminoContrato <= DateTime.Now.AddMonths(1) || ficha.FechaVencimientoExamen <= DateTime.Now.AddMonths(1))
+                    else if (ficha.FechaTerminoContrato.HasValue && ficha.FechaTerminoContrato <= DateTime.Now.AddMonths(1) ||
+                    ficha.FechaVencimientoExamen.HasValue && ficha.FechaVencimientoExamen <= DateTime.Now.AddMonths(1))
                     {
                         estadoClase = "table-warning"; // Amarillo (por vencer)
                     }
 
                     <tr class="@estadoClase">
-
                         <td>
                             <a asp-action="Detalle" asp-route-id="@ficha.ID" class="fw-bold text-dark">
-                                @ficha.Empleado.Nombre
+                                @ficha.Empleado?.Nombre
                             </a>
                         </td>
-                                                <td>@ficha.FechaIngreso.ToString("dd-MM-yyyy")</td>
+                        <td>@ficha.FechaIngreso.ToString("dd-MM-yyyy")</td>
                         <td>@(ficha.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</td>
                         <td>@(ficha.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</td>
                         <td>@(ficha.CursoAltura ? "✅ Sí" : "❌ No")</td>
@@ -99,21 +104,24 @@
     <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
     <!-- Gráfico de barras -->
-    <!-- Gráfico de barras -->
-    <canvas id="graficoEstado" class="mt-4"></canvas>
+    <div style="max-width: 600px; margin: auto;">
+        <canvas id="graficoEstado" class="mt-4"></canvas>
+    </div>
+
 </div>
 
 <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Agregada esta línea -->
-
-
     <script>
         $(document).ready(function () {
             $('#tablaEmpleados').DataTable();
@@ -131,17 +139,14 @@
             $("#porVencer").text(porVencer);
             $("#vencidos").text(vencidos);
 
-            // Verificar si el canvas existe antes de intentar crear el gráfico
             var canvas = document.getElementById('graficoEstado');
             if (canvas) {
                 var ctx = canvas.getContext('2d');
 
-                // Destruir el gráfico existente si ya se ha creado antes
                 if (window.miGraficoEstado instanceof Chart) {
                     window.miGraficoEstado.destroy();
                 }
 
-                // Crear nuevo gráfico y guardarlo en una variable global
                 window.miGraficoEstado = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -155,6 +160,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
+                        aspectRatio: 2, // Ajuste de tamaño del gráfico
                         scales: {
                             y: {
                                 beginAtZero: true
@@ -166,9 +172,6 @@
         });
     </script>
 }
-
-}
-
 <style>
     .btn-orange {
         background-color: #f06529 !important;
@@ -258,5 +261,4 @@
         background-color: #d9531e !important; /* Gris */
         color: black !important; /* Color del "-" */
     }
-
-    </style >
+</style>
