@@ -13,5 +13,7 @@ namespace Inventario360.Services
         Task<bool> EliminarFicha(int id);
         Task<IEnumerable<FichaCamioneta>> ObtenerTodas();
         Task<FichaCamioneta> ObtenerPorId(int id);
+        Task<bool> ExisteResponsable(int responsableID); // Agregado
+        Task<List<Empleado>> ObtenerEmpleados(); // Agregado
     }
 }
