@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Inventario360.Models;
 using Inventario360.Services;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventario360.Controllers
 {
@@ -53,18 +55,39 @@ namespace Inventario360.Controllers
             if (ficha == null) return NotFound();
             return View(ficha);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(FichaCamioneta ficha)
         {
-            if (!ModelState.IsValid) return View(ficha);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre");
+                return View(ficha);
+            }
 
+            // Verificar si el Responsable existe antes de actualizar
+            var existeResponsable = await _fichaCamionetaService.ExisteResponsable(ficha.ResponsableID);
+            if (!existeResponsable)
+            {
+                ModelState.AddModelError("ResponsableID", "El Responsable seleccionado no es válido.");
+                ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre");
+                return View(ficha);
+            }
+
+            // Intentar actualizar
             bool actualizado = await _fichaCamionetaService.ActualizarFicha(ficha);
-            if (!actualizado) return NotFound();
+            if (!actualizado)
+            {
+                ModelState.AddModelError("", "No se pudo actualizar la ficha. Verifica los datos ingresados.");
+                ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre");
+                return View(ficha);
+            }
 
             return RedirectToAction(nameof(Index));
         }
+
+
+
 
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -82,5 +105,7 @@ namespace Inventario360.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        
+
     }
 }
