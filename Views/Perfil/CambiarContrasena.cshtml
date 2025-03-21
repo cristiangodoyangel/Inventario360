@@ -1,0 +1,28 @@
+﻿@model Inventario360.Models.ViewModels.CambiarContrasenaViewModel
+
+@{
+    ViewData["Title"] = "Cambiar Contraseña";
+}
+
+<div class="container">
+    <h2 class="mb-4">Cambiar Contraseña</h2>
+
+    <form asp-action="CambiarContrasena" method="post">
+        <div class="mb-3">
+            <label class="form-label">Contraseña Actual</label>
+            <input asp-for="ContrasenaActual" type="password" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nueva Contraseña</label>
+            <input asp-for="NuevaContrasena" type="password" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Confirmar Nueva Contraseña</label>
+            <input asp-for="ConfirmarContrasena" type="password" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+    </form>
+</div>
