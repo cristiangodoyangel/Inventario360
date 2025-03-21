@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Threading.Tasks;
+using System.Linq;
 using Inventario360.Models;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 public static class UsuarioInitializer
 {
@@ -12,6 +14,7 @@ public static class UsuarioInitializer
 
         string[] roles = { "Administrador", "Supervisor", "Usuario" };
 
+        // Crear roles si no existen
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
@@ -20,7 +23,7 @@ public static class UsuarioInitializer
             }
         }
 
-        // Crear un usuario administrador por defecto (solo si no existe)
+        // Crear un usuario administrador por defecto si no existe
         var adminEmail = "admin@inventario360.com";
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -30,7 +33,7 @@ public static class UsuarioInitializer
             {
                 UserName = adminEmail,
                 Email = adminEmail,
-                NombreCompleto = "Administrador del Sistema", // 🔹 Agregar este campo
+                NombreCompleto = "Administrador del Sistema",
                 EmailConfirmed = true
             };
 
@@ -39,6 +42,19 @@ public static class UsuarioInitializer
             {
                 await userManager.AddToRoleAsync(adminUser, "Administrador");
             }
+        }
+
+        // Asegurar que el usuario tiene el rol de Administrador
+        if (!await userManager.IsInRoleAsync(adminUser, "Administrador"))
+        {
+            await userManager.AddToRoleAsync(adminUser, "Administrador");
+        }
+
+        // 🔹 Agregar Claim de NombreCompleto si no existe
+        var claims = await userManager.GetClaimsAsync(adminUser);
+        if (!claims.Any(c => c.Type == "NombreCompleto"))
+        {
+            await userManager.AddClaimAsync(adminUser, new Claim("NombreCompleto", adminUser.NombreCompleto));
         }
     }
 }
