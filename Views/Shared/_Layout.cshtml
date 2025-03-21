@@ -12,6 +12,30 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Inventario360.styles.css" asp-append-version="true" />
     <style>
+        .btn-orange {
+            background-color: #f06529 !important;
+            border-radius: 5px;
+            border-color: #f06529 !important;
+            color: white !important;
+        }
+
+            .btn-orange:hover {
+                background-color: #d9531e !important;
+                border-color: #d9531e !important;
+            }
+
+        .btn-icon {
+            background-color: transparent !important;
+            border: 1px solid #000000 !important;
+            color: #f06529 !important;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            padding: 0.3rem;
+        }
+
+            .btn-icon:hover {
+                color: #d9531e !important;
+            }
         body {
             font-family: 'Roboto', sans-serif;
             background-color: white;
@@ -85,7 +109,7 @@
             var nombreUsuario = usuario != null ? usuario.NombreCompleto.Split(' ')[0] : "Usuario"; // Solo el primer nombre
 
             <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-orange dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     @nombreUsuario
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="userDropdown">
@@ -114,11 +138,7 @@
                 <ul class="navbar-nav mx-auto">
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Perfil" asp-action="Index">Mi Perfil</a>
-                        </li>
-
-                        <li class="nav-item dropdown">
+                                              <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="bodegaDropdown" role="button">
                                 Bodega
                             </a>

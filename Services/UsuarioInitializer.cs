@@ -24,7 +24,7 @@ public static class UsuarioInitializer
         }
 
         // Crear un usuario administrador por defecto si no existe
-        var adminEmail = "admin@inventario360.com";
+        var adminEmail = "admin@example.com";
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
         if (adminUser == null)
