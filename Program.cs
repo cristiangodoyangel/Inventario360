@@ -46,7 +46,7 @@ builder.Services.AddScoped<ICuentaService, CuentaService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IFichaEmpleadoService, FichaEmpleadoService>();
 builder.Services.AddScoped<IFichaCamionetaService, FichaCamionetaService>();
-
+builder.Services.AddScoped<RoleManager<IdentityRole>>(); // Agregar RoleManager
 
 
 

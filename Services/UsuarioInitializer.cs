@@ -1,31 +1,43 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Inventario360.Models;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Threading.Tasks;
+using Inventario360.Models;
 
-namespace Inventario360.Services
+public static class UsuarioInitializer
 {
-    public class UsuarioInitializer
+    public static async Task Initialize(IServiceProvider serviceProvider, UserManager<Usuario> userManager)
     {
-        public static async Task Initialize(IServiceProvider serviceProvider, UserManager<Usuario> userManager)
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        string[] roles = { "Administrador", "Supervisor", "Usuario" };
+
+        foreach (var role in roles)
         {
-            // Verificar si el usuario ya existe
-            var user = await userManager.FindByEmailAsync("admin@example.com");
-
-            if (user == null)
+            if (!await roleManager.RoleExistsAsync(role))
             {
-                // Si no existe, crear el usuario
-                user = new Usuario
-                {
-                    UserName = "admin@example.com",
-                    Email = "admin@example.com",
-                    NombreCompleto = "Administrador"
-                };
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
 
-                // Crear el usuario con la contraseña
-                var result = await userManager.CreateAsync(user, "123456");
+        // Crear un usuario administrador por defecto (solo si no existe)
+        var adminEmail = "admin@inventario360.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
-                // Asignar un rol si es necesario, por ejemplo "Admin"
-                // await userManager.AddToRoleAsync(user, "Admin");
+        if (adminUser == null)
+        {
+            adminUser = new Usuario
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                NombreCompleto = "Administrador del Sistema", // 🔹 Agregar este campo
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Administrador");
             }
         }
     }
