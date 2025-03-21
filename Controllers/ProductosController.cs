@@ -47,7 +47,7 @@ namespace Inventario360.Controllers
             return View(producto);
         }
 
-        [Authorize(Roles = "Administrador, Supervisor")] // Solo
+        [Authorize(Roles = "Administrador")] // Solo
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
@@ -61,7 +61,7 @@ namespace Inventario360.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Administrador, Supervisor")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Producto producto, IFormFile ImagenArchivo)
@@ -96,7 +96,7 @@ namespace Inventario360.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Administrador, Supervisor")] // Solo administradores y s
+        [Authorize(Roles = "Administrador")] // Solo administradores y s
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
@@ -113,7 +113,7 @@ namespace Inventario360.Controllers
             return View(producto);
         }
 
-        [Authorize(Roles = "Administrador, Supervisor")]
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> Editar(int id, Producto producto, IFormFile ImagenArchivo)
         {

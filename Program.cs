@@ -1,9 +1,10 @@
 using Inventario360.Data;
 using Inventario360.Models;
 using Inventario360.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,13 +49,14 @@ builder.Services.AddScoped<IFichaEmpleadoService, FichaEmpleadoService>();
 builder.Services.AddScoped<IFichaCamionetaService, FichaCamionetaService>();
 builder.Services.AddScoped<RoleManager<IdentityRole>>(); // Agregar RoleManager
 
-
-
-
 // Configurar autorización global para proteger todas las páginas
 builder.Services.AddControllersWithViews(options =>
 {
-    options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter());
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
+    options.Filters.Add(new AuthorizeFilter(policy));
 });
 
 var app = builder.Build();
@@ -64,6 +66,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var userManager = services.GetRequiredService<UserManager<Usuario>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
     if (userManager != null)
     {
@@ -79,7 +82,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(); // Se movió aquí para que se carguen correctamente los archivos estáticos
 
 app.UseRouting();
 
@@ -93,6 +96,3 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
-
-app.UseStaticFiles();
-
