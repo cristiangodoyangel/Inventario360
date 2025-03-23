@@ -1,0 +1,45 @@
+﻿@model Inventario360.Models.Usuario
+@{
+    ViewData["Title"] = "Crear Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4">Crear Nuevo Usuario</h2>
+
+<form asp-action="Crear" method="post">
+    <div class="form-group mb-3">
+        <label asp-for="NombreCompleto" class="form-label">Nombre Completo</label>
+        <input asp-for="NombreCompleto" class="form-control" />
+        <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Email" class="form-label">Correo Electrónico</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Password" class="form-label">Contraseña</label>
+        <input type="password" class="form-control" name="Password" required />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Rol" class="form-label">Rol</label>
+        <select class="form-control" name="Rol" required>
+            <option value="">Seleccione un rol</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Gerencia">Gerencia</option>
+            <option value="Proyectos">Proyectos</option>
+            <option value="Supervisor">Supervisor</option>
+            <option value="Usuario">Usuario</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Crear Usuario</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

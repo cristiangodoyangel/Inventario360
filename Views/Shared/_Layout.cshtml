@@ -36,6 +36,7 @@
             .btn-icon:hover {
                 color: #d9531e !important;
             }
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: white;
@@ -73,12 +74,6 @@
             filter: invert(1);
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            color: black;
-        }
-
         .dropdown-menu {
             background-color: #f1663b !important;
             border: none;
@@ -98,15 +93,24 @@
             border-radius: 10px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        .navbar-nav.mx-auto {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .navbar-nav.ms-auto {
+            margin-left: auto;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="~/images/logo.png" alt="Logo">
+        <img src="~/images/logo.png" alt="Logo" />
         @if (User.Identity.IsAuthenticated)
         {
             var usuario = await UserManager.GetUserAsync(User);
-            var nombreUsuario = usuario != null ? usuario.NombreCompleto.Split(' ')[0] : "Usuario"; // Solo el primer nombre
+            var nombreUsuario = usuario != null ? usuario.NombreCompleto.Split(' ')[0] : "Usuario";
 
             <div class="dropdown">
                 <button class="btn btn-orange dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -135,10 +139,14 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                                              <li class="nav-item dropdown">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var usuario = await UserManager.GetUserAsync(User);
+                    var esAdmin = await UserManager.IsInRoleAsync(usuario, "Administrador");
+                    var esProyectos = await UserManager.IsInRoleAsync(usuario, "Proyectos");
+
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="bodegaDropdown" role="button">
                                 Bodega
                             </a>
@@ -163,8 +171,17 @@
                                 <li><a class="dropdown-item" asp-controller="FichaCamioneta" asp-action="Index">Control de Camionetas</a></li>
                             </ul>
                         </li>
+                    </ul>
+
+                    @if (esAdmin || esProyectos)
+                    {
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                            </li>
+                        </ul>
                     }
-                </ul>
+                }
             </div>
         </div>
     </nav>

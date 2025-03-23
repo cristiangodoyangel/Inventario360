@@ -1,4 +1,4 @@
-using Inventario360.Data;
+ï»¿using Inventario360.Data;
 using Inventario360.Models;
 using Inventario360.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar la conexión a SQL Server
+// Configurar la conexiÃ³n a SQL Server
 builder.Services.AddDbContext<InventarioDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configurar Identity con reglas de autenticación más seguras
+// Configurar Identity con reglas de autenticaciÃ³n mÃ¡s seguras
 builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -21,7 +21,6 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = true;
 
-    // Configurar bloqueo de cuenta tras intentos fallidos
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
@@ -29,15 +28,15 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
     .AddEntityFrameworkStores<InventarioDbContext>()
     .AddDefaultTokenProviders();
 
-// Configurar cookie de autenticación
+// Configurar cookie de autenticaciÃ³n
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Cuenta/Login"; // Ruta de login
-    options.LogoutPath = "/Cuenta/Logout"; // Ruta de logout
-    options.AccessDeniedPath = "/Cuenta/AccessDenied"; // Ruta de acceso denegado
+    options.LoginPath = "/Cuenta/Login";
+    options.LogoutPath = "/Cuenta/Logout";
+    options.AccessDeniedPath = "/Cuenta/AccessDenied";
 });
 
-// Configurar servicios de dependencias
+// Servicios del sistema
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ISalidaBodegaService, SalidaBodegaService>();
 builder.Services.AddScoped<ISolicitudService, SolicitudService>();
@@ -47,9 +46,10 @@ builder.Services.AddScoped<ICuentaService, CuentaService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IFichaEmpleadoService, FichaEmpleadoService>();
 builder.Services.AddScoped<IFichaCamionetaService, FichaCamionetaService>();
-builder.Services.AddScoped<RoleManager<IdentityRole>>(); // Agregar RoleManager
+builder.Services.AddScoped<IUsuarioService, UsuarioService>(); // âœ… Nuevo servicio de usuarios
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
-// Configurar autorización global para proteger todas las páginas
+// Autorizar por defecto todas las vistas
 builder.Services.AddControllersWithViews(options =>
 {
     var policy = new AuthorizationPolicyBuilder()
@@ -61,7 +61,7 @@ builder.Services.AddControllersWithViews(options =>
 
 var app = builder.Build();
 
-// Inicializar el usuario de prueba al iniciar la aplicación
+// InicializaciÃ³n de usuario y roles
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -74,7 +74,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configuración del entorno
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -82,15 +81,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // Se movió aquí para que se carguen correctamente los archivos estáticos
+app.UseStaticFiles();
 
 app.UseRouting();
 
-// Middleware para autenticación y autorización
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configuración de rutas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
