@@ -1,0 +1,25 @@
+﻿@model Inventario360.Models.Usuario
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4 text-danger">Eliminar Usuario</h2>
+
+<div class="alert alert-warning">
+    ¿Estás seguro que deseas eliminar al usuario <strong>@Model.NombreCompleto</strong>?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Nombre</dt>
+    <dd class="col-sm-9">@Model.NombreCompleto</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
+</dl>
+
+<form asp-action="Eliminar" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

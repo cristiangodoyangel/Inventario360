@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Inventario360.Controllers
 {
-    [Authorize] //
+    [Authorize]
     public class ProductosController : Controller
     {
         private readonly IProductoService _productoService;
@@ -27,27 +27,26 @@ namespace Inventario360.Controllers
             _hostEnvironment = hostEnvironment;
         }
 
-        [AllowAnonymous] //
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var productos = await _productoService.ObtenerTodos();
             return View(productos);
         }
 
-        [AllowAnonymous] // Permi
+        [AllowAnonymous]
         public async Task<IActionResult> Detalle(int id)
         {
             var producto = await _productoService.ObtenerPorId(id);
             if (producto == null) return NotFound();
 
-            // Buscar el proveedor por su ID
             var proveedor = await _context.Proveedor.FindAsync(producto.Proveedor);
             ViewBag.NombreProveedor = proveedor != null ? proveedor.Nombre : "Proveedor no definido";
 
             return View(producto);
         }
 
-        [Authorize(Roles = "Administrador")] // Solo
+        [Authorize(Roles = "Administrador,Proyectos")]
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
@@ -61,7 +60,7 @@ namespace Inventario360.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Proyectos")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(Producto producto, IFormFile ImagenArchivo)
@@ -96,7 +95,7 @@ namespace Inventario360.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Administrador")] // Solo administradores y s
+        [Authorize(Roles = "Administrador,Proyectos")]
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
@@ -113,7 +112,7 @@ namespace Inventario360.Controllers
             return View(producto);
         }
 
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Proyectos")]
         [HttpPost]
         public async Task<IActionResult> Editar(int id, Producto producto, IFormFile ImagenArchivo)
         {
@@ -162,7 +161,7 @@ namespace Inventario360.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Administrador")] // Solo 
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -191,7 +190,7 @@ namespace Inventario360.Controllers
             }
         }
 
-        [AllowAnonymous] // Permitir que cualquiera consulte los productos
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> ObtenerProductos()
         {
