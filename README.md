@@ -50,7 +50,7 @@ Si deseas contribuir a **Inventario360**, ¡no dudes en enviar un pull request! 
 
 ## **Licencia 📝**
 
-Este proyecto está bajo la licencia **[Especifica la licencia]**.
+Este proyecto está bajo la licencia **MIT**.
 
 ---
 
