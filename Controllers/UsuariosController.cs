@@ -162,11 +162,15 @@ namespace Inventario360.Controllers
 
             return View(model);
         }
-
         [HttpPost]
-        public async Task<IActionResult> Eliminar(string id)
+        public async Task<IActionResult> Eliminar([FromBody] EliminarUsuarioViewModel model)
         {
-            var usuario = await _userManager.FindByIdAsync(id);
+            if (string.IsNullOrEmpty(model.Id))
+            {
+                return Json(new { success = false, message = "ID inválido." });
+            }
+
+            var usuario = await _userManager.FindByIdAsync(model.Id);
             if (usuario == null)
             {
                 return Json(new { success = false, message = "Usuario no encontrado" });
@@ -180,5 +184,8 @@ namespace Inventario360.Controllers
 
             return Json(new { success = false, message = "No se pudo eliminar el usuario" });
         }
+
+
+
     }
 }
