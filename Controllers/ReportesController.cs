@@ -4,27 +4,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Inventario360.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Inventario360.Controllers
 {
+    [Authorize(Roles = "Administrador,Gerencia")] // ✅ Solo accesible por Administrador y Gerencia
     public class ReportesController : Controller
     {
         private readonly IProductoService _productoService;
         private readonly InventarioDbContext _context;
 
-        // ✅ Constructor único con todas las dependencias necesarias
         public ReportesController(InventarioDbContext context, IProductoService productoService)
         {
             _context = context;
             _productoService = productoService;
         }
 
-        // 📌 Página principal de reportes
         public async Task<IActionResult> Index()
         {
             var salidas = await _context.SalidaDeBodega
-                .Include(s => s.Detalles)           // ✅ Incluir Detalles
-                .ThenInclude(d => d.Producto)       // ✅ Incluir Producto dentro de Detalles
+                .Include(s => s.Detalles)
+                .ThenInclude(d => d.Producto)
                 .Include(s => s.SolicitanteObj)
                 .Include(s => s.ResponsableEntregaObj)
                 .Include(s => s.ProyectoObj)
@@ -33,17 +33,16 @@ namespace Inventario360.Controllers
             return View(salidas);
         }
 
-        // 📌 Página de Inventario con Tablas
         public IActionResult Inventario()
         {
             return View();
         }
+
         public IActionResult Salidas()
         {
             return View();
         }
 
-        // 📌 Datos para gráficos en Reportes/Index
         [HttpGet]
         public async Task<IActionResult> ObtenerDatosReportes()
         {
@@ -63,20 +62,16 @@ namespace Inventario360.Controllers
             int productosStockBajo = productos.Count(p => p.Cantidad < 5);
             int productosOverstock = productos.Count(p => p.Cantidad > 100);
 
-            // 📌 Materiales más solicitados
-            // 📌 Materiales más solicitados en el último mes
             var materialesMasSolicitados = await _context.SalidaDeBodega
                 .Where(s => s.Fecha >= DateTime.Now.AddMonths(-1) && s.Detalles.Any())
                 .SelectMany(s => s.Detalles)
-                .Where(d => d.Producto != null) // ✅ Asegurar que el producto no sea null
+                .Where(d => d.Producto != null)
                 .GroupBy(d => new { d.Producto.NombreTecnico })
                 .Select(g => new { Material = g.Key.NombreTecnico, TotalSolicitudes = g.Sum(d => d.Cantidad) })
                 .OrderByDescending(g => g.TotalSolicitudes)
                 .Take(3)
                 .ToListAsync();
 
-
-            // 📌 Empleado con más solicitudes
             var empleadoMasSolicitante = await _context.SalidaDeBodega
                 .Where(s => s.Fecha >= DateTime.Now.AddMonths(-1) && s.SolicitanteObj != null)
                 .GroupBy(s => s.SolicitanteObj.Nombre)
@@ -84,7 +79,6 @@ namespace Inventario360.Controllers
                 .OrderByDescending(g => g.TotalSolicitudes)
                 .FirstOrDefaultAsync();
 
-            // 📌 Proyecto con más solicitudes
             var proyectoMasSolicitado = await _context.SalidaDeBodega
                 .Where(s => s.Fecha >= DateTime.Now.AddMonths(-1) && s.ProyectoObj != null)
                 .GroupBy(s => s.ProyectoObj.Nombre)
@@ -105,8 +99,6 @@ namespace Inventario360.Controllers
             });
         }
 
-
-        // 📌 Datos para tablas en Reportes/Inventario
         [HttpGet]
         public async Task<IActionResult> ObtenerInventario()
         {
