@@ -36,8 +36,10 @@
     <h2 class="mb-4 text-center">📋 Fichas de Empleados</h2>
 
     <div class="text-end mb-3">
-        <a asp-action="Crear" class="btn btn-orange">➕ Nueva Ficha</a>
+        <a asp-action="Crear" class="btn btn-orange me-2">➕ Nueva Ficha</a>
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditarEmpleados">✏️ Editar</button>
     </div>
+
 
     <!-- 📄 CONTRATO -->
     <h5 class="titulo-seccion">📄 Contrato</h5>
@@ -146,6 +148,52 @@
         <button id="nextGrafico" class="btn btn-orange">➡️</button>
     </div>
     <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
+
+
+    <!-- Modal para Editar Trabajadores -->
+    <div class="modal fade" id="modalEditarEmpleados" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modalEditarLabel">Editar Trabajadores</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-sm table-hover">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Contrato</th>
+                                <th>Examen</th>
+                                <th>Curso Altura</th>
+                                <th>Acreditación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ficha in Model)
+                            {
+                                <tr>
+                                    <td>@ficha.Empleado?.Nombre</td>
+                                    <td>@(ficha.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                                    <td>@(ficha.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                                    <td>@(ficha.CursoAltura ? "✅" : "❌")</td>
+                                    <td>@(string.IsNullOrEmpty(ficha.Acreditaciones) ? "N/A" : ficha.Acreditaciones)</td>
+                                    <td>
+                                        <a asp-action="Editar" asp-route-id="@ficha.ID" class="btn btn-sm btn-orange">Editar</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
