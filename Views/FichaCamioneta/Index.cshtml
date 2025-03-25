@@ -17,8 +17,10 @@
 <div class="container mt-4">
     <h2 class="mb-4 text-center">🚛 Fichas de Camionetas</h2>
     <div class="text-end mb-3">
-        <a asp-action="Crear" class="btn btn-orange">➕ Nueva Ficha</a>
+        <a asp-action="Crear" class="btn btn-orange me-2">➕ Nueva Ficha</a>
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditarCamionetas">✏️ Editar</button>
     </div>
+
 
     @foreach (var tipo in resumen.Keys)
     {
@@ -69,6 +71,49 @@
         <button id="nextGrafico" class="btn btn-orange">➡️</button>
     </div>
     <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
+
+    <!-- Modal para Editar Camionetas -->
+    <div class="modal fade" id="modalEditarCamionetas" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modalEditarLabel">Editar Camionetas</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-sm table-hover">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>Patente</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Año</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var camioneta in Model)
+                            {
+                                <tr>
+                                    <td>@camioneta.Patente</td>
+                                    <td>@camioneta.Marca</td>
+                                    <td>@camioneta.Modelo</td>
+                                    <td>@camioneta.Año</td>
+                                    <td>
+                                        <a asp-action="Editar" asp-route-id="@camioneta.ID" class="btn btn-sm btn-orange">Editar</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {

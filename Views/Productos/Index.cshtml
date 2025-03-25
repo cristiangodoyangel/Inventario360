@@ -5,7 +5,9 @@
 }
 
 <div class="container mt-3">
+    <!-- Reducimos el margen superior -->
     <h2 class="text-center my-2 d-flex align-items-center justify-content-center">
+        <!-- Reducimos los márgenes superior e inferior -->
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-warehouse me-2">
             <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z" />
             <path d="M6 18h12" />
@@ -16,15 +18,12 @@
     </h2>
 
     <div class="row mb-3">
+        <!-- Reducimos el margen inferior -->
         <div class="col-md-6"></div>
         <div class="col-md-6 text-end">
-            @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
-            {
-                <a asp-action="Crear" class="btn btn-secondary">Agregar Producto</a>
-            }
+            <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
         </div>
     </div>
-
     <div class="table-responsive">
         <table id="productosTable" class="table table-striped table-bordered table-hover nowrap" width="100%">
             <thead class="table-secondary">
@@ -63,18 +62,11 @@
                             <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
                         </td>
                         <td>
-                            @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
-                            {
-                                <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
-                                <button type="button" class="btn btn-icon"
-                                        onclick="confirmarEliminacion(@producto.ITEM, '@producto.NombreTecnico', '@producto.Categoria')">
-                                    🗑️
-                                </button>
-                            }
-                            else
-                            {
-                                <span class="text-muted">-</span>
-                            }
+                            <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
+                            <button type="button" class="btn btn-icon"
+                                    onclick="confirmarEliminacion(@producto.ITEM, '@producto.NombreTecnico', '@producto.Categoria')">
+                                🗑️
+                            </button>
                         </td>
                     </tr>
                 }
@@ -83,5 +75,191 @@
     </div>
 </div>
 
-<!-- Modal y Scripts siguen sin cambios -->
-@* ... los @section Scripts y <style> se mantienen como los tienes *@
+
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmarEliminarLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Producto:</strong> <span id="modalProductoNombre"></span></p>
+                <p><strong>Categoría:</strong> <span id="modalProductoCategoria"></span></p>
+                <p>¿Seguro que deseas eliminar este producto?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-orange" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
+
+    <script>
+        $(document).ready(function () {
+            $('#productosTable').DataTable({
+                "paging": true,
+                "pageLength": 8,
+                "responsive": true,
+                "lengthMenu": [8, 25, 50],
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron productos",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros en total)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "columnDefs": [
+                    { "responsivePriority": 1, "targets": 1 } // Prioridad alta en "Nombre Técnico"
+                ],
+                "drawCallback": function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-separated');
+                }
+            });
+        });
+
+        var productoIdAEliminar = null;
+
+        function confirmarEliminacion(id, nombre, categoria) {
+            productoIdAEliminar = id;
+            $("#modalProductoNombre").text(nombre);
+            $("#modalProductoCategoria").text(categoria || "Sin categoría");
+            var modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
+            modal.show();
+        }
+
+        $(document).ready(function () {
+            $("#btnConfirmarEliminar").click(function () {
+                if (productoIdAEliminar) {
+                    $.ajax({
+                        url: "/Productos/Eliminar",
+                        type: "POST",
+                        data: { id: productoIdAEliminar },
+                        success: function (response) {
+                            if (response.success) {
+                                        var table = $('#productosTable').DataTable();
+        table.row($("#fila-" + productoIdAEliminar)).remove().draw();
+                                $("#confirmarEliminarModal").modal('hide');
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error(xhr.responseText);
+                            alert("Hubo un error al eliminar el producto.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #fcd8b7;
+    }
+
+    .fila-hover:hover {
+        background-color: #fbdfc5;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+
+    /* ✅ Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important;
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important;
+        }
+
+    /* ✅ Cambia el color del "+" cuando la tabla es responsiva */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
+        background-color: #f06529 !important; /* Naranja */
+        color: white !important; /* Color del "+" */
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+    }
+
+    /* ✅ Cambia el color del "-" cuando la fila está expandida */
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
+        background-color: #d9531e !important; /* Gris */
+        color: black !important; /* Color del "-" */
+    }
+</style>
