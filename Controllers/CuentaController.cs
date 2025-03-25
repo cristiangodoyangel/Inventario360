@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +6,7 @@ using Inventario360.Models;
 
 namespace Inventario360.Controllers
 {
+    [AllowAnonymous]
     public class CuentaController : Controller
     {
         private readonly SignInManager<Usuario> _signInManager;
@@ -18,7 +19,6 @@ namespace Inventario360.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -26,7 +26,6 @@ namespace Inventario360.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(Cuenta model, string? returnUrl = null)
         {
@@ -70,9 +69,7 @@ namespace Inventario360.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // **Nueva acción para manejar accesos denegados**
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult AccessDenied()
         {
             return View();

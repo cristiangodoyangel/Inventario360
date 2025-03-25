@@ -1,10 +1,12 @@
-﻿@model Inventario360.Models.Usuario
+@model Inventario360.Models.CrearUsuarioViewModel
 @{
     ViewData["Title"] = "Crear Usuario";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2 class="mb-4">Crear Nuevo Usuario</h2>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
 <form asp-action="Crear" method="post">
     <div class="form-group mb-3">
@@ -20,13 +22,14 @@
     </div>
 
     <div class="form-group mb-3">
-        <label for="Password" class="form-label">Contraseña</label>
-        <input type="password" class="form-control" name="Password" required />
+        <label asp-for="Password" class="form-label">Contraseña</label>
+        <input asp-for="Password" class="form-control" type="password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
-        <label for="Rol" class="form-label">Rol</label>
-        <select class="form-control" name="Rol" required>
+        <label asp-for="Rol" class="form-label">Rol</label>
+        <select asp-for="Rol" class="form-control" required>
             <option value="">Seleccione un rol</option>
             <option value="Administrador">Administrador</option>
             <option value="Gerencia">Gerencia</option>
@@ -34,6 +37,7 @@
             <option value="Supervisor">Supervisor</option>
             <option value="Usuario">Usuario</option>
         </select>
+        <span asp-validation-for="Rol" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Crear Usuario</button>

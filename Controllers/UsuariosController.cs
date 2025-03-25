@@ -1,16 +1,17 @@
-﻿using Inventario360.Models;
+using Inventario360.Models;
 using Inventario360.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Inventario360.Controllers
 {
-    [Authorize(Roles = "Administrador,Proyectos")]
+    [Authorize(Roles = "Administrador")]
     public class UsuariosController : Controller
     {
         private readonly UserManager<Usuario> _userManager;
@@ -42,7 +43,6 @@ namespace Inventario360.Controllers
             return View(modelo);
         }
 
-
         [HttpGet]
         public IActionResult Crear()
         {
@@ -52,11 +52,11 @@ namespace Inventario360.Controllers
                 Text = r.Name
             }).ToList();
 
-            return View();
+            return View(new CrearUsuarioViewModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Crear(Usuario model, string password, string rol)
+        public async Task<IActionResult> Crear(CrearUsuarioViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -69,12 +69,36 @@ namespace Inventario360.Controllers
                 return View(model);
             }
 
-            model.EmailConfirmed = true;
-            var result = await _userManager.CreateAsync(model, password);
+            var usuario = new Usuario
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                NombreCompleto = model.NombreCompleto,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(usuario, model.Password);
 
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(model, rol);
+                var roleResult = await _userManager.AddToRoleAsync(usuario, model.Rol);
+                if (!roleResult.Succeeded)
+                {
+                    foreach (var error in roleResult.Errors)
+                    {
+                        ModelState.AddModelError("", $"Error al asignar rol: {error.Description}");
+                    }
+
+                    await _userManager.DeleteAsync(usuario); // rollback
+                    ViewBag.Roles = _roleManager.Roles.Select(r => new SelectListItem
+                    {
+                        Value = r.Name,
+                        Text = r.Name
+                    }).ToList();
+
+                    return View(model);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -82,6 +106,12 @@ namespace Inventario360.Controllers
             {
                 ModelState.AddModelError("", error.Description);
             }
+
+            ViewBag.Roles = _roleManager.Roles.Select(r => new SelectListItem
+            {
+                Value = r.Name,
+                Text = r.Name
+            }).ToList();
 
             return View(model);
         }
@@ -101,12 +131,11 @@ namespace Inventario360.Controllers
             }).ToList();
 
             ViewBag.Roles = roles;
-
             return View(usuario);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Editar(string id, Usuario model, string rol)
+        public async Task<IActionResult> Editar(string id, Usuario model, string Rol)
         {
             var usuario = await _userManager.FindByIdAsync(id);
             if (usuario == null) return NotFound();
@@ -121,7 +150,7 @@ namespace Inventario360.Controllers
             {
                 var currentRoles = await _userManager.GetRolesAsync(usuario);
                 await _userManager.RemoveFromRolesAsync(usuario, currentRoles);
-                await _userManager.AddToRoleAsync(usuario, rol);
+                await _userManager.AddToRoleAsync(usuario, Rol);
 
                 return RedirectToAction(nameof(Index));
             }
