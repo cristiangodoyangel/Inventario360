@@ -12,7 +12,7 @@ using Inventario360.Data;
 
 namespace Inventario360.Controllers
 {
-    [Authorize] // 🔹 Aplica autenticación a todas las acciones del controlador
+    [Authorize(Roles = "Administrador,Proyectos,Supervisor")]
     public class SalidaDeBodegaController : Controller
     {
         private readonly InventarioDbContext _context;
@@ -21,7 +21,6 @@ namespace Inventario360.Controllers
         private readonly IEmpleadoService _empleadoService;
         private readonly IProyectoService _proyectoService;
 
-        // ✅ Constructor con inyección de dependencias
         public SalidaDeBodegaController(
             InventarioDbContext context,
             ISalidaBodegaService salidaBodegaService,
@@ -36,14 +35,12 @@ namespace Inventario360.Controllers
             _proyectoService = proyectoService;
         }
 
-        // 📌 Vista principal de Salidas de Bodega
         public async Task<IActionResult> Index()
         {
             var salidas = await _salidaBodegaService.ObtenerTodas();
             return View(salidas);
         }
 
-        // 📌 Ver detalles de una salida de bodega
         public async Task<IActionResult> Detalle(int id)
         {
             var salida = await _salidaBodegaService.ObtenerPorId(id);
@@ -53,7 +50,6 @@ namespace Inventario360.Controllers
             return View(salida);
         }
 
-        // 📌 Formulario para crear una nueva salida
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
@@ -63,7 +59,6 @@ namespace Inventario360.Controllers
             return View();
         }
 
-        // 📌 Procesar la creación de una salida
         [HttpPost]
         public async Task<IActionResult> Crear(SalidaDeBodega salida, string ProductosJson)
         {
@@ -90,7 +85,6 @@ namespace Inventario360.Controllers
             }
         }
 
-        // 📌 Obtener Resumen de Salidas de Bodega
         public async Task<IActionResult> ObtenerResumenSalidas(int mes, int año)
         {
             var resumen = new
@@ -136,7 +130,6 @@ namespace Inventario360.Controllers
             return Json(resumen);
         }
 
-        // 📌 Método para eliminar una salida de bodega
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -150,7 +143,6 @@ namespace Inventario360.Controllers
 
             try
             {
-                // Restaurar stock de cada producto en la salida eliminada
                 foreach (var detalle in salida.Detalles)
                 {
                     var producto = await _context.Producto.FindAsync(detalle.ProductoID);
@@ -161,7 +153,6 @@ namespace Inventario360.Controllers
                     }
                 }
 
-                // Eliminar la salida de bodega y guardar cambios
                 _context.SalidaDeBodega.Remove(salida);
                 await _context.SaveChangesAsync();
 
@@ -173,8 +164,6 @@ namespace Inventario360.Controllers
             }
         }
 
-
-        // 📌 Método para eliminar salida y revertir stock
         [HttpPost]
         public async Task<IActionResult> EliminarSalida(int id)
         {
