@@ -1,4 +1,4 @@
-﻿using Inventario360.Data;
+using Inventario360.Data;
 using Inventario360.Models;
 using Inventario360.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +24,9 @@ builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
+
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedAccount = false;
 })
     .AddEntityFrameworkStores<InventarioDbContext>()
     .AddDefaultTokenProviders();
@@ -46,8 +49,7 @@ builder.Services.AddScoped<ICuentaService, CuentaService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IFichaEmpleadoService, FichaEmpleadoService>();
 builder.Services.AddScoped<IFichaCamionetaService, FichaCamionetaService>();
-builder.Services.AddScoped<IUsuarioService, UsuarioService>(); // ✅ Nuevo servicio de usuarios
-builder.Services.AddScoped<RoleManager<IdentityRole>>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 // Autorizar por defecto todas las vistas
 builder.Services.AddControllersWithViews(options =>
@@ -65,12 +67,16 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<Usuario>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-    if (userManager != null)
+    try 
     {
-        await UsuarioInitializer.Initialize(services, userManager);
+        var userManager = services.GetRequiredService<UserManager<Usuario>>();
+        await Inventario360.Services.UsuarioInitializer.Initialize(services, userManager);
+
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al inicializar la base de datos.");
     }
 }
 
