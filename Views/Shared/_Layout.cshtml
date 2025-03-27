@@ -103,6 +103,9 @@
             margin-left: auto;
         }
     </style>
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+
 </head>
 <body>
     <div class="header">
@@ -214,5 +217,9 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+   
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 </body>
 </html>

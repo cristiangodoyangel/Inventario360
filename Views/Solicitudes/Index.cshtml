@@ -134,6 +134,7 @@
                             <th>Medida</th>
                             <th>Unidad de Medida</th>
                             <th>Marca</th>
+                            <th class="d-none">Descripción</th>
                             <th>Ubicación</th>
                             <th>Estado</th>
                             <th>Imagen</th>
@@ -310,11 +311,11 @@
                 });
             });
         }
-    
 
 
 
-        function cargarProductosInventario() {
+
+           function cargarProductosInventario() {
         fetch('/Productos/ObtenerProductos')
             .then(response => {
                 if (!response.ok) {
@@ -342,7 +343,7 @@
                         <td>${producto.medida || '-'}</td>
                         <td>${producto.unidadMedida || '-'}</td>
                         <td>${producto.marca || '-'}</td>
-                        <td>${producto.descripcion || '-'}</td>
+                       <td class="d-none">${producto.descripcion || '-'}</td>
                         <td>${producto.ubicacion || '-'}</td>
                         <td>${producto.estado || '-'}</td>
                         <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img"></td>
@@ -350,6 +351,23 @@
 
                     tbody.innerHTML += row;
                 });
+
+                // ✅ Inicializar DataTable con búsqueda, paginación y responsive
+                $('#tablaInventario').DataTable({
+                    destroy: true,
+                    responsive: true,
+                    pageLength: 10,
+                    language: {
+                        search: "Buscar:",
+                        lengthMenu: "Mostrar _MENU_ registros",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ productos",
+                        paginate: {
+                            next: "Siguiente",
+                            previous: "Anterior"
+                        }
+                    }
+                });
+
             })
             .catch(error => console.error("Error al cargar productos:", error));
     }
