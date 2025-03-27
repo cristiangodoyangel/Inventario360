@@ -31,10 +31,12 @@ namespace Inventario360.Controllers
             return View(ficha);
         }
 
-        public IActionResult Crear()
+        public async Task<IActionResult> Crear()
         {
+            ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre");
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -1,0 +1,106 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
+using Inventario360.Models;
+using Microsoft.AspNetCore.Authorization;
+
+namespace Inventario360.Controllers
+{
+    [Authorize]
+    public class CuentaController : Controller
+    {
+        private readonly UserManager<Usuario>
+    _userManager;
+    private readonly SignInManager<Usuario>
+        _signInManager;
+
+        public CuentaController(UserManager<Usuario>
+            userManager, SignInManager<Usuario>
+                signInManager)
+                {
+                _userManager = userManager;
+                _signInManager = signInManager;
+                }
+
+                public async Task<IActionResult>
+                    Index()
+                    {
+                    var usuario = await _userManager.GetUserAsync(User);
+                    if (usuario == null)
+                    {
+                    return RedirectToAction("Login", "Cuenta");
+                    }
+
+                    var model = new PerfilViewModel
+                    {
+                    Email = usuario.Email,
+                    NombreCompleto = usuario.NombreCompleto
+                    };
+
+                    return View(model);
+                    }
+
+                    [HttpPost]
+                    public async Task<IActionResult>
+                        Editar(PerfilViewModel model)
+                        {
+                        if (!ModelState.IsValid)
+                        {
+                        return View("Index", model);
+                        }
+
+                        var usuario = await _userManager.GetUserAsync(User);
+                        if (usuario == null)
+                        {
+                        return RedirectToAction("Login", "Cuenta");
+                        }
+
+                        usuario.NombreCompleto = model.NombreCompleto;
+                        var result = await _userManager.UpdateAsync(usuario);
+
+                        if (result.Succeeded)
+                        {
+                        ViewBag.Mensaje = "Perfil actualizado correctamente.";
+                        return View("Index", model);
+                        }
+
+                        foreach (var error in result.Errors)
+                        {
+                        ModelState.AddModelError("", error.Description);
+                        }
+
+                        return View("Index", model);
+                        }
+
+                        [HttpPost]
+                        public async Task<IActionResult>
+                            CambiarContrasena(CambiarContrasenaViewModel model)
+                            {
+                            if (!ModelState.IsValid)
+                            {
+                            return View("Index", model);
+                            }
+
+                            var usuario = await _userManager.GetUserAsync(User);
+                            if (usuario == null)
+                            {
+                            return RedirectToAction("Login", "Cuenta");
+                            }
+
+                            var cambioPass = await _userManager.ChangePasswordAsync(usuario, model.ContrasenaActual, model.NuevaContrasena);
+                            if (cambioPass.Succeeded)
+                            {
+                            await _signInManager.RefreshSignInAsync(usuario);
+                            ViewBag.Mensaje = "Contraseña actualizada correctamente.";
+                            return View("Index", new PerfilViewModel { Email = usuario.Email, NombreCompleto = usuario.NombreCompleto });
+                            }
+
+                            foreach (var error in cambioPass.Errors)
+                            {
+                            ModelState.AddModelError("", error.Description);
+                            }
+
+                            return View("Index", model);
+                            }
+                            }
+                            }

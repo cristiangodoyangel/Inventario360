@@ -2,263 +2,320 @@
 
 @{
     ViewData["Title"] = "Fichas de Empleados";
+
+    // Precalcular datos para el gráfico
+    var contratos = new { Vigentes = 0, PorVencer = 0, Vencidos = 0 };
+    var examenes = new { Vigentes = 0, PorVencer = 0, Vencidos = 0 };
+    int alturaSi = 0, alturaNo = 0;
+    int acreditacionesSi = 0, acreditacionesNo = 0;
+
+    foreach (var ficha in Model)
+    {
+        var diasContrato = ficha.FechaTerminoContrato?.Subtract(DateTime.Now).TotalDays ?? 999;
+        var diasExamen = ficha.FechaVencimientoExamen?.Subtract(DateTime.Now).TotalDays ?? 999;
+
+        // Contrato
+        if (diasContrato <= 0) contratos = contratos with { Vencidos = contratos.Vencidos + 1 };
+        else if (diasContrato <= 30) contratos = contratos with { PorVencer = contratos.PorVencer + 1 };
+        else contratos = contratos with { Vigentes = contratos.Vigentes + 1 };
+
+        // Examen
+        if (diasExamen <= 0) examenes = examenes with { Vencidos = examenes.Vencidos + 1 };
+        else if (diasExamen <= 30) examenes = examenes with { PorVencer = examenes.PorVencer + 1 };
+        else examenes = examenes with { Vigentes = examenes.Vigentes + 1 };
+
+        // Curso Altura
+        if (ficha.CursoAltura) alturaSi++; else alturaNo++;
+
+        // Acreditaciones
+        if (!string.IsNullOrEmpty(ficha.Acreditaciones)) acreditacionesSi++; else acreditacionesNo++;
+    }
 }
 
 <div class="container mt-4">
     <h2 class="mb-4 text-center">📋 Fichas de Empleados</h2>
-    <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
-    <!-- Tarjetas Resumen -->
-    <div class="row text-center">
-        <div class="col-md-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Vigentes</h5>
-                    <p class="card-text fs-4" id="vigentes">0</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h5 class="card-title">Por Vencer</h5>
-                    <p class="card-text fs-4" id="porVencer">0</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Vencidos</h5>
-                    <p class="card-text fs-4" id="vencidos">0</p>
-                </div>
-            </div>
-        </div>
+    <div class="text-end mb-3">
+        <a asp-action="Crear" class="btn btn-orange me-2">➕ Nueva Ficha</a>
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditarEmpleados">✏️ Editar</button>
     </div>
 
-    <hr style="border: 2px solid #333; margin-bottom: 15px;">
 
-    <div class="text-end mt-3">
-        <a asp-action="Crear" class="btn btn-orange"> Nueva Ficha</a>
-    </div>
-
-    <hr style="border: 2px solid #333; margin-bottom: 15px;">
-
-    <!-- Tabla de empleados -->
-    <table id="tablaEmpleados" class="table table-striped table-bordered mt-3">
-        <thead class="table-light">
+    <!-- 📄 CONTRATO -->
+    <h5 class="titulo-seccion">📄 Contrato</h5>
+    <table id="tablaContrato" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
+        <thead class="table-light text-center">
             <tr>
                 <th>Empleado</th>
-                <th>Fecha de Ingreso</th>
                 <th>Contrato Vence</th>
-                <th>Examen Vence</th>
-                <th>Curso Altura</th>
-                <th>Acreditaciones</th>
-                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            @{
-                var fichasOrdenadas = Model.OrderBy(f =>
-                f.FechaTerminoContrato.HasValue && f.FechaTerminoContrato <= DateTime.Now ||
-                f.FechaVencimientoExamen.HasValue && f.FechaVencimientoExamen <= DateTime.Now ? 2 :
-                f.FechaTerminoContrato.HasValue && f.FechaTerminoContrato <= DateTime.Now.AddMonths(1) ||
-                f.FechaVencimientoExamen.HasValue && f.FechaVencimientoExamen <= DateTime.Now.AddMonths(1) ? 1 : 0);
-
-                foreach (var ficha in fichasOrdenadas)
+            @foreach (var ficha in Model)
+            {
+                var claseFila = "table-success";
+                if (ficha.FechaTerminoContrato.HasValue)
                 {
-                    var estadoClase = "table-success"; // Default verde
-                    if (ficha.FechaTerminoContrato.HasValue && ficha.FechaTerminoContrato <= DateTime.Now ||
-                    ficha.FechaVencimientoExamen.HasValue && ficha.FechaVencimientoExamen <= DateTime.Now)
-                    {
-                        estadoClase = "table-danger"; // Rojo (vencido)
-                    }
-                    else if (ficha.FechaTerminoContrato.HasValue && ficha.FechaTerminoContrato <= DateTime.Now.AddMonths(1) ||
-                    ficha.FechaVencimientoExamen.HasValue && ficha.FechaVencimientoExamen <= DateTime.Now.AddMonths(1))
-                    {
-                        estadoClase = "table-warning"; // Amarillo (por vencer)
-                    }
-
-                    <tr class="@estadoClase">
-                        <td>
-                            <a asp-action="Detalle" asp-route-id="@ficha.ID" class="fw-bold text-dark">
-                                @ficha.Empleado?.Nombre
-                            </a>
-                        </td>
-                        <td>@ficha.FechaIngreso.ToString("dd-MM-yyyy")</td>
-                        <td>@(ficha.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</td>
-                        <td>@(ficha.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</td>
-                        <td>@(ficha.CursoAltura ? "✅ Sí" : "❌ No")</td>
-                        <td>@(string.IsNullOrEmpty(ficha.Acreditaciones) ? "N/A" : ficha.Acreditaciones)</td>
-                        <td>
-                            <a asp-action="Detalle" asp-route-id="@ficha.ID" class="btn btn-icon">🔍 </a>
-                            <a asp-action="Editar" asp-route-id="@ficha.ID" class="btn btn-icon">✏️ </a>
-                            <a asp-action="Eliminar" asp-route-id="@ficha.ID" class="btn btn-icon" onclick="return confirm('¿Seguro que deseas eliminar esta ficha?')">🗑️</a>
-                        </td>
-                    </tr>
+                    var dias = (ficha.FechaTerminoContrato.Value - DateTime.Now).TotalDays;
+                    if (dias <= 0) claseFila = "table-danger";
+                    else if (dias <= 30) claseFila = "table-warning";
                 }
+
+                <tr class="@claseFila">
+                    <td>@ficha.Empleado?.Nombre</td>
+                    <td>@(ficha.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                </tr>
             }
         </tbody>
     </table>
 
-    <hr style="border: 2px solid #333; margin-bottom: 15px;">
+    <!-- 🩺 EXAMEN -->
+    <h5 class="titulo-seccion">🩺 Examen</h5>
+    <table id="tablaExamen" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
+        <thead class="table-light text-center">
+            <tr>
+                <th>Empleado</th>
+                <th>Examen Vence</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ficha in Model)
+            {
+                var claseFila = "table-success";
+                if (ficha.FechaVencimientoExamen.HasValue)
+                {
+                    var dias = (ficha.FechaVencimientoExamen.Value - DateTime.Now).TotalDays;
+                    if (dias <= 0) claseFila = "table-danger";
+                    else if (dias <= 30) claseFila = "table-warning";
+                }
 
-    <!-- Gráfico de barras -->
-    <div style="max-width: 600px; margin: auto;">
-        <canvas id="graficoEstado" class="mt-4"></canvas>
+                <tr class="@claseFila">
+                    <td>@ficha.Empleado?.Nombre</td>
+                    <td>@(ficha.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 🧗 CURSO ALTURA -->
+    <h5 class="titulo-seccion">🧗 Curso de Altura</h5>
+    <table id="tablaAltura" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
+        <thead class="table-light text-center">
+            <tr>
+                <th>Empleado</th>
+                <th>Curso Altura</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ficha in Model)
+            {
+                var claseFila = ficha.CursoAltura ? "table-success" : "table-danger";
+                <tr class="@claseFila">
+                    <td>@ficha.Empleado?.Nombre</td>
+                    <td>@(ficha.CursoAltura ? "✅ Sí" : "❌ No")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 📚 ACREDITACIONES -->
+    <h5 class="titulo-seccion">📚 Acreditaciones</h5>
+    <table id="tablaAcreditaciones" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
+        <thead class="table-light text-center">
+            <tr>
+                <th>Empleado</th>
+                <th>Acreditaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ficha in Model)
+            {
+                var tiene = !string.IsNullOrEmpty(ficha.Acreditaciones);
+                var claseFila = tiene ? "table-success" : "table-danger";
+                <tr class="@claseFila">
+                    <td>@ficha.Empleado?.Nombre</td>
+                    <td>@(tiene ? ficha.Acreditaciones : "N/A")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 📊 Carrusel de Gráficos -->
+    <h5 class="titulo-seccion mt-5">📊 Estado Documental</h5>
+    <div class="d-flex justify-content-center align-items-center gap-3">
+        <button id="prevGrafico" class="btn btn-orange">⬅️</button>
+        <canvas id="graficoCarrusel" style="max-width: 300px; max-height: 150px;"></canvas>
+        <button id="nextGrafico" class="btn btn-orange">➡️</button>
+    </div>
+    <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
+
+
+    <!-- Modal para Editar Trabajadores -->
+    <div class="modal fade" id="modalEditarEmpleados" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="modalEditarLabel">Editar Trabajadores</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-sm table-hover">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Contrato</th>
+                                <th>Examen</th>
+                                <th>Curso Altura</th>
+                                <th>Acreditación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ficha in Model)
+                            {
+                                <tr>
+                                    <td>@ficha.Empleado?.Nombre</td>
+                                    <td>@(ficha.FechaTerminoContrato?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                                    <td>@(ficha.FechaVencimientoExamen?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                                    <td>@(ficha.CursoAltura ? "✅" : "❌")</td>
+                                    <td>@(string.IsNullOrEmpty(ficha.Acreditaciones) ? "N/A" : ficha.Acreditaciones)</td>
+                                    <td>
+                                        <a asp-action="Editar" asp-route-id="@ficha.ID" class="btn btn-sm btn-orange">Editar</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
 
-<hr style="border: 2px solid #333; margin-bottom: 15px;">
-
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
     <script>
         $(document).ready(function () {
-            $('#tablaEmpleados').DataTable();
+            ['#tablaContrato', '#tablaExamen', '#tablaAltura', '#tablaAcreditaciones'].forEach(id => {
+                $(id).DataTable({
+                    responsive: true,
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+                    }
+                });
 
-            var vigentes = 0, porVencer = 0, vencidos = 0;
-
-            $("tbody tr").each(function () {
-                if ($(this).hasClass("table-danger")) vencidos++;
-                else if ($(this).hasClass("table-warning")) porVencer++;
-                else vigentes++;
             });
 
-            // Actualizar tarjetas
-            $("#vigentes").text(vigentes);
-            $("#porVencer").text(porVencer);
-            $("#vencidos").text(vencidos);
-
-            var canvas = document.getElementById('graficoEstado');
-            if (canvas) {
-                var ctx = canvas.getContext('2d');
-
-                if (window.miGraficoEstado instanceof Chart) {
-                    window.miGraficoEstado.destroy();
+            const datasets = [
+                {
+                    label: "Contrato",
+                    data: [@contratos.Vigentes, @contratos.PorVencer, @contratos.Vencidos],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    labels: ["Vigentes", "Por Vencer", "Vencidos"]
+                },
+                {
+                    label: "Examen",
+                    data: [@examenes.Vigentes, @examenes.PorVencer, @examenes.Vencidos],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    labels: ["Vigentes", "Por Vencer", "Vencidos"]
+                },
+                {
+                    label: "Curso Altura",
+                    data: [@alturaSi, @alturaNo],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    labels: ["Sí", "No"]
+                },
+                {
+                    label: "Acreditaciones",
+                    data: [@acreditacionesSi, @acreditacionesNo],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    labels: ["Tiene", "No Tiene"]
                 }
+            ];
 
-                window.miGraficoEstado = new Chart(ctx, {
-                    type: 'bar',
+            let index = 0;
+            const ctx = document.getElementById("graficoCarrusel").getContext("2d");
+            let grafico;
+
+            function renderGrafico() {
+                const d = datasets[index];
+                if (grafico) grafico.destroy();
+                grafico = new Chart(ctx, {
+                    type: "bar",
                     data: {
-                        labels: ['Vigentes', 'Por Vencer', 'Vencidos'],
+                        labels: d.labels,
                         datasets: [{
-                            label: 'Estado de Empleados',
-                            data: [vigentes, porVencer, vencidos],
-                            backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+                            label: d.label,
+                            data: d.data,
+                            backgroundColor: d.backgroundColor
                         }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
-                        aspectRatio: 2, // Ajuste de tamaño del gráfico
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
+                        maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true } },
+                        plugins: { legend: { display: false } }
                     }
                 });
+                $("#tituloGrafico").text("📌 " + d.label);
             }
+
+            $("#prevGrafico").click(() => {
+                index = (index - 1 + datasets.length) % datasets.length;
+                renderGrafico();
+            });
+
+            $("#nextGrafico").click(() => {
+                index = (index + 1) % datasets.length;
+                renderGrafico();
+            });
+
+            renderGrafico();
         });
     </script>
 }
+
 <style>
     .btn-orange {
         background-color: #f06529 !important;
         border-radius: 5px;
-        border-color: #f06529 !important;
         color: white !important;
+        font-weight: bold;
     }
 
         .btn-orange:hover {
             background-color: #d9531e !important;
-            border-color: #d9531e !important;
         }
 
-    .btn-icon {
-        background-color: transparent !important;
-        border: 1px solid #000000 !important;
-        color: #f06529 !important;
-        border-radius: 5px;
-        font-size: 1.2rem;
-        padding: 0.3rem;
+    .table td, .table th {
+        text-align: center;
+        vertical-align: middle;
+        font-size: 14px;
+        padding: 6px;
     }
 
-        .btn-icon:hover {
-            color: #d9531e !important;
-        }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .pagination-separated .paginate_button {
-        margin: 0 8px;
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
     }
 
     .table-hover tbody tr:hover {
         background-color: #fcd8b7;
     }
 
-    .fila-hover:hover {
-        background-color: #fbdfc5;
-    }
-
-    .mb-4 {
-        margin-bottom: 3rem !important;
-    }
-
-    .table-light th {
-        background-color: #f8f9fa;
+    .titulo-seccion {
+        background-color: #f06529;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 5px;
+        margin-top: 40px;
         font-weight: bold;
-        text-align: center;
-    }
-
-    .table td {
-        vertical-align: middle;
-    }
-
-    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
-    .dataTables_wrapper .dataTables_filter {
-        margin-bottom: 15px;
-    }
-
-    /* ✅ Agregar borde superior e inferior a la tabla */
-    .table-bordered {
-        border: 1px solid #333 !important;
-    }
-
-        .table-bordered th,
-        .table-bordered td {
-            border: 0.5px solid #ccc !important;
-        }
-
-    /* ✅ Cambia el color del "+" cuando la tabla es responsiva */
-    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
-        background-color: #f06529 !important; /* Naranja */
-        color: white !important; /* Color del "+" */
-        border-radius: 50% !important;
-        width: 18px !important;
-        height: 18px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-weight: bold !important;
-    }
-
-    /* ✅ Cambia el color del "-" cuando la fila está expandida */
-    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
-        background-color: #d9531e !important; /* Gris */
-        color: black !important; /* Color del "-" */
     }
 </style>

@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using Inventario360.Models
+@inject UserManager<Usuario> UserManager
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -8,9 +12,34 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Inventario360.styles.css" asp-append-version="true" />
     <style>
+        .btn-orange {
+            background-color: #f06529 !important;
+            border-radius: 5px;
+            border-color: #f06529 !important;
+            color: white !important;
+        }
+
+            .btn-orange:hover {
+                background-color: #d9531e !important;
+                border-color: #d9531e !important;
+            }
+
+        .btn-icon {
+            background-color: transparent !important;
+            border: 1px solid #000000 !important;
+            color: #f06529 !important;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            padding: 0.3rem;
+        }
+
+            .btn-icon:hover {
+                color: #d9531e !important;
+            }
+
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: white; /* 🔹 Fondo naranja clarito */
+            background-color: white;
         }
 
         .header {
@@ -25,27 +54,13 @@
                 height: 60px;
             }
 
-        .login-btn {
-            background-color: #f1663b;
-            color: white !important;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background 0.3s ease;
-        }
-
-            .login-btn:hover {
-                background-color: #e25a32;
-            }
-
         .navbar {
             background-color: #f1663b;
             padding: 15px;
         }
 
         .navbar-nav .nav-link {
-            font-size: 23px;
+            font-size: 18px;
             font-weight: bold;
             color: white !important;
             margin: 0 15px;
@@ -59,58 +74,62 @@
             filter: invert(1);
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            color: white;
-        }
-
-        /* 🔹 Estilos para el menú desplegable */
         .dropdown-menu {
-            background-color: #f1663b !important; /* 🔹 Color corregido */
+            background-color: #f1663b !important;
             border: none;
-            display: none; /* Ocultar por defecto */
         }
 
             .dropdown-menu .dropdown-item {
-                color: white !important; /* Ajuste de color del texto */
+                color: white !important;
             }
 
                 .dropdown-menu .dropdown-item:hover {
-                    background-color: #e25a32 !important; /* 🔹 Un tono más oscuro al pasar el mouse */
+                    background-color: #e25a32 !important;
                 }
 
-        /* 🔹 Mostrar menú al pasar el mouse */
-        .dropdown:hover .dropdown-menu {
-            display: block;
-            margin-top: 0;
-        }
-
-        /* 🔹 Fondo del contenido */
         .container {
-            background-color: white; /* Mantiene el contenido principal en blanco */
+            background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-nav.mx-auto {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .navbar-nav.ms-auto {
+            margin-left: auto;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="~/images/logo.png" alt="Logo">
+        <img src="~/images/logo.png" alt="Logo" />
         @if (User.Identity.IsAuthenticated)
         {
-            <div class="user-info">
-                <span>@User.Identity.Name</span>
-                <form id="logoutForm" asp-controller="Cuenta" asp-action="Logout" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="login-btn">Cerrar sesión</button>
-                </form>
+            var usuario = await UserManager.GetUserAsync(User);
+            var nombreUsuario = usuario != null ? usuario.NombreCompleto.Split(' ')[0] : "Usuario";
+
+            <div class="dropdown">
+                <button class="btn btn-orange dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    @nombreUsuario
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" asp-controller="Perfil" asp-action="Index">Mi Perfil</a></li>
+                    <li>
+                        <form id="logoutForm" asp-controller="Cuenta" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         }
         else
         {
-            <a asp-controller="Cuenta" asp-action="Login" class="login-btn">Ingresar</a>
+            <a asp-controller="Cuenta" asp-action="Login" class="btn btn-secondary">Ingresar</a>
         }
     </div>
 
@@ -120,9 +139,13 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    @if (User.Identity.IsAuthenticated)
-                    {
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var usuario = await UserManager.GetUserAsync(User);
+                    var esAdmin = await UserManager.IsInRoleAsync(usuario, "Administrador");
+                    var esProyectos = await UserManager.IsInRoleAsync(usuario, "Proyectos");
+
+                    <ul class="navbar-nav mx-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="bodegaDropdown" role="button">
                                 Bodega
@@ -134,9 +157,11 @@
                                 <li><a class="dropdown-item" asp-controller="Reportes" asp-action="Index">Reportes</a></li>
                             </ul>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Biblioteca" asp-action="Index">Control Documental</a>
                         </li>
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="controlActivosDropdown" role="button">
                                 Control de Activos
@@ -146,9 +171,17 @@
                                 <li><a class="dropdown-item" asp-controller="FichaCamioneta" asp-action="Index">Control de Camionetas</a></li>
                             </ul>
                         </li>
+                    </ul>
 
+                    @if (esAdmin || esProyectos)
+                    {
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                            </li>
+                        </ul>
                     }
-                </ul>
+                }
             </div>
         </div>
     </nav>
@@ -169,7 +202,6 @@
 
     <script>
         $(document).ready(function () {
-            // 🔹 Control del menú para asegurar compatibilidad con Bootstrap 5
             $('.dropdown').hover(
                 function () {
                     $(this).find('.dropdown-menu').stop(true, true).slideDown(200);
