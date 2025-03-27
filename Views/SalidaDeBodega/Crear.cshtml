@@ -4,6 +4,9 @@
     ViewData["Title"] = "Registrar Salida de Bodega";
 }
 
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <div class="container mt-5">
     <h2 class="mb-4">Registrar Salida de Bodega</h2>
 
@@ -41,7 +44,7 @@
             <thead>
                 <tr>
                     <th>Producto</th>
-                    <th>Categoría</th> <!-- ✅ Nueva columna -->
+                    <th>Categoría</th>
                     <th>Cantidad</th>
                     <th>Acción</th>
                 </tr>
@@ -88,7 +91,7 @@
     </form>
 </div>
 
-<!-- Modal de Advertencia -->
+<!-- Modal -->
 <div class="modal fade" id="modalAdvertencia" tabindex="-1" aria-labelledby="modalAdvertenciaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -106,9 +109,18 @@
     </div>
 </div>
 
-
 @section Scripts {
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
+        $(document).ready(function () {
+            $('#productoSeleccionado').select2({
+                placeholder: "Seleccione un producto",
+                allowClear: true
+            });
+        });
+
         let productosSeleccionados = [];
 
         document.getElementById("productoSeleccionado").addEventListener("change", function () {
@@ -127,17 +139,16 @@
             let stockDisponible = select.options[select.selectedIndex].getAttribute("data-stock");
             let cantidad = parseInt(cantidadInput.value);
 
-                  if (!productoId || cantidad <= 0 || cantidad > parseInt(stockDisponible)) {
-            document.getElementById("mensajeAdvertencia").innerText =
-                "Seleccione un producto válido y asegúrese de que la cantidad no exceda el stock disponible.";
-            let modal = new bootstrap.Modal(document.getElementById("modalAdvertencia"));
-            modal.show();
-            return;
-        }
-            // Agregar el producto a la lista
+            if (!productoId || cantidad <= 0 || cantidad > parseInt(stockDisponible)) {
+                document.getElementById("mensajeAdvertencia").innerText =
+                    "Seleccione un producto válido y asegúrese de que la cantidad no exceda el stock disponible.";
+                let modal = new bootstrap.Modal(document.getElementById("modalAdvertencia"));
+                modal.show();
+                return;
+            }
+
             productosSeleccionados.push({ ProductoID: productoId, Categoria: categoria, Cantidad: cantidad, Nombre: productoNombre });
 
-            // Renderizar en la tabla
             let tbody = document.getElementById("productosSeleccionados");
             let tr = document.createElement("tr");
             tr.innerHTML = `
@@ -148,13 +159,12 @@
             `;
             tbody.appendChild(tr);
 
-            // Guardar en el input oculto
             document.getElementById("productosJson").value = JSON.stringify(productosSeleccionados);
 
-            // Resetear campos
             select.value = "";
             cantidadInput.value = "";
             document.getElementById("categoriaSeleccionada").value = "";
+            $('#productoSeleccionado').val(null).trigger('change');
         });
 
         function eliminarProducto(id) {
@@ -230,5 +240,4 @@
         .btn-icon:hover {
             color: #d9531e !important;
         }
-
- </style>
+</style>
