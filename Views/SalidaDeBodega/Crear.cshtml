@@ -7,6 +7,7 @@
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+
 <div class="container mt-5">
     <h2 class="mb-4">Registrar Salida de Bodega</h2>
 
@@ -25,11 +26,6 @@
                 }
             </select>
             <div class="invalid-feedback">Debe seleccionar un producto válido.</div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Categoría</label>
-            <input type="text" id="categoriaSeleccionada" class="form-control" disabled />
         </div>
 
         <div class="mb-3">
@@ -95,7 +91,7 @@
 <div class="modal fade" id="modalAdvertencia" tabindex="-1" aria-labelledby="modalAdvertenciaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
+            <div class="modal-header custom-orange  text-dark">
                 <h5 class="modal-title" id="modalAdvertenciaLabel">Advertencia</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
@@ -110,7 +106,6 @@
 </div>
 
 @section Scripts {
-    <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
@@ -122,13 +117,6 @@
         });
 
         let productosSeleccionados = [];
-
-        document.getElementById("productoSeleccionado").addEventListener("change", function () {
-            let select = document.getElementById("productoSeleccionado");
-            let categoriaInput = document.getElementById("categoriaSeleccionada");
-            let categoria = select.options[select.selectedIndex].getAttribute("data-categoria");
-            categoriaInput.value = categoria ? categoria : "Sin categoría";
-        });
 
         document.getElementById("btnAgregarProducto").addEventListener("click", function () {
             let select = document.getElementById("productoSeleccionado");
@@ -163,7 +151,6 @@
 
             select.value = "";
             cantidadInput.value = "";
-            document.getElementById("categoriaSeleccionada").value = "";
             $('#productoSeleccionado').val(null).trigger('change');
         });
 
@@ -240,4 +227,17 @@
         .btn-icon:hover {
             color: #d9531e !important;
         }
+
+    /* Hover de ítem Select2 personalizado */
+    .select2-results__option--highlighted.select2-results__option--selectable {
+        background-color: #fcd8b7 !important;
+        color: black !important;
+    }
+
+    .custom-orange {
+        background-color: #f06529 !important;
+        color: white !important;
+    }
+
 </style>
+
