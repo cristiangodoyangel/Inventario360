@@ -1,0 +1,106 @@
+﻿@model Inventario360.Models.FichaCamioneta
+
+@{
+    ViewData["Title"] = "Crear Ficha Camioneta";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Nueva Ficha de Camioneta</h2>
+    <hr style="border: 2px solid #333;" />
+
+    <form asp-action="Crear" method="post" class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Patente" class="form-label">Patente</label>
+            <input asp-for="Patente" class="form-control" />
+            <span asp-validation-for="Patente" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Marca" class="form-label">Marca</label>
+            <input asp-for="Marca" class="form-control" />
+            <span asp-validation-for="Marca" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Modelo" class="form-label">Modelo</label>
+            <input asp-for="Modelo" class="form-control" />
+            <span asp-validation-for="Modelo" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="Año" class="form-label">Año</label>
+            <input asp-for="Año" class="form-control" />
+            <span asp-validation-for="Año" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="Color" class="form-label">Color</label>
+            <input asp-for="Color" class="form-control" />
+            <span asp-validation-for="Color" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="Kilometraje" class="form-label">Kilometraje</label>
+            <input asp-for="Kilometraje" class="form-control" />
+            <span asp-validation-for="Kilometraje" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-3">
+            <label asp-for="Estado" class="form-label">Estado</label>
+            <input asp-for="Estado" class="form-control" />
+            <span asp-validation-for="Estado" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="ResponsableID" class="form-label">Responsable</label>
+            <select asp-for="ResponsableID" asp-items="@(ViewBag.Empleados as SelectList)" class="form-select">
+                <option value="">Seleccione</option>
+            </select>
+            <span asp-validation-for="ResponsableID" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaPermisoCirculacion" class="form-label">Permiso de Circulación</label>
+            <input asp-for="FechaPermisoCirculacion" class="form-control" type="date" />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaSoap" class="form-label">SOAP</label>
+            <input asp-for="FechaSoap" class="form-control" type="date" />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaAntivuelcos" class="form-label">Antivuelcos</label>
+            <input asp-for="FechaAntivuelcos" class="form-control" type="date" />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaLaminas" class="form-label">Láminas</label>
+            <input asp-for="FechaLaminas" class="form-control" type="date" />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaGPS" class="form-label">GPS</label>
+            <input asp-for="FechaGPS" class="form-control" type="date" />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FechaMantenimiento" class="form-label">Mantenimiento</label>
+            <input asp-for="FechaMantenimiento" class="form-control" type="date" />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Acreditacion" class="form-label">Acreditación</label>
+            <input asp-for="Acreditacion" class="form-control" />
+        </div>
+
+        <div class="col-12 mt-3 text-end">
+            <button type="submit" class="btn btn-orange">Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
