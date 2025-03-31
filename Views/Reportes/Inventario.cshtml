@@ -34,9 +34,7 @@
         </thead>
         <tbody></tbody>
     </table>
-     <hr class="separador">
-    <hr class="separador">
-
+ 
     <h4 class="text-warning mt-4">Stock Crítico (Menos de 5)</h4>
     <hr class="separador">
     <table id="tablaStockBajo" class="table table-striped table-bordered table-hover nowrap" style="width:100%">
@@ -49,11 +47,10 @@
         </thead>
         <tbody></tbody>
     </table>
-    <hr class="separador">
-    <hr class="separador">
+ 
 
     <h4 class="text-danger mt-4">Overstock (Más de 100)</h4>
-    <hr class="separador">
+  
     <table id="tablaOverstock" class="table table-striped table-bordered table-hover nowrap" style="width:100%">
         <thead class="table-secondary">
             <tr>
@@ -212,6 +209,11 @@
     table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
         background-color: #d9531e !important; /* Gris */
         color: black !important; /* Color del "-" */
+    }
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
     }
 
 

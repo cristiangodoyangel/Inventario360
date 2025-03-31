@@ -174,10 +174,7 @@
                 window.graficoMateriales.destroy();
             }
 
-            // 🖨 Botón de impresión
-            $("#btnImprimir").click(function () {
-                window.print();
-            });
+          
 
             // 🔹 RESETAR CANVAS PARA EVITAR EXPANSIÓN INDEFINIDA
             canvas.width = canvas.width;
@@ -206,5 +203,9 @@
         }
 
         });
+          // impresión
+            $("#btnImprimir").click(function () {
+                window.print();
+            });
     </script>
 }
