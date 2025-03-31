@@ -2,75 +2,72 @@
 
 @{
     ViewData["Title"] = "Detalle de la Salida de Bodega";
-    var detalles = ViewBag.Detalles as List<Inventario360.Models.DetalleSalidaDeBodega>; // ✅ Casting explícito
+    var detalles = ViewBag.Detalles as List<Inventario360.Models.DetalleSalidaDeBodega>;
 }
 
-<div class="container mt-4">
-    <h2 class="mb-3 text-orange">Detalle de la Salida de Bodega</h2>
+<div id="seccionImprimir">
+    <div class="container mt-4">
+        <h2 class="mb-3 text-orange">Detalle de la Salida de Bodega</h2>
 
-    <div class="card shadow-lg">
-        <div class="card-body">
-            <h4 class="mb-3">Información General</h4>
-            <table class="table table-bordered">
-                <tbody>
-                    <tr>
-                        <th class="bg-light">ID Salida</th>
-                        <td>@Model.ID</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Fecha</th>
-                        <td>@(Model.Fecha?.ToString("dd-MM-yyyy HH:mm") ?? "Sin fecha")</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Solicitante</th>
-                        <td>@(Model.SolicitanteObj?.Nombre ?? "No asignado")</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Responsable de Entrega</th>
-                        <td>@(Model.ResponsableEntregaObj?.Nombre ?? "No asignado")</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Proyecto</th>
-                        <td>@(Model.ProyectoObj?.Nombre ?? "No asignado")</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4 class="mt-4">Productos en esta Salida</h4>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Categoría</th> <!-- ✅ Nueva columna para la categoría -->
-                            <th>Cantidad</th>
-                        </tr>
-                    </thead>
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <h4 class="mb-3">Información General</h4>
+                <table class="table table-bordered">
                     <tbody>
-                        @if (detalles != null && detalles.Any()) // ✅ Verificación corregida
-                        {
-                            foreach (var detalle in detalles)
-                            {
-                                <tr>
-                                    <td>@(detalle.Producto?.NombreTecnico ?? "Sin nombre")</td>
-                                    <td>@(detalle.Producto?.Categoria ?? "Sin categoría")</td> <!-- ✅ Mostrar la categoría -->
-                                    <td>@detalle.Cantidad</td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="3" class="text-center">No hay productos en esta salida.</td>
-                            </tr>
-                        }
+                        <tr><th class="bg-light">ID Salida</th><td>@Model.ID</td></tr>
+                        <tr><th class="bg-light">Fecha</th><td>@(Model.Fecha?.ToString("dd-MM-yyyy HH:mm") ?? "Sin fecha")</td></tr>
+                        <tr><th class="bg-light">Solicitante</th><td>@(Model.SolicitanteObj?.Nombre ?? "No asignado")</td></tr>
+                        <tr><th class="bg-light">Responsable de Entrega</th><td>@(Model.ResponsableEntregaObj?.Nombre ?? "No asignado")</td></tr>
+                        <tr><th class="bg-light">Proyecto</th><td>@(Model.ProyectoObj?.Nombre ?? "No asignado")</td></tr>
                     </tbody>
                 </table>
+
+                <h4 class="mt-4">Productos en esta Salida</h4>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (detalles != null && detalles.Any())
+                            {
+                                foreach (var detalle in detalles)
+                                {
+                                    <tr>
+                                        <td>@(detalle.Producto?.NombreTecnico ?? "Sin nombre")</td>
+                                        <td>@(detalle.Producto?.Categoria ?? "Sin categoría")</td>
+                                        <td>@detalle.Cantidad</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center">No hay productos en esta salida.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="mt-4 text-end">
-        <a href="@Url.Action("Index", "SalidaDeBodega")" class="btn btn-secondary btn-lg">Volver</a>
-    </div>
 </div>
+
+<div class="mt-4 text-end">
+    <button id="btnImprimir" class="btn btn-secondary btn-lg me-2 w-15">Imprimir</button>
+    <a href="@Url.Action("Index", "SalidaDeBodega")" class="btn btn-secondary btn-lg w-15">Volver</a>
+</div>
+
+@section Scripts {
+    <script>
+        // 🖨 Botón de impresión
+            $("#btnImprimir").click(function () {
+                window.print();
+            });
+    </script>
+}
