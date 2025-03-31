@@ -1,8 +1,4 @@
-﻿@model Inventario360.Models.Usuario
-@{
-    ViewData["Title"] = "Editar Usuario";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+﻿@model Inventario360.ViewModels.EditarUsuarioViewModel
 
 <h2 class="mb-4">Editar Usuario</h2>
 
@@ -18,13 +14,46 @@
     <div class="form-group mb-3">
         <label asp-for="Email" class="form-label">Correo Electrónico</label>
         <input asp-for="Email" class="form-control" readonly />
-        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    <div class="form-group mb-3">
+        <label asp-for="Rol" class="form-label">Rol</label>
+        <select asp-for="Rol" class="form-control" asp-items="ViewBag.Roles" required>
+            <option value="">Seleccione un rol</option>
+        </select>
+        <span asp-validation-for="Rol" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-orange">Guardar Cambios</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+
+
+<style>
+    .btn-orange {
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
+    }
+
+        .btn-orange:hover {
+            background-color: #d9531e !important;
+            border-color: #d9531e !important;
+        }
+
+    .btn-icon {
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+    }
+
+        .btn-icon:hover {
+            color: #d9531e !important;
+        }
+
+</style>
