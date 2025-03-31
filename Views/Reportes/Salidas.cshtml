@@ -109,12 +109,17 @@
                 });
             }
 
+          
+
             function actualizarGraficoMateriales(materiales) {
-                let ctx = document.getElementById("chartMateriales").getContext("2d");
+                let canvas = document.getElementById("chartMateriales");
+                let ctx = canvas.getContext("2d");
 
                 if (window.graficoMateriales) {
                     window.graficoMateriales.destroy();
                 }
+
+                canvas.width = canvas.width; // limpia canvas
 
                 window.graficoMateriales = new Chart(ctx, {
                     type: "bar",
@@ -128,11 +133,11 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
+                        maintainAspectRatio: true,
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                max: Math.max(...materiales.map(m => m.totalCantidad), 100) + 50
+                                suggestedMax: Math.max(...materiales.map(m => m.totalCantidad), 100) + 50
                             }
                         }
                     }
@@ -162,50 +167,16 @@
                 cargarDatos($(this).val());
             });
 
-            // Cargar datos iniciales
+            
             cargarDatos(new Date().getMonth() + 1);
 
-                    function actualizarGraficoMateriales(materiales) {
-            let canvas = document.getElementById("chartMateriales");
-            let ctx = canvas.getContext("2d");
-
-            // 🔹 LIMPIAR CANVAS ANTES DE CREAR UN NUEVO GRÁFICO
-            if (window.graficoMateriales) {
-                window.graficoMateriales.destroy();
-            }
-
-          
-
-            // 🔹 RESETAR CANVAS PARA EVITAR EXPANSIÓN INDEFINIDA
-            canvas.width = canvas.width;
-
-            window.graficoMateriales = new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: materiales.map(m => m.material),
-                    datasets: [{
-                        label: "Solicitudes",
-                        data: materiales.map(m => m.totalCantidad),
-                        backgroundColor: ["#FF8C42", "#FF7043", "#FF5733"]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true, // 🔹 EVITAR QUE EL GRÁFICO CREZCA INDEFINIDAMENTE
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            suggestedMax: Math.max(...materiales.map(m => m.totalCantidad), 100) + 50
-                        }
-                    }
-                }
-            });
-        }
-
+            
         });
-          // impresión
+
+          //impresión
             $("#btnImprimir").click(function () {
                 window.print();
             });
+        
     </script>
 }
