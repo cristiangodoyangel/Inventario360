@@ -98,6 +98,25 @@
     </div>
 </div>
 
+<!-- Modal de Error -->
+<div class="modal fade" id="modalErrorEliminar" tabindex="-1" aria-labelledby="modalErrorEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalErrorEliminarLabel">No se puede eliminar</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="mensajeErrorEliminar">Ocurrió un error inesperado al intentar eliminar el producto.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -146,7 +165,7 @@
             modal.show();
         }
 
-        $(document).ready(function () {
+              $(document).ready(function () {
             $("#btnConfirmarEliminar").click(function () {
                 if (productoIdAEliminar) {
                     $.ajax({
@@ -155,21 +174,26 @@
                         data: { id: productoIdAEliminar },
                         success: function (response) {
                             if (response.success) {
-                                        var table = $('#productosTable').DataTable();
-        table.row($("#fila-" + productoIdAEliminar)).remove().draw();
+                                var table = $('#productosTable').DataTable();
+                                table.row($("#fila-" + productoIdAEliminar)).remove().draw();
                                 $("#confirmarEliminarModal").modal('hide');
                             } else {
-                                alert(response.message);
+                                $("#mensajeErrorEliminar").text(response.message || "No se pudo eliminar el producto.");
+                                var modalError = new bootstrap.Modal(document.getElementById('modalErrorEliminar'));
+                                modalError.show();
                             }
                         },
                         error: function (xhr) {
                             console.error(xhr.responseText);
-                            alert("Hubo un error al eliminar el producto.");
+                            $("#mensajeErrorEliminar").text("Hubo un error al eliminar el producto.");
+                            var modalError = new bootstrap.Modal(document.getElementById('modalErrorEliminar'));
+                            modalError.show();
                         }
                     });
                 }
             });
         });
+
     </script>
 }
 

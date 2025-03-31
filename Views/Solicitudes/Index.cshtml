@@ -223,7 +223,7 @@
                     <td><button class="btn btn-secondary btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
                 </tr>`;
 
-                tbody.innerHTML += newRow;
+             tbody.insertAdjacentHTML("beforeend", newRow);
 
                 console.log("✅ Producto agregado correctamente a la tabla.");
 
@@ -378,7 +378,7 @@
         cargarProductosInventario();
     });
 
-        function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion, proveedor) {
+    function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion, proveedor) {
         console.log("➡️ Producto seleccionado:");
         console.log("Item:", item);
         console.log("Nombre:", nombre);
@@ -412,16 +412,8 @@
             <td><button class="btn btn-secondary btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
 
-        tbody.innerHTML += newRow;
-
-        // ✅ Asignar proveedor en el input del formulario
-        let proveedorInput = document.getElementById("Proveedor");
-        if (proveedorInput) {
-            console.log("Asignando proveedor en el input:", proveedorNombre);
-            proveedorInput.value = proveedorNombre;
-        } else {
-            console.warn("⚠️ Input de proveedor no encontrado.");
-        }
+        // ✅ Esta línea conserva las cantidades anteriores
+        tbody.insertAdjacentHTML("beforeend", newRow);
 
         // ✅ Cerrar el modal correctamente
         let modalInventario = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
@@ -432,6 +424,7 @@
             console.warn("⚠️ No se pudo cerrar el modal de inventario.");
         }
     }
+
 
 
 
@@ -503,7 +496,8 @@
             <td><button class="btn btn-secondary btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
 
-        tbody.innerHTML += newRow;
+    tbody.insertAdjacentHTML("beforeend", newRow);
+
 
         // Cerrar el modal después de agregar el producto
         let modal = bootstrap.Modal.getInstance(document.getElementById("modalNuevoProducto"));
