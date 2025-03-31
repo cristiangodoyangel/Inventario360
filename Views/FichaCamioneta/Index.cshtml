@@ -21,6 +21,20 @@
         <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditarCamionetas">✏️ Editar</button>
     </div>
 
+    <!-- 📊 Carrusel de Gráficos -->
+    <h5 class="titulo-seccion mt-5">📊 Estado Documental</h5>
+    <div class="d-flex justify-content-center align-items-center gap-3">
+        <button id="prevGrafico" class="btn btn-orange">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <canvas id="graficoCamionetas" class="grafico-carrusel"></canvas>
+
+        <button id="nextGrafico" class="btn btn-orange">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
+
 
     @foreach (var tipo in resumen.Keys)
     {
@@ -64,13 +78,10 @@
         </table>
     }
 
-    <h5 class="titulo-seccion mt-5">📊 Estado Documental</h5>
-    <div class="d-flex justify-content-center align-items-center gap-3">
-        <button id="prevGrafico" class="btn btn-orange">⬅️</button>
-        <canvas id="graficoCamionetas" style="max-width: 300px; max-height: 150px;"></canvas>
-        <button id="nextGrafico" class="btn btn-orange">➡️</button>
-    </div>
-    <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
+
+
+
+
 
     <!-- Modal para Editar Camionetas -->
     <div class="modal fade" id="modalEditarCamionetas" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
@@ -194,5 +205,12 @@
 
     .table-hover tbody tr:hover {
         background-color: #fcd8b7;
+        
+    }
+
+    .graficoCamionetas {
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
     }
 </style>
