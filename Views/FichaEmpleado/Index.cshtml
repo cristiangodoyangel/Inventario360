@@ -40,6 +40,21 @@
         <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalEditarEmpleados">✏️ Editar</button>
     </div>
 
+    <!-- 📊 Carrusel de Gráficos -->
+    <h5 class="titulo-seccion mt-5">📊 Estado Documental</h5>
+    <div class="d-flex justify-content-center align-items-center gap-3">
+        <button id="prevGrafico" class="btn btn-orange">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <canvas id="graficoCarrusel" class="grafico-carrusel"></canvas>
+
+        <button id="nextGrafico" class="btn btn-orange">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
+
+
 
     <!-- 📄 CONTRATO -->
     <h5 class="titulo-seccion">📄 Contrato</h5>
@@ -140,14 +155,7 @@
         </tbody>
     </table>
 
-    <!-- 📊 Carrusel de Gráficos -->
-    <h5 class="titulo-seccion mt-5">📊 Estado Documental</h5>
-    <div class="d-flex justify-content-center align-items-center gap-3">
-        <button id="prevGrafico" class="btn btn-orange">⬅️</button>
-        <canvas id="graficoCarrusel" style="max-width: 300px; max-height: 150px;"></canvas>
-        <button id="nextGrafico" class="btn btn-orange">➡️</button>
-    </div>
-    <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
+
 
 
     <!-- Modal para Editar Trabajadores -->
@@ -284,16 +292,7 @@
 }
 
 <style>
-    .btn-orange {
-        background-color: #f06529 !important;
-        border-radius: 5px;
-        color: white !important;
-        font-weight: bold;
-    }
-
-        .btn-orange:hover {
-            background-color: #d9531e !important;
-        }
+   
 
     .table td, .table th {
         text-align: center;
@@ -318,4 +317,19 @@
         margin-top: 40px;
         font-weight: bold;
     }
+
+    .grafico-carrusel {
+        max-width: 600px;
+        height: 400px;
+    }
+
+    /* ✅ Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important;
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important;
+        }
 </style>
