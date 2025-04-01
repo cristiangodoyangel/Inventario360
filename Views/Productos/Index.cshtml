@@ -39,7 +39,7 @@
                     <th class="p-3">Estado</th>
                     <th class="p-3">Categoría</th>
                     <th class="p-3">Imagen</th>
-                    @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos") || User.IsInRole("Gerencia"))
                     {
                         <th class="p-3">Acciones</th>
                     }
@@ -65,7 +65,7 @@
                         <td>
                             <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
                         </td>
-                        @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos") || User.IsInRole("Gerencia"))
                         {
                             <td>
                                 <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
