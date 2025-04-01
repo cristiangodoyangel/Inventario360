@@ -176,7 +176,7 @@ namespace Inventario360.Controllers
                 var tieneDependencias = await _context.DetalleSalidaDeBodega.AnyAsync(d => d.ProductoID == id);
                 if (tieneDependencias)
                 {
-                    return Json(new { success = false, message = "No se puede eliminar el producto porque está asociado a una salida de bodega." });
+                    return Json(new { success = false, message = "No se puede eliminar el producto porque está asociado a una Entrega de Materiales." });
                 }
 
                 _context.Producto.Remove(producto);

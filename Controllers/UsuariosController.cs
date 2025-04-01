@@ -123,45 +123,48 @@ namespace Inventario360.Controllers
             if (usuario == null) return NotFound();
 
             var rolesUsuario = await _userManager.GetRolesAsync(usuario);
-            var roles = _roleManager.Roles.Select(r => new SelectListItem
+            var modelo = new EditarUsuarioViewModel
+            {
+                Id = usuario.Id,
+                NombreCompleto = usuario.NombreCompleto,
+                Email = usuario.Email,
+                Rol = rolesUsuario.FirstOrDefault() // solo un rol
+            };
+
+            ViewBag.Roles = _roleManager.Roles.Select(r => new SelectListItem
             {
                 Value = r.Name,
                 Text = r.Name,
                 Selected = rolesUsuario.Contains(r.Name)
             }).ToList();
 
-            ViewBag.Roles = roles;
-            return View(usuario);
+            return View(modelo);
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Editar(string id, Usuario model, string Rol)
+        public async Task<IActionResult> Editar(string id, EditarUsuarioViewModel model)
         {
+            if (id != model.Id) return NotFound();
+
             var usuario = await _userManager.FindByIdAsync(id);
             if (usuario == null) return NotFound();
 
             usuario.NombreCompleto = model.NombreCompleto;
-            usuario.Email = model.Email;
-            usuario.UserName = model.Email;
 
-            var result = await _userManager.UpdateAsync(usuario);
+            var rolesActuales = await _userManager.GetRolesAsync(usuario);
+            await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
 
-            if (result.Succeeded)
+            if (!string.IsNullOrEmpty(model.Rol))
             {
-                var currentRoles = await _userManager.GetRolesAsync(usuario);
-                await _userManager.RemoveFromRolesAsync(usuario, currentRoles);
-                await _userManager.AddToRoleAsync(usuario, Rol);
-
-                return RedirectToAction(nameof(Index));
+                await _userManager.AddToRoleAsync(usuario, model.Rol);
             }
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-
-            return View(model);
+            await _userManager.UpdateAsync(usuario);
+            return RedirectToAction("Index");
         }
+
+
         [HttpPost]
         public async Task<IActionResult> Eliminar([FromBody] EliminarUsuarioViewModel model)
         {

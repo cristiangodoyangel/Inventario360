@@ -37,6 +37,23 @@
                 color: #d9531e !important;
             }
 
+        .text-white {
+            color: white !important;
+        }
+
+        .card {
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+            .card:hover {
+                transform: scale(1.02);
+            }
+
+        .bg-orange {
+            background-color: #f1663b;
+        }
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: white;
@@ -103,6 +120,13 @@
             margin-left: auto;
         }
     </style>
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+    @RenderSection("Styles", required: false)
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+
 </head>
 <body>
     <div class="header">
@@ -176,8 +200,16 @@
                     @if (esAdmin || esProyectos)
                     {
                         <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="panelControlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    PANEL CONTROL
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="panelControlDropdown">
+                                    <li><a class="dropdown-item" href="/Usuarios">Usuarios</a></li>
+                                    <li><a class="dropdown-item" href="/Proyectos">Proyectos</a></li>
+                                    <li><a class="dropdown-item" href="/Proveedores">Proveedores</a></li>
+                                    <li><a class="dropdown-item" href="/Empleados">Empleados</a></li>
+                                </ul>
                             </li>
                         </ul>
                     }
@@ -214,5 +246,9 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+   
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 </body>
 </html>

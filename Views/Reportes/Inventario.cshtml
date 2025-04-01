@@ -34,9 +34,7 @@
         </thead>
         <tbody></tbody>
     </table>
-     <hr class="separador">
-    <hr class="separador">
-
+ 
     <h4 class="text-warning mt-4">Stock Crítico (Menos de 5)</h4>
     <hr class="separador">
     <table id="tablaStockBajo" class="table table-striped table-bordered table-hover nowrap" style="width:100%">
@@ -49,11 +47,10 @@
         </thead>
         <tbody></tbody>
     </table>
-    <hr class="separador">
-    <hr class="separador">
+ 
 
     <h4 class="text-danger mt-4">Overstock (Más de 100)</h4>
-    <hr class="separador">
+  
     <table id="tablaOverstock" class="table table-striped table-bordered table-hover nowrap" style="width:100%">
         <thead class="table-secondary">
             <tr>
@@ -158,11 +155,11 @@
 
                 XLSX.writeFile(wb, "Reporte_Inventario.xlsx");
             });
-
-            // 🖨 Botón de impresión
+                  //impresión
             $("#btnImprimir").click(function () {
                 window.print();
             });
+         
         });
     </script>
 }
@@ -183,17 +180,7 @@
 
 
    
-    .btn-orange {
-        background-color: #f06529 !important;
-        border-radius: 5px;
-        border-color: #f06529 !important;
-        color: white !important;
-    }
-
-    .btn-orange:hover {
-        background-color: #d9531e !important;
-        border-color: #d9531e !important;
-    }
+   
 
     /* 🔹 Cambia el color del "+" cuando la tabla es responsiva */
     table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
@@ -212,6 +199,11 @@
     table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
         background-color: #d9531e !important; /* Gris */
         color: black !important; /* Color del "-" */
+    }
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
     }
 
 

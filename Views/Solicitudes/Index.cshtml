@@ -134,6 +134,7 @@
                             <th>Medida</th>
                             <th>Unidad de Medida</th>
                             <th>Marca</th>
+                            <th class="d-none">Descripción</th>
                             <th>Ubicación</th>
                             <th>Estado</th>
                             <th>Imagen</th>
@@ -222,7 +223,7 @@
                     <td><button class="btn btn-secondary btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
                 </tr>`;
 
-                tbody.innerHTML += newRow;
+             tbody.insertAdjacentHTML("beforeend", newRow);
 
                 console.log("✅ Producto agregado correctamente a la tabla.");
 
@@ -310,11 +311,11 @@
                 });
             });
         }
-    
 
 
 
-        function cargarProductosInventario() {
+
+           function cargarProductosInventario() {
         fetch('/Productos/ObtenerProductos')
             .then(response => {
                 if (!response.ok) {
@@ -342,7 +343,7 @@
                         <td>${producto.medida || '-'}</td>
                         <td>${producto.unidadMedida || '-'}</td>
                         <td>${producto.marca || '-'}</td>
-                        <td>${producto.descripcion || '-'}</td>
+                       <td class="d-none">${producto.descripcion || '-'}</td>
                         <td>${producto.ubicacion || '-'}</td>
                         <td>${producto.estado || '-'}</td>
                         <td><img src="${imagenSrc}" alt="Imagen Producto" class="producto-img"></td>
@@ -350,6 +351,23 @@
 
                     tbody.innerHTML += row;
                 });
+
+                // ✅ Inicializar DataTable con búsqueda, paginación y responsive
+                $('#tablaInventario').DataTable({
+                    destroy: true,
+                    responsive: true,
+                    pageLength: 10,
+                    language: {
+                        search: "Buscar:",
+                        lengthMenu: "Mostrar _MENU_ registros",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ productos",
+                        paginate: {
+                            next: "Siguiente",
+                            previous: "Anterior"
+                        }
+                    }
+                });
+
             })
             .catch(error => console.error("Error al cargar productos:", error));
     }
@@ -360,7 +378,7 @@
         cargarProductosInventario();
     });
 
-        function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion, proveedor) {
+    function seleccionarProducto(item, nombre, cantidad, medida, unidadMedida, marca, ubicacion, estado, imagen, descripcion, proveedor) {
         console.log("➡️ Producto seleccionado:");
         console.log("Item:", item);
         console.log("Nombre:", nombre);
@@ -394,16 +412,8 @@
             <td><button class="btn btn-secondary btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
 
-        tbody.innerHTML += newRow;
-
-        // ✅ Asignar proveedor en el input del formulario
-        let proveedorInput = document.getElementById("Proveedor");
-        if (proveedorInput) {
-            console.log("Asignando proveedor en el input:", proveedorNombre);
-            proveedorInput.value = proveedorNombre;
-        } else {
-            console.warn("⚠️ Input de proveedor no encontrado.");
-        }
+        // ✅ Esta línea conserva las cantidades anteriores
+        tbody.insertAdjacentHTML("beforeend", newRow);
 
         // ✅ Cerrar el modal correctamente
         let modalInventario = bootstrap.Modal.getInstance(document.getElementById("modalInventario"));
@@ -414,6 +424,7 @@
             console.warn("⚠️ No se pudo cerrar el modal de inventario.");
         }
     }
+
 
 
 
@@ -485,7 +496,8 @@
             <td><button class="btn btn-secondary btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
         </tr>`;
 
-        tbody.innerHTML += newRow;
+    tbody.insertAdjacentHTML("beforeend", newRow);
+
 
         // Cerrar el modal después de agregar el producto
         let modal = bootstrap.Modal.getInstance(document.getElementById("modalNuevoProducto"));
@@ -591,31 +603,7 @@
 </script>
 
 <style>
-    .btn-orange {
-        background-color: #f06529 !important;
-        border-radius: 5px;
-        border-color: #f06529 !important;
-        color: white !important;
-    }
-
-        .btn-orange:hover {
-            background-color: #d9531e !important;
-            border-color: #d9531e !important;
-        }
-
-    .btn-icon {
-        background-color: transparent !important;
-        border: 1px solid #000000 !important;
-        color: #f06529 !important;
-        border-radius: 5px;
-        font-size: 1.2rem;
-        padding: 0.3rem;
-    }
-
-        .btn-icon:hover {
-            color: #d9531e !important;
-        }
-
+  
     .table-responsive {
         overflow-x: auto;
     }
