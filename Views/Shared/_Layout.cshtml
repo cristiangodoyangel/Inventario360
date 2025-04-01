@@ -13,111 +13,111 @@
     <link rel="stylesheet" href="~/Inventario360.styles.css" asp-append-version="true" />
     <style>
         .btn-orange {
-            background-color: #f06529 !important;
-            border-radius: 5px;
-            border-color: #f06529 !important;
-            color: white !important;
+        background-color: #f06529 !important;
+        border-radius: 5px;
+        border-color: #f06529 !important;
+        color: white !important;
         }
 
-            .btn-orange:hover {
-                background-color: #d9531e !important;
-                border-color: #d9531e !important;
-            }
+        .btn-orange:hover {
+        background-color: #d9531e !important;
+        border-color: #d9531e !important;
+        }
 
         .btn-icon {
-            background-color: transparent !important;
-            border: 1px solid #000000 !important;
-            color: #f06529 !important;
-            border-radius: 5px;
-            font-size: 1.2rem;
-            padding: 0.3rem;
+        background-color: transparent !important;
+        border: 1px solid #000000 !important;
+        color: #f06529 !important;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        padding: 0.3rem;
         }
 
-            .btn-icon:hover {
-                color: #d9531e !important;
-            }
+        .btn-icon:hover {
+        color: #d9531e !important;
+        }
 
         .text-white {
-            color: white !important;
+        color: white !important;
         }
 
         .card {
-            border-radius: 10px;
-            transition: 0.3s;
+        border-radius: 10px;
+        transition: 0.3s;
         }
 
-            .card:hover {
-                transform: scale(1.02);
-            }
+        .card:hover {
+        transform: scale(1.02);
+        }
 
         .bg-orange {
-            background-color: #f1663b;
+        background-color: #f1663b;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: white;
+        font-family: 'Roboto', sans-serif;
+        background-color: white;
         }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background-color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background-color: white;
         }
 
-            .header img {
-                height: 60px;
-            }
+        .header img {
+        height: 60px;
+        }
 
         .navbar {
-            background-color: #f1663b;
-            padding: 15px;
+        background-color: #f1663b;
+        padding: 15px;
         }
 
         .navbar-nav .nav-link {
-            font-size: 18px;
-            font-weight: bold;
-            color: white !important;
-            margin: 0 15px;
+        font-size: 18px;
+        font-weight: bold;
+        color: white !important;
+        margin: 0 15px;
         }
 
         .navbar-toggler {
-            border: none;
+        border: none;
         }
 
         .navbar-toggler-icon {
-            filter: invert(1);
+        filter: invert(1);
         }
 
         .dropdown-menu {
-            background-color: #f1663b !important;
-            border: none;
+        background-color: #f1663b !important;
+        border: none;
         }
 
-            .dropdown-menu .dropdown-item {
-                color: white !important;
-            }
+        .dropdown-menu .dropdown-item {
+        color: white !important;
+        }
 
-                .dropdown-menu .dropdown-item:hover {
-                    background-color: #e25a32 !important;
-                }
+        .dropdown-menu .dropdown-item:hover {
+        background-color: #e25a32 !important;
+        }
 
         .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-nav.mx-auto {
-            flex: 1;
-            justify-content: center;
+        flex: 1;
+        justify-content: center;
         }
 
         .navbar-nav.ms-auto {
-            margin-left: auto;
+        margin-left: auto;
         }
     </style>
     <!-- DataTables CSS -->
@@ -179,8 +179,8 @@
                                 <li><a class="dropdown-item" asp-controller="SalidaDeBodega" asp-action="Index">Entrega de Materiales</a></li>
                                 <li><a class="dropdown-item" asp-controller="Solicitudes" asp-action="Index">Solicitud de Materiales</a></li>
                                 @if (await UserManager.IsInRoleAsync(usuario, "Administrador")
-                               || await UserManager.IsInRoleAsync(usuario, "Proyectos")
-                               || await UserManager.IsInRoleAsync(usuario, "Gerencia"))
+                              || await UserManager.IsInRoleAsync(usuario, "Proyectos")
+                              || await UserManager.IsInRoleAsync(usuario, "Gerencia"))
                                 {
                                     <li><a class="dropdown-item" asp-controller="Reportes" asp-action="Index">Reportes</a></li>
                                 }
@@ -192,15 +192,20 @@
                             <a class="nav-link" asp-controller="Biblioteca" asp-action="Index">Control Documental</a>
                         </li>
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="controlActivosDropdown" role="button">
+                        @if (await UserManager.IsInRoleAsync(usuario, "Administrador")
+              || await UserManager.IsInRoleAsync(usuario, "Proyectos")
+              || await UserManager.IsInRoleAsync(usuario, "Gerencia"))
+                        {
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="controlActivosDropdown" role="button">
                                 Control de Activos
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="controlActivosDropdown">
                                 <li><a class="dropdown-item" asp-controller="FichaEmpleado" asp-action="Index">Control de Trabajadores</a></li>
                                 <li><a class="dropdown-item" asp-controller="FichaCamioneta" asp-action="Index">Control de Camionetas</a></li>
                             </ul>
-                        </li>
+                        </li>}
                     </ul>
 
                     @if (esAdmin || esProyectos)
