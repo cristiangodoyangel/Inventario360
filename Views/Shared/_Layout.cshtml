@@ -178,7 +178,13 @@
                                 <li><a class="dropdown-item" asp-controller="Productos" asp-action="Index">Inventario</a></li>
                                 <li><a class="dropdown-item" asp-controller="SalidaDeBodega" asp-action="Index">Entrega de Materiales</a></li>
                                 <li><a class="dropdown-item" asp-controller="Solicitudes" asp-action="Index">Solicitud de Materiales</a></li>
-                                <li><a class="dropdown-item" asp-controller="Reportes" asp-action="Index">Reportes</a></li>
+                                @if (await UserManager.IsInRoleAsync(usuario, "Administrador")
+                               || await UserManager.IsInRoleAsync(usuario, "Proyectos")
+                               || await UserManager.IsInRoleAsync(usuario, "Gerencia"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Reportes" asp-action="Index">Reportes</a></li>
+                                }
+
                             </ul>
                         </li>
 

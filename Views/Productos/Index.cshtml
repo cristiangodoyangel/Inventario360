@@ -5,9 +5,7 @@
 }
 
 <div class="container mt-3">
-    <!-- Reducimos el margen superior -->
     <h2 class="text-center my-2 d-flex align-items-center justify-content-center">
-        <!-- Reducimos los márgenes superior e inferior -->
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-warehouse me-2">
             <path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z" />
             <path d="M6 18h12" />
@@ -18,12 +16,15 @@
     </h2>
 
     <div class="row mb-3">
-        <!-- Reducimos el margen inferior -->
         <div class="col-md-6"></div>
         <div class="col-md-6 text-end">
-            <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
+            @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
+            {
+                <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
+            }
         </div>
     </div>
+
     <div class="table-responsive">
         <table id="productosTable" class="table table-striped table-bordered table-hover nowrap" width="100%">
             <thead class="table-secondary">
@@ -38,7 +39,10 @@
                     <th class="p-3">Estado</th>
                     <th class="p-3">Categoría</th>
                     <th class="p-3">Imagen</th>
-                    <th class="p-3">Acciones</th>
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
+                    {
+                        <th class="p-3">Acciones</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -61,13 +65,16 @@
                         <td>
                             <img src="~/images/@producto.Imagen" alt="Imagen Producto" width="50" height="50">
                         </td>
-                        <td>
-                            <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
-                            <button type="button" class="btn btn-icon"
-                                    onclick="confirmarEliminacion(@producto.ITEM, '@producto.NombreTecnico', '@producto.Categoria')">
-                                🗑️
-                            </button>
-                        </td>
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
+                        {
+                            <td>
+                                <a asp-action="Editar" asp-route-id="@producto.ITEM" class="btn btn-icon">✏️</a>
+                                <button type="button" class="btn btn-icon"
+                                        onclick="confirmarEliminacion(@producto.ITEM, '@producto.NombreTecnico', '@producto.Categoria')">
+                                    🗑️
+                                </button>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
