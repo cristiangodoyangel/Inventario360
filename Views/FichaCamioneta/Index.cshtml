@@ -27,7 +27,7 @@
         <button id="prevGrafico" class="btn btn-orange">
             <i class="fas fa-chevron-left"></i>
         </button>
-        <canvas id="graficoCamionetas" class="grafico-carrusel"></canvas>
+        <canvas id="graficoCamionetas" class="grafico-camionetas"></canvas>
 
         <button id="nextGrafico" class="btn btn-orange">
             <i class="fas fa-chevron-right"></i>
@@ -170,24 +170,22 @@
         });
     </script>
 }
-
 <style>
-    .btn-orange {
-        background-color: #f06529 !important;
-        border-radius: 5px;
-        color: white !important;
-        font-weight: bold;
-    }
 
-        .btn-orange:hover {
-            background-color: #d9531e !important;
-        }
 
     .table td, .table th {
         text-align: center;
         vertical-align: middle;
         font-size: 14px;
         padding: 6px;
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #fcd8b7;
     }
 
     .titulo-seccion {
@@ -199,18 +197,18 @@
         font-weight: bold;
     }
 
-    .dataTables_wrapper .dataTables_filter {
-        margin-bottom: 15px;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #fcd8b7;
-        
-    }
-
-    .graficoCamionetas {
-        width: 100%;
+    .grafico-camionetas {
         max-width: 600px;
         height: 400px;
     }
+
+    /* ✅ Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important;
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important;
+        }
 </style>
