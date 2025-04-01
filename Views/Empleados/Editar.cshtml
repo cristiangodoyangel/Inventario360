@@ -1,0 +1,25 @@
+﻿@model Inventario360.Models.Empleado
+
+@{
+    ViewData["Title"] = "Editar Empleado";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Editar Empleado</h2>
+
+    <form asp-action="Editar">
+        <input type="hidden" asp-for="ID" />
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Cargo</label>
+            <input asp-for="Cargo" class="form-control" />
+            <span asp-validation-for="Cargo" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-orange">Actualizar</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+    </form>
+</div>
