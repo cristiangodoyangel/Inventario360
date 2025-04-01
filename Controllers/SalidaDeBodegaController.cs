@@ -54,7 +54,12 @@ namespace Inventario360.Controllers
         public async Task<IActionResult> Crear()
         {
             ViewBag.Productos = await _productoService.ObtenerTodos();
-            ViewBag.Empleados = await _empleadoService.ObtenerTodos();
+            ViewBag.Empleados = await _context.FichaEmpleado
+            .Include(f => f.Empleado)
+            .Select(f => f.Empleado)
+             .Distinct()
+            .ToListAsync();
+
             ViewBag.Proyectos = await _proyectoService.ObtenerTodos();
             return View();
         }
