@@ -43,7 +43,10 @@
                         <td>@(salida.ProyectoObj?.Nombre ?? "No asignado")</td>
                         <td>
                             <a asp-action="Detalle" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
-                            <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@salida.ID)">🗑️</button>
+                            @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
+                            {
+                                <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@salida.ID)">🗑️</button>
+                            }
                         </td>
                     </tr>
                     contador++;
@@ -51,7 +54,7 @@
             </tbody>
         </table>
     </div>
-</div>
+</div>ahora hagamos 
 
 <!-- Modal de Confirmación de Eliminación -->
 <div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarLabel" aria-hidden="true">
