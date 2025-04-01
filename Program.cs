@@ -50,6 +50,8 @@ builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IFichaEmpleadoService, FichaEmpleadoService>();
 builder.Services.AddScoped<IFichaCamionetaService, FichaCamionetaService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IProveedorService, ProveedorService>();
+
 
 // Autorizar por defecto todas las vistas
 builder.Services.AddControllersWithViews(options =>
