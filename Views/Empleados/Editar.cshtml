@@ -1,25 +1,46 @@
-﻿@model Inventario360.Models.Empleado
+﻿@model Inventario360.Models.ViewModels.EmpleadoConFichaViewModel
 
 @{
     ViewData["Title"] = "Editar Empleado";
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">Editar Empleado</h2>
-
-    <form asp-action="Editar">
-        <input type="hidden" asp-for="ID" />
+    <h2 class="mb-4 text-center">✏️ Editar Empleado y Ficha</h2>
+    <form asp-action="Editar" method="post" class="card p-4 shadow">
+        <input type="hidden" asp-for="Id" />
         <div class="mb-3">
             <label class="form-label">Nombre</label>
-            <input asp-for="Nombre" class="form-control" />
+            <input asp-for="Nombre" class="form-control" required />
             <span asp-validation-for="Nombre" class="text-danger"></span>
         </div>
         <div class="mb-3">
             <label class="form-label">Cargo</label>
-            <input asp-for="Cargo" class="form-control" />
-            <span asp-validation-for="Cargo" class="text-danger"></span>
+            <input asp-for="Cargo" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha de Ingreso</label>
+            <input asp-for="FechaIngreso" type="date" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha Término Contrato</label>
+            <input asp-for="FechaTerminoContrato" type="date" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha Vencimiento Examen</label>
+            <input asp-for="FechaVencimientoExamen" type="date" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Curso Altura</label>
+            <select asp-for="CursoAltura" class="form-select">
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Acreditaciones</label>
+            <input asp-for="Acreditaciones" class="form-control" />
         </div>
         <button type="submit" class="btn btn-orange">Actualizar</button>
-        <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
     </form>
 </div>
