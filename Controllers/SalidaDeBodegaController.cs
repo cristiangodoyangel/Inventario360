@@ -12,7 +12,7 @@ using Inventario360.Data;
 
 namespace Inventario360.Controllers
 {
-    [Authorize(Roles = "Administrador,Proyectos,Supervisor")]
+    [Authorize(Roles = "Administrador,Proyectos,Supervisor, Gerencia")]
     public class SalidaDeBodegaController : Controller
     {
         private readonly InventarioDbContext _context;
