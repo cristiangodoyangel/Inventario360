@@ -2,6 +2,18 @@
     ViewData["Title"] = "Documentos de HSEC";
 }
 
+
+
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Usuario> UserManager
+@inject SignInManager<Usuario> SignInManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var esAdmin = await UserManager.IsInRoleAsync(user, "Administrador");
+    var esProyectos = await UserManager.IsInRoleAsync(user, "Proyectos");
+    var esGerencia = await UserManager.IsInRoleAsync(user, "Gerencia");
+}
 <div class="container mt-4">
     <h2 class="text-center mb-4">Documentos de HSEC</h2>
 
@@ -9,24 +21,28 @@
         <a href="/Biblioteca" class="btn btn-secondary">⬅ Volver a la Biblioteca</a>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-header bg-orange text-white">
-            📤 Subir Nuevo Documento
+
+    @if (esAdmin || esProyectos || esGerencia)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-orange text-white">
+                📤 Subir Nuevo Documento
+            </div>
+            <div class="card-body">
+                <form id="formSubirDocumento" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Título del Documento</label>
+                        <input type="text" id="tituloDocumento" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seleccione el Archivo</label>
+                        <input type="file" id="archivoDocumento" class="form-control" accept=".pdf,.docx,.xlsx,.jpg,.png" required>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="btnSubirDocumento">Subir Documento</button>
+                </form>
+            </div>
         </div>
-        <div class="card-body">
-            <form id="formSubirDocumento" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label class="form-label">Título del Documento</label>
-                    <input type="text" id="tituloDocumento" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Seleccione el Archivo</label>
-                    <input type="file" id="archivoDocumento" class="form-control" accept=".pdf,.docx,.xlsx,.jpg,.png" required>
-                </div>
-                <button type="button" class="btn btn-secondary" id="btnSubirDocumento">Subir Documento</button>
-            </form>
-        </div>
-    </div>
+    }
 
     <div class="card">
         <div class="card-header bg-orange text-white">

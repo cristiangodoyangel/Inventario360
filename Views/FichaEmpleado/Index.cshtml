@@ -54,6 +54,49 @@
     </div>
     <p class="text-center mt-2 fw-bold" id="tituloGrafico"></p>
 
+    <!-- 📚 ACREDITACIONES -->
+    <h5 class="titulo-seccion">📚 Acreditaciones</h5>
+    <table id="tablaAcreditaciones" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
+        <thead class="table-light text-center">
+            <tr>
+                <th>Empleado</th>
+                <th>Acreditaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ficha in Model)
+            {
+                var tiene = !string.IsNullOrEmpty(ficha.Acreditaciones);
+                var claseFila = tiene ? "table-success" : "table-danger";
+                <tr class="@claseFila">
+                    <td>@ficha.Empleado?.Nombre</td>
+                    <td>@(tiene ? ficha.Acreditaciones : "N/A")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 🧗 CURSO ALTURA -->
+    <h5 class="titulo-seccion">🧗 Curso de Altura</h5>
+    <table id="tablaAltura" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
+        <thead class="table-light text-center">
+            <tr>
+                <th>Empleado</th>
+                <th>Curso Altura</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ficha in Model)
+            {
+                var claseFila = ficha.CursoAltura ? "table-success" : "table-danger";
+                <tr class="@claseFila">
+                    <td>@ficha.Empleado?.Nombre</td>
+                    <td>@(ficha.CursoAltura ? "✅ Sí" : "❌ No")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
 
 
     <!-- 📄 CONTRATO -->
@@ -112,48 +155,9 @@
         </tbody>
     </table>
 
-    <!-- 🧗 CURSO ALTURA -->
-    <h5 class="titulo-seccion">🧗 Curso de Altura</h5>
-    <table id="tablaAltura" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
-        <thead class="table-light text-center">
-            <tr>
-                <th>Empleado</th>
-                <th>Curso Altura</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ficha in Model)
-            {
-                var claseFila = ficha.CursoAltura ? "table-success" : "table-danger";
-                <tr class="@claseFila">
-                    <td>@ficha.Empleado?.Nombre</td>
-                    <td>@(ficha.CursoAltura ? "✅ Sí" : "❌ No")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
 
-    <!-- 📚 ACREDITACIONES -->
-    <h5 class="titulo-seccion">📚 Acreditaciones</h5>
-    <table id="tablaAcreditaciones" class="table table-bordered table-sm table-hover display nowrap" style="width:100%">
-        <thead class="table-light text-center">
-            <tr>
-                <th>Empleado</th>
-                <th>Acreditaciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ficha in Model)
-            {
-                var tiene = !string.IsNullOrEmpty(ficha.Acreditaciones);
-                var claseFila = tiene ? "table-success" : "table-danger";
-                <tr class="@claseFila">
-                    <td>@ficha.Empleado?.Nombre</td>
-                    <td>@(tiene ? ficha.Acreditaciones : "N/A")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+
+
 
 
 

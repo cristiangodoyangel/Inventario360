@@ -1,7 +1,16 @@
 ﻿@{
     ViewData["Title"] = "Documentos de Proyectos";
 }
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Usuario> UserManager
+@inject SignInManager<Usuario> SignInManager
 
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var esAdmin = await UserManager.IsInRoleAsync(user, "Administrador");
+    var esProyectos = await UserManager.IsInRoleAsync(user, "Proyectos");
+    var esGerencia = await UserManager.IsInRoleAsync(user, "Gerencia");
+}
 <div class="container mt-4">
     <h2 class="text-center mb-4">Documentos de Proyectos</h2>
 
@@ -9,8 +18,11 @@
         <a href="/Biblioteca" class="btn btn-secondary">⬅ Volver a la Biblioteca</a>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-header bg-orange text-white">
+
+    @if (esAdmin || esProyectos || esGerencia)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-orange text-white">
             📤 Subir Nuevo Documento
         </div>
         <div class="card-body">
@@ -26,7 +38,7 @@
                 <button type="button" class="btn btn-secondary" id="btnSubirDocumento">Subir Documento</button>
             </form>
         </div>
-    </div>
+    </div>}
 
     <div class="card">
         <div class="card-header bg-orange text-white">

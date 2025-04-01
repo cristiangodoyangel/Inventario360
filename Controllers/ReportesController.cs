@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Inventario360.Controllers
 {
-    [Authorize(Roles = "Administrador,Gerencia")] // ✅ Solo accesible por Administrador y Gerencia
+    [Authorize(Roles = "Administrador,Gerencia, Proyectos")] // ✅ Solo accesible por Administrador y Gerencia
     public class ReportesController : Controller
     {
         private readonly IProductoService _productoService;
