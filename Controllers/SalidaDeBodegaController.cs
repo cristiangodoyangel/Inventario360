@@ -12,7 +12,7 @@ using Inventario360.Data;
 
 namespace Inventario360.Controllers
 {
-    [Authorize(Roles = "Administrador,Proyectos,Supervisor")]
+    [Authorize(Roles = "Administrador,Proyectos,Supervisor, Gerencia")]
     public class SalidaDeBodegaController : Controller
     {
         private readonly InventarioDbContext _context;
@@ -54,7 +54,12 @@ namespace Inventario360.Controllers
         public async Task<IActionResult> Crear()
         {
             ViewBag.Productos = await _productoService.ObtenerTodos();
-            ViewBag.Empleados = await _empleadoService.ObtenerTodos();
+            ViewBag.Empleados = await _context.FichaEmpleado
+            .Include(f => f.Empleado)
+            .Select(f => f.Empleado)
+             .Distinct()
+            .ToListAsync();
+
             ViewBag.Proyectos = await _proyectoService.ObtenerTodos();
             return View();
         }

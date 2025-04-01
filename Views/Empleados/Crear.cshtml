@@ -1,0 +1,45 @@
+﻿@model Inventario360.Models.ViewModels.EmpleadoConFichaViewModel
+
+@{
+    ViewData["Title"] = "Crear Empleado";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">➕ Crear Empleado con Ficha</h2>
+    <form asp-action="Crear" method="post" class="card p-4 shadow">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input asp-for="Nombre" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Cargo</label>
+            <input asp-for="Cargo" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha de Ingreso</label>
+            <input asp-for="FechaIngreso" type="date" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha Término Contrato</label>
+            <input asp-for="FechaTerminoContrato" type="date" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fecha Vencimiento Examen</label>
+            <input asp-for="FechaVencimientoExamen" type="date" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Curso Altura</label>
+            <select asp-for="CursoAltura" class="form-select">
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Acreditaciones</label>
+            <input asp-for="Acreditaciones" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-orange">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </form>
+</div>

@@ -4,6 +4,16 @@
     ViewData["Title"] = "Salidas de Bodega";
     int contador = 1;
 }
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Usuario> UserManager
+@inject SignInManager<Usuario> SignInManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var esAdmin = await UserManager.IsInRoleAsync(user, "Administrador");
+    var esProyectos = await UserManager.IsInRoleAsync(user, "Proyectos");
+    var esGerencia = await UserManager.IsInRoleAsync(user, "Gerencia");
+}
 
 <div class="container mt-4">
     <h2 class="text-center mb-4 d-flex align-items-center justify-content-center">
@@ -16,9 +26,12 @@
         Entrega de Materiales
     </h2>
 
+    @if (esAdmin || esProyectos || esGerencia)
+    {
     <div class="text-end mb-3">
         <a asp-action="Crear" class="btn btn-secondary">Registrar Salida</a>
     </div>
+    }
 
     <div class="table-responsive">
         <table id="salidasTable" class="table table-striped table-bordered nowrap" width="100%">
@@ -43,7 +56,10 @@
                         <td>@(salida.ProyectoObj?.Nombre ?? "No asignado")</td>
                         <td>
                             <a asp-action="Detalle" asp-route-id="@salida.ID" class="btn btn-icon">🔍</a>
-                            <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@salida.ID)">🗑️</button>
+                            @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
+                            {
+                                <button type="button" class="btn btn-icon" onclick="confirmarEliminacion(@salida.ID)">🗑️</button>
+                            }
                         </td>
                     </tr>
                     contador++;
@@ -51,7 +67,7 @@
             </tbody>
         </table>
     </div>
-</div>
+</div>ahora hagamos 
 
 <!-- Modal de Confirmación de Eliminación -->
 <div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarLabel" aria-hidden="true">
