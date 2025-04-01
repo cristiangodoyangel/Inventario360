@@ -9,7 +9,7 @@
         <p>¿Estás seguro de que deseas eliminar la ficha de <strong>@Model.EmpleadoID</strong>?</p>
         <form asp-action="Eliminar" method="post">
             <input type="hidden" asp-for="ID" />
-            <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+            <button type="submit" class="btn btn-orange">Sí, eliminar</button>
             <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
         </form>
     </div>
