@@ -39,8 +39,10 @@ namespace Inventario360.Controllers
 
         public IActionResult Crear()
         {
-            return View(new Empleado());
+            var viewModel = new EmpleadoConFichaViewModel();
+            return View(viewModel);
         }
+
         [HttpPost]
         public async Task<IActionResult> Crear(EmpleadoConFichaViewModel model)
         {

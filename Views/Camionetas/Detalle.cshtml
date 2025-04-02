@@ -1,0 +1,28 @@
+﻿@model Inventario360.Models.Camioneta
+@{
+    ViewData["Title"] = "Detalle Camioneta";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">🔎 Detalle de Camioneta</h2>
+    <table class="table table-bordered">
+        <tr><th>Patente</th><td>@Model.Patente</td></tr>
+        <tr><th>Marca</th><td>@Model.Marca</td></tr>
+        <tr><th>Modelo</th><td>@Model.Modelo</td></tr>
+        <tr><th>Año</th><td>@Model.Año</td></tr>
+        <tr><th>Color</th><td>@Model.Color</td></tr>
+        <tr><th>Kilometraje</th><td>@Model.Kilometraje</td></tr>
+        <tr><th>Estado</th><td>@Model.Estado</td></tr>
+        <tr><th>Responsable</th><td>@Model.Responsable?.Nombre ?? "No asignado"</td></tr>
+        <tr><th>Permiso de Circulación</th><td>@Model.FechaPermisoCirculacion?.ToString("dd-MM-yyyy")</td></tr>
+        <tr><th>SOAP</th><td>@Model.FechaSoap?.ToString("dd-MM-yyyy")</td></tr>
+        <tr><th>Antivuelcos</th><td>@Model.FechaAntivuelcos?.ToString("dd-MM-yyyy")</td></tr>
+        <tr><th>Láminas</th><td>@Model.FechaLaminas?.ToString("dd-MM-yyyy")</td></tr>
+        <tr><th>GPS</th><td>@Model.FechaGPS?.ToString("dd-MM-yyyy")</td></tr>
+        <tr><th>Mantenimiento</th><td>@Model.FechaMantenimiento?.ToString("dd-MM-yyyy")</td></tr>
+        <tr><th>Acreditación</th><td>@Model.Acreditacion</td></tr>
+    </table>
+    <div class="text-end">
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
