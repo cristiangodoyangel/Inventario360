@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Inventario360.Models.Camioneta>
+@{
+    ViewData["Title"] = "Camionetas";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🚘 Lista de Camionetas</h2>
+    <div class="text-end mb-3">
+        <a asp-action="Crear" class="btn btn-orange">Registrar Nueva Camioneta</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered" id="camionetasTable">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Patente</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Año</th>
+                    <th>Responsable</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var camioneta in Model)
+                {
+                    <tr>
+                        <td>@camioneta.Patente</td>
+                        <td>@camioneta.Marca</td>
+                        <td>@camioneta.Modelo</td>
+                        <td>@camioneta.Año</td>
+                        <td>@camioneta.Responsable?.Nombre ?? "No asignado"</td>
+                        <td class="text-end">
+                            <a asp-action="Detalle" asp-route-id="@camioneta.ID" class="btn btn-sm btn-secondary">Ver</a>
+                            <a asp-action="Editar" asp-route-id="@camioneta.ID" class="btn btn-sm btn-orange">Editar</a>
+                            <a asp-action="Eliminar" asp-route-id="@camioneta.ID" class="btn btn-sm btn-danger">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

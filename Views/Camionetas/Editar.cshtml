@@ -1,0 +1,128 @@
+﻿@model Inventario360.ViewModels.CamionetaConFichaCamioneta
+
+@{
+    ViewData["Title"] = "Editar Camioneta";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">✏️ Editar Camioneta</h2>
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
+    <form asp-action="Editar" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Camioneta.ID" />
+
+        <div class="row">
+            <!-- Información General -->
+            <div class="col-md-6">
+                <h4>Información General</h4>
+                <div class="mb-3">
+                    <label class="form-label">Patente</label>
+                    <input type="text" class="form-control" asp-for="Camioneta.Patente" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Marca</label>
+                    <input type="text" class="form-control" asp-for="Camioneta.Marca" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Modelo</label>
+                    <input type="text" class="form-control" asp-for="Camioneta.Modelo" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Año</label>
+                    <input type="number" class="form-control" asp-for="Camioneta.Año" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Color</label>
+                    <input type="text" class="form-control" asp-for="Camioneta.Color" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Kilometraje</label>
+                    <input type="number" class="form-control" asp-for="Camioneta.Kilometraje" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Estado</label>
+                    <select class="form-control" asp-for="Camioneta.Estado">
+                        <option value="Disponible">Disponible</option>
+                        <option value="En uso">En uso</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Responsable</label>
+                    <select asp-for="Camioneta.ResponsableID" class="form-control" asp-items="Model.Empleados">
+                        <option value="">Seleccione un Responsable</option>
+                    </select>
+                    <span asp-validation-for="Camioneta.ResponsableID" class="text-danger"></span>
+                </div>
+                
+
+            </div>
+
+            <!-- Documentación -->
+            <div class="col-md-6">
+                <h4>Documentación</h4>
+                <div class="mb-3">
+                    <label class="form-label">Fecha de Mantenimiento</label>
+                    <input type="date" class="form-control" asp-for="Camioneta.FechaMantenimiento" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Permiso de Circulación</label>
+                    <input type="date" class="form-control" asp-for="Camioneta.FechaPermisoCirculacion" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">SOAP</label>
+                    <input type="date" class="form-control" asp-for="Camioneta.FechaSoap" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Antivuelcos</label>
+                    <input type="date" class="form-control" asp-for="Camioneta.FechaAntivuelcos" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Láminas</label>
+                    <input type="date" class="form-control" asp-for="Camioneta.FechaLaminas" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">GPS</label>
+                    <input type="date" class="form-control" asp-for="Camioneta.FechaGPS" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Acreditación</label>
+                    <input type="text" class="form-control" asp-for="Camioneta.Acreditacion" />
+                </div>
+            </div>
+        </div>
+
+        <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
+        <div class="text-end">
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-orange">Guardar Cambios</button>
+        </div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    </form>
+</div>
+
+<style>
+    .form-control {
+        border-radius: 5px;
+    }
+
+    .btn-primary {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3 !important;
+        }
+
+    .btn-secondary {
+        background-color: #6c757d !important;
+    }
+
+        .btn-secondary:hover {
+            background-color: #545b62 !important;
+        }
+</style>
