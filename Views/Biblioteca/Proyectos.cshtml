@@ -61,7 +61,10 @@
                                 <td>@archivo</td>
                                 <td class="text-end">
                                     <a href="/documentos/Proyectos/@archivo" target="_blank" class="btn btn-secondary btn-sm">📥 Descargar</a>
-                                    <button class="btn btn-orange btn-sm btnEliminar" data-archivo="@archivo">🗑 Eliminar</button>
+                                    @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos") || User.IsInRole("Gerencia"))
+                                    {
+                                        <button class="btn btn-orange btn-sm btnEliminar" data-archivo="@archivo">🗑 Eliminar</button>    <button class="btn btn-orange btn-sm btnEliminar" data-archivo="@archivo">🗑 Eliminar</button>
+                                    }
                                 </td>
                             </tr>
                         }
