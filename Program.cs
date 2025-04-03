@@ -51,6 +51,9 @@ builder.Services.AddScoped<IFichaEmpleadoService, FichaEmpleadoService>();
 builder.Services.AddScoped<IFichaCamionetaService, FichaCamionetaService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IProveedorService, ProveedorService>();
+builder.Services.AddScoped<ICamionetaService, CamionetaService>();
+
+
 
 
 // Autorizar por defecto todas las vistas
@@ -62,6 +65,10 @@ builder.Services.AddControllersWithViews(options =>
 
     options.Filters.Add(new AuthorizeFilter(policy));
 });
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 
 var app = builder.Build();
 

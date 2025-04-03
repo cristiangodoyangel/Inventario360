@@ -1,99 +1,109 @@
-﻿using Inventario360.Data;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Inventario360.Models;
 using Inventario360.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc;
-using Inventario360.ViewModels;
 
-public class CamionetasController : Controller
+namespace Inventario360.Controllers
 {
-    private readonly ICamionetaService _camionetaService;
-    private readonly InventarioDbContext _context;
-
-    public CamionetasController(ICamionetaService camionetaService, InventarioDbContext context)
+    public class CamionetasController : Controller
     {
-        _camionetaService = camionetaService;
-        _context = context;
-    }
+        private readonly IFichaCamionetaService _fichaCamionetaService;
 
-    // 📌 Listar todas las camionetas
-    public async Task<IActionResult> Index()
-    {
-        var camionetas = await _camionetaService.ObtenerCamionetas();
-        return View(camionetas);
-    }
-
-    // 📌 Crear nueva camioneta (Vista)
-    public IActionResult Crear()
-    {
-        var viewModel = new CamionetaConFichaCamioneta
+        public CamionetasController(IFichaCamionetaService fichaCamionetaService)
         {
-            Empleados = new SelectList(_context.Empleado, "ID", "Nombre")
-        };
-        return View(viewModel);
-    }
-
-    // 📌 Guardar nueva camioneta
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Crear(CamionetaConFichaCamioneta viewModel)
-    {
-        if (!ModelState.IsValid)
-        {
-            viewModel.Empleados = new SelectList(_context.Empleado, "ID", "Nombre", viewModel.Camioneta.ResponsableID);
-            return View(viewModel);
+            _fichaCamionetaService = fichaCamionetaService;
         }
 
-        await _camionetaService.CrearCamioneta(viewModel.Camioneta);
-        return RedirectToAction(nameof(Index));
-    }
-
-    // 📌 Editar (Vista)
-    public async Task<IActionResult> Editar(int id)
-    {
-        var camioneta = await _camionetaService.ObtenerCamionetaPorId(id);
-        if (camioneta == null) return NotFound();
-
-        var viewModel = new CamionetaConFichaCamioneta
+        public async Task<IActionResult> Index()
         {
-            Camioneta = camioneta,
-            Empleados = new SelectList(_context.Empleado, "ID", "Nombre", camioneta.ResponsableID)
-        };
-
-        return View(viewModel);
-    }
-
-    // 📌 Guardar cambios en la BD
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Editar(int id, CamionetaConFichaCamioneta viewModel)
-    {
-        if (id != viewModel.Camioneta.ID) return NotFound();
-
-        // ⚠️ Eliminar validaciones para FichaCamioneta (ya que no se edita en esta vista)
-        ModelState.Remove("FichaCamioneta.Patente");
-        ModelState.Remove("FichaCamioneta.Marca");
-        ModelState.Remove("FichaCamioneta.Modelo");
-        ModelState.Remove("FichaCamioneta.Año");
-        ModelState.Remove("FichaCamioneta.Color");
-        ModelState.Remove("FichaCamioneta.Kilometraje");
-        ModelState.Remove("FichaCamioneta.Estado");
-        ModelState.Remove("FichaCamioneta.ResponsableID");
-
-        if (!ModelState.IsValid)
-        {
-            viewModel.Empleados = new SelectList(_context.Empleado, "ID", "Nombre", viewModel.Camioneta.ResponsableID);
-            return View(viewModel);
+            var camionetas = await _fichaCamionetaService.ObtenerTodasConResponsableAsync();
+            return View(camionetas);
         }
 
-        await _camionetaService.EditarCamioneta(viewModel.Camioneta);
-        return RedirectToAction(nameof(Index));
-    }
 
-    // 📌 Eliminar camioneta
-    public async Task<IActionResult> Eliminar(int id)
-    {
-        var eliminado = await _camionetaService.EliminarCamioneta(id);
-        if (!eliminado) return NotFound();
-        return RedirectToAction(nameof(Index));
+
+        public async Task<IActionResult> Detalle(int id)
+        {
+            var ficha = await _fichaCamionetaService.ObtenerFichaPorId(id);
+            if (ficha == null) return NotFound();
+            return View(ficha);
+        }
+
+        public async Task<IActionResult> Crear()
+        {
+            ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crear(FichaCamioneta ficha)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre");
+                return View(ficha);
+            }
+
+            await _fichaCamionetaService.CrearFicha(ficha);
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Editar(int id)
+        {
+            var ficha = await _fichaCamionetaService.ObtenerFichaPorId(id);
+            if (ficha == null) return NotFound();
+
+            ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre", ficha.ResponsableID);
+            return View(ficha);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(FichaCamioneta ficha)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre", ficha.ResponsableID);
+                return View(ficha);
+            }
+
+            var existeResponsable = await _fichaCamionetaService.ExisteResponsable(ficha.ResponsableID);
+            if (!existeResponsable)
+            {
+                ModelState.AddModelError("ResponsableID", "El Responsable seleccionado no es válido.");
+                ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre", ficha.ResponsableID);
+                return View(ficha);
+            }
+
+            bool actualizado = await _fichaCamionetaService.ActualizarFicha(ficha);
+            if (!actualizado)
+            {
+                ModelState.AddModelError("", "No se pudo actualizar la ficha. Verifica los datos ingresados.");
+                ViewBag.Empleados = new SelectList(await _fichaCamionetaService.ObtenerEmpleados(), "ID", "Nombre", ficha.ResponsableID);
+                return View(ficha);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var ficha = await _fichaCamionetaService.ObtenerFichaPorId(id);
+            if (ficha == null) return NotFound();
+            return View(ficha);
+        }
+
+        [HttpPost, ActionName("Eliminar")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarEliminar(int id)
+        {
+            bool eliminado = await _fichaCamionetaService.EliminarFicha(id);
+            if (!eliminado) return NotFound();
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
