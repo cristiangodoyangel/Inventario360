@@ -24,6 +24,8 @@ namespace Inventario360.Data
         public DbSet<Camioneta> Camionetas { get; set; }
 
         public DbSet<FichaCamioneta> FichaCamionetas { get; set; }
+        
+
 
 
 

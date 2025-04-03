@@ -1,43 +1,130 @@
-﻿@model IEnumerable<Inventario360.Models.Camioneta>
+﻿@model IEnumerable<Inventario360.Models.FichaCamioneta>
 @{
     ViewData["Title"] = "Camionetas";
 }
 
-<div class="container mt-4">
-    <h2 class="text-center mb-4">🚘 Lista de Camionetas</h2>
-    <div class="text-end mb-3">
-        <a asp-action="Crear" class="btn btn-orange">Registrar Nueva Camioneta</a>
-    </div>
+<h2 class="text-center mt-4">Camionetas Registradas</h2>
 
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered" id="camionetasTable">
-            <thead class="table-secondary">
-                <tr>
-                    <th>Patente</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Año</th>
-                    <th>Responsable</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var camioneta in Model)
-                {
-                    <tr>
-                        <td>@camioneta.Patente</td>
-                        <td>@camioneta.Marca</td>
-                        <td>@camioneta.Modelo</td>
-                        <td>@camioneta.Año</td>
-                        <td>@camioneta.Responsable?.Nombre ?? "No asignado"</td>
-                        <td class="text-end">
-                            <a asp-action="Detalle" asp-route-id="@camioneta.ID" class="btn btn-sm btn-secondary">Ver</a>
-                            <a asp-action="Editar" asp-route-id="@camioneta.ID" class="btn btn-sm btn-orange">Editar</a>
-                            <a asp-action="Eliminar" asp-route-id="@camioneta.ID" class="btn btn-sm btn-danger">Eliminar</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+<div class="text-end mb-3">
+    <a asp-action="Crear" class="btn btn-secondary">Nueva Camioneta</a>
 </div>
+
+<table id="tablaCamionetas" class="table table-striped table-bordered table-hover nowrap" width="100%">
+    <thead class="table-secondary">
+        <tr>
+            <th>Patente</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Año</th>
+            <th>Color</th>
+            <th>Estado</th>
+            <th>Responsable</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Patente</td>
+                <td>@item.Marca</td>
+                <td>@item.Modelo</td>
+                <td>@item.Año</td>
+                <td>@item.Color</td>
+                <td>@item.Estado</td>
+                <td>@item.Responsable?.Nombre</td>
+                <td>
+                    <a asp-action="Detalle" asp-route-id="@item.ID" class="btn btn-secondary btn-sm">Detalles</a>
+                    <a asp-action="Editar" asp-route-id="@item.ID" class="btn btn-secondary btn-sm">Editar</a>
+                    <a asp-action="Eliminar" asp-route-id="@item.ID" class="btn btn-orange btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tablaCamionetas').DataTable({
+                language: {
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros por página",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ camionetas",
+                    paginate: {
+                        next: "Siguiente",
+                        previous: "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #fcd8b7;
+    }
+
+    .fila-hover:hover {
+        background-color: #fbdfc5;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+
+    /* ✅ Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important;
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important;
+        }
+
+    /* ✅ Cambia el color del "+" cuando la tabla es responsiva */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
+        background-color: #f06529 !important; /* Naranja */
+        color: white !important; /* Color del "+" */
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+    }
+
+    /* ✅ Cambia el color del "-" cuando como puela fila está expandida */
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
+        background-color: #d9531e !important; /* Gris */
+        color: black !important; /* Color del "-" */
+    }
+</style>
+

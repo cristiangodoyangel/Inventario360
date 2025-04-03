@@ -1,24 +1,23 @@
-﻿@model Inventario360.Models.Camioneta
+﻿@model Inventario360.Models.FichaCamioneta
 @{
     ViewData["Title"] = "Eliminar Camioneta";
 }
 
-<div class="container mt-4">
-    <h2 class="text-danger mb-3">¿Eliminar esta Camioneta?</h2>
-    <dl class="row">
-        <dt class="col-sm-3">Patente</dt>
-        <dd class="col-sm-9">@Model.Patente</dd>
+<h2 class="text-center mt-4 text-danger">Eliminar Camioneta</h2>
+<hr />
+<p class="alert alert-warning">¿Estás seguro de que deseas eliminar esta camioneta?</p>
 
-        <dt class="col-sm-3">Marca</dt>
-        <dd class="col-sm-9">@Model.Marca</dd>
+<dl class="row">
+    <dt class="col-sm-3">Patente</dt>
+    <dd class="col-sm-9">@Model.Patente</dd>
+    <dt class="col-sm-3">Marca</dt>
+    <dd class="col-sm-9">@Model.Marca</dd>
+    <dt class="col-sm-3">Modelo</dt>
+    <dd class="col-sm-9">@Model.Modelo</dd>
+</dl>
 
-        <dt class="col-sm-3">Modelo</dt>
-        <dd class="col-sm-9">@Model.Modelo</dd>
-    </dl>
-
-    <form asp-action="Eliminar" method="post">
-        <input type="hidden" asp-for="ID" />
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary ms-2">Cancelar</a>
-    </form>
-</div>
+<form asp-action="Eliminar">
+    <input type="hidden" asp-for="ID" />
+    <button type="submit" class="btn btn-orange">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

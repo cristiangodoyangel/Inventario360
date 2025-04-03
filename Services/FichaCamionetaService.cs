@@ -80,5 +80,23 @@ namespace Inventario360.Services
         {
             return await _context.Empleado.ToListAsync();
         }
+
+        public async Task<List<FichaCamioneta>> ObtenerTodasConResponsableAsync()
+        {
+            return await _context.FichaCamionetas
+                .Include(c => c.Responsable)
+                .ToListAsync();
+        }
+
+        public async Task<FichaCamioneta?> ObtenerDetalleConResponsable(int id)
+        {
+            return await _context.FichaCamionetas
+                .Include(c => c.Responsable)
+                .FirstOrDefaultAsync(c => c.ID == id);
+        }
+
+
+
+
     }
 }

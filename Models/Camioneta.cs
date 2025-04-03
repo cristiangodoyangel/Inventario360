@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inventario360.Models
 {
+    [Table("Camionetas")] // 👈 Esta línea le dice a EF que use la tabla correcta
     public class Camioneta
     {
         [Key]

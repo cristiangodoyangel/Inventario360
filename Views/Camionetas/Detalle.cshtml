@@ -1,28 +1,160 @@
-﻿@model Inventario360.Models.Camioneta
+﻿@model Inventario360.Models.FichaCamioneta
+
 @{
-    ViewData["Title"] = "Detalle Camioneta";
+    ViewData["Title"] = "Detalle de Camioneta";
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">🔎 Detalle de Camioneta</h2>
-    <table class="table table-bordered">
-        <tr><th>Patente</th><td>@Model.Patente</td></tr>
-        <tr><th>Marca</th><td>@Model.Marca</td></tr>
-        <tr><th>Modelo</th><td>@Model.Modelo</td></tr>
-        <tr><th>Año</th><td>@Model.Año</td></tr>
-        <tr><th>Color</th><td>@Model.Color</td></tr>
-        <tr><th>Kilometraje</th><td>@Model.Kilometraje</td></tr>
-        <tr><th>Estado</th><td>@Model.Estado</td></tr>
-        <tr><th>Responsable</th><td>@Model.Responsable?.Nombre ?? "No asignado"</td></tr>
-        <tr><th>Permiso de Circulación</th><td>@Model.FechaPermisoCirculacion?.ToString("dd-MM-yyyy")</td></tr>
-        <tr><th>SOAP</th><td>@Model.FechaSoap?.ToString("dd-MM-yyyy")</td></tr>
-        <tr><th>Antivuelcos</th><td>@Model.FechaAntivuelcos?.ToString("dd-MM-yyyy")</td></tr>
-        <tr><th>Láminas</th><td>@Model.FechaLaminas?.ToString("dd-MM-yyyy")</td></tr>
-        <tr><th>GPS</th><td>@Model.FechaGPS?.ToString("dd-MM-yyyy")</td></tr>
-        <tr><th>Mantenimiento</th><td>@Model.FechaMantenimiento?.ToString("dd-MM-yyyy")</td></tr>
-        <tr><th>Acreditación</th><td>@Model.Acreditacion</td></tr>
-    </table>
+    <h2 class="mb-4 text-center">🚛 Detalle de Camioneta</h2>
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Información General</h4>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Patente</th>
+                        <td>@Model.Patente</td>
+                    </tr>
+                    <tr>
+                        <th>Marca</th>
+                        <td>@Model.Marca</td>
+                    </tr>
+                    <tr>
+                        <th>Modelo</th>
+                        <td>@Model.Modelo</td>
+                    </tr>
+                    <tr>
+                        <th>Año</th>
+                        <td>@Model.Año</td>
+                    </tr>
+                    <tr>
+                        <th>Color</th>
+                        <td>@Model.Color</td>
+                    </tr>
+                    <tr>
+                        <th>Kilometraje</th>
+                        <td>@Model.Kilometraje km</td>
+                    </tr>
+                    <tr>
+                        <th>Estado</th>
+                        <td>@Model.Estado</td>
+                    </tr>
+                 
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h4>Documentación</h4>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Fecha de Mantenimiento</th>
+                        <td>@(Model.FechaMantenimiento?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th>Permiso de Circulación</th>
+                        <td>@(Model.FechaPermisoCirculacion?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th>SOAP</th>
+                        <td>@(Model.FechaSoap?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th>Antivuelcos</th>
+                        <td>@(Model.FechaAntivuelcos?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th>Láminas</th>
+                        <td>@(Model.FechaLaminas?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th>GPS</th>
+                        <td>@(Model.FechaGPS?.ToString("dd-MM-yyyy") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <th>Acreditación</th>
+                        <td>@(Model.Acreditacion ?? "N/A")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr style="border: 2px solid #333; margin-bottom: 15px;">
+
     <div class="text-end">
         <a asp-action="Index" class="btn btn-secondary">Volver</a>
+ 
     </div>
 </div>
+
+<style>
+
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #fcd8b7;
+    }
+
+    .fila-hover:hover {
+        background-color: #fbdfc5;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+
+    /* ✅ Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important;
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important;
+        }
+
+    /* ✅ Cambia el color del "+" cuando la tabla es responsiva */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
+        background-color: #f06529 !important; /* Naranja */
+        color: white !important; /* Color del "+" */
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+    }
+
+    /* ✅ Cambia el color del "-" cuando la fila está expandida */
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
+        background-color: #d9531e !important; /* Gris */
+        color: black !important; /* Color del "-" */
+    }
+</style>

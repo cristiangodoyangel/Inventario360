@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Inventario360.Data;
@@ -28,8 +29,18 @@ namespace Inventario360.Services
 
         public async Task<bool> CrearCamioneta(Camioneta camioneta)
         {
-            _context.Camionetas.Add(camioneta);
-            return await _context.SaveChangesAsync() > 0;
+            try
+            {
+                _context.Camionetas.Add(camioneta);
+                var resultado = await _context.SaveChangesAsync();
+                Console.WriteLine("✅ Camioneta guardada en BD");
+                return resultado > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al guardar camioneta: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<bool> EditarCamioneta(Camioneta camioneta)

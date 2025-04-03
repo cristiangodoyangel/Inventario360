@@ -9,6 +9,7 @@ namespace Inventario360.Services
         Task<IEnumerable<Camioneta>> ObtenerCamionetas();
         Task<Camioneta> ObtenerCamionetaPorId(int id);
         Task<bool> CrearCamioneta(Camioneta camioneta);
+
         Task<bool> EditarCamioneta(Camioneta camioneta);
         Task<bool> EliminarCamioneta(int id);
     }
