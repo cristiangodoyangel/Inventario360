@@ -20,14 +20,13 @@ namespace Inventario360.Controllers
             _context = context;
         }
 
-        // 📌 Listar todas las fichas de empleados
         public async Task<IActionResult> Index()
         {
             var fichas = await _fichaEmpleadoService.ObtenerFichas();
             return View(fichas);
         }
 
-        // 📌 Mostrar detalles de una ficha
+        
         public async Task<IActionResult> Detalle(int id)
         {
             var ficha = await _fichaEmpleadoService.ObtenerFichaPorEmpleado(id);
@@ -35,14 +34,14 @@ namespace Inventario360.Controllers
             return View(ficha);
         }
 
-        // 📌 Crear nueva ficha (Vista)
+        
         public IActionResult Crear()
         {
             ViewData["Empleados"] = new SelectList(_context.Empleado, "ID", "Nombre");
             return View();
         }
 
-        // 📌 Guardar ficha en la BD
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(FichaEmpleado ficha)
@@ -57,7 +56,7 @@ namespace Inventario360.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // 📌 Editar ficha (Vista)
+        
         public async Task<IActionResult> Editar(int id)
         {
             var ficha = await _context.FichaEmpleado.Include(f => f.Empleado)
@@ -69,7 +68,7 @@ namespace Inventario360.Controllers
         }
 
 
-        // 📌 Guardar cambios en la BD
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(int id, [Bind("ID,Empleado,FechaIngreso,FechaTerminoContrato,FechaVencimientoExamen,CursoAltura,Acreditaciones")] FichaEmpleado fichaEmpleado)
@@ -85,7 +84,7 @@ namespace Inventario360.Controllers
 
                     if (fichaExistente == null) return NotFound();
 
-                    // Actualizar manualmente los valores
+                    
                     fichaExistente.Empleado.Nombre = fichaEmpleado.Empleado.Nombre;
                     fichaExistente.FechaIngreso = fichaEmpleado.FechaIngreso;
                     fichaExistente.FechaTerminoContrato = fichaEmpleado.FechaTerminoContrato;
@@ -112,7 +111,7 @@ namespace Inventario360.Controllers
             return _context.FichaEmpleado.Any(e => e.ID == id);
         }
 
-        // 📌 Eliminar ficha
+        
         public async Task<IActionResult> Eliminar(int id)
         {
             var eliminado = await _fichaEmpleadoService.EliminarFicha(id);

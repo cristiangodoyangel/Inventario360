@@ -8,7 +8,7 @@ namespace Inventario360.Models.ViewModels
         public Camioneta Camioneta { get; set; }
         public FichaCamioneta FichaCamioneta { get; set; }
 
-        // Opcional: si quieres seleccionar responsable
+        
         public SelectList Empleados { get; set; }
     }
 }

@@ -148,14 +148,13 @@ namespace Inventario360.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Eliminar ficha si existe
                 var ficha = await _context.FichaEmpleado.FirstOrDefaultAsync(f => f.EmpleadoID == id);
                 if (ficha != null)
                 {
                     _context.FichaEmpleado.Remove(ficha);
                 }
 
-                // Verificar salidas de bodega
+                
                 bool tieneSalidas = await _context.SalidaDeBodega
                     .AnyAsync(s => s.Solicitante == id || s.ResponsableEntrega == id);
 

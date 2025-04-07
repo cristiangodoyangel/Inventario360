@@ -72,7 +72,7 @@ namespace Inventario360.Controllers
             return View(proyecto);
         }
 
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador, Proyectos")]
         [HttpPost, ActionName("Eliminar")]
         public async Task<IActionResult> ConfirmarEliminar(int id)
         {

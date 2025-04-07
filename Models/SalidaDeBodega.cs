@@ -17,7 +17,7 @@ namespace Inventario360.Models
         public int? ProyectoAsignado { get; set; }
         public Proyecto? ProyectoObj { get; set; }
 
-        // ✅ Relación con DetalleSalidaDeBodega
+        
         public List<DetalleSalidaDeBodega>? Detalles { get; set; } = new List<DetalleSalidaDeBodega>();
     }
 }

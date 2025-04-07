@@ -2,8 +2,8 @@
 {
     public class Proyecto
     {
-        public int ID { get; set; } // Clave primaria
-        public string? Nombre { get; set; } // varchar(255), permite NULL
-        public string? Descripcion { get; set; } // text, permite NULL
+        public int ID { get; set; } 
+        public string? Nombre { get; set; } 
+        public string? Descripcion { get; set; } 
     }
 }

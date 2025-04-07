@@ -36,11 +36,10 @@ namespace Inventario360.Services
             var fichaExistente = await _context.FichaCamionetas.FindAsync(ficha.ID);
             if (fichaExistente == null) return false;
 
-            // Verificar si el Responsable existe
             var responsableExiste = await _context.Empleado.AnyAsync(e => e.ID == ficha.ResponsableID);
             if (!responsableExiste)
             {
-                return false; // Retorna falso si el Responsable no existe
+                return false; 
             }
 
             _context.Entry(fichaExistente).CurrentValues.SetValues(ficha);
@@ -69,13 +68,11 @@ namespace Inventario360.Services
             return await _context.FichaCamionetas.FindAsync(id);
         }
 
-        // ✅ Agregado: Verifica si el responsable existe en la tabla Empleado
         public async Task<bool> ExisteResponsable(int responsableID)
         {
             return await _context.Empleado.AnyAsync(e => e.ID == responsableID);
         }
 
-        // ✅ Agregado: Obtiene la lista de empleados
         public async Task<List<Empleado>> ObtenerEmpleados()
         {
             return await _context.Empleado.ToListAsync();

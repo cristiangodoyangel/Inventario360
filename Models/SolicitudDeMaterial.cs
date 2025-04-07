@@ -5,7 +5,7 @@ namespace Inventario360.Models
     public class SolicitudDeMaterial
     {
         public int ID { get; set; }
-        public int ITEM { get; set; }  // ✅ Cambiado de Producto a ITEM
+        public int ITEM { get; set; } 
         public int Cantidad { get; set; }
         public string NombreTecnico { get; set; }
         public string Medida { get; set; }
@@ -15,7 +15,6 @@ namespace Inventario360.Models
         public string Imagen { get; set; }
         public string PosibleProveedor { get; set; }
 
-        // ✅ Nuevos campos agregados
         public string Solicitante { get; set; }
         public DateTime Fecha { get; set; } = DateTime.Now;
         public string Estado { get; set; } = "Pendiente";

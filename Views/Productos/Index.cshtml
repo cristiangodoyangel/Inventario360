@@ -21,8 +21,10 @@
             @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
             {
                 <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
+                <a asp-action="Subir" class="btn btn-secondary"> Subir Excel</a>
             }
         </div>
+
     </div>
 
     <div class="table-responsive">

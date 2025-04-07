@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Inventario360.Migrations
 {
-    /// <inheritdoc />
+  
     public partial class InitialCreate : Migration
     {
-        /// <inheritdoc />
+       
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -300,7 +300,7 @@ namespace Inventario360.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
         }
 
-        /// <inheritdoc />
+       
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

@@ -10,6 +10,10 @@ using System;
 using Inventario360.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
+using OfficeOpenXml;
+using OfficeOpenXml;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace Inventario360.Controllers
 {
@@ -161,7 +165,7 @@ namespace Inventario360.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Proyectos")]
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -210,5 +214,89 @@ namespace Inventario360.Controllers
                 return StatusCode(500, new { error = "Error al obtener productos", detalle = ex.Message });
             }
         }
+
+        [HttpGet]
+        public IActionResult Subir()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcesarExcel(IFormFile archivoExcel)
+        {
+            if (archivoExcel == null || archivoExcel.Length == 0)
+            {
+                TempData["Error"] = "Por favor, selecciona un archivo válido.";
+                return RedirectToAction("Subir");
+            }
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (var stream = new MemoryStream())
+            {
+                await archivoExcel.CopyToAsync(stream);
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                    if (worksheet == null)
+                    {
+                        TempData["Error"] = "El archivo no contiene hojas.";
+                        return RedirectToAction("Subir");
+                    }
+
+                    int rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        string nombreTecnico = worksheet.Cells[row, 2].Text.Trim();
+
+                        var productoExistente = await _context.Producto
+                            .FirstOrDefaultAsync(p => p.NombreTecnico == nombreTecnico);
+
+                        if (productoExistente != null)
+                        {
+                            // Actualizar
+                            productoExistente.Cantidad = int.Parse(worksheet.Cells[row, 1].Text);
+                            productoExistente.Medida = worksheet.Cells[row, 3].Text;
+                            productoExistente.UnidadMedida = worksheet.Cells[row, 4].Text;
+                            productoExistente.Marca = worksheet.Cells[row, 5].Text;
+                            productoExistente.Descripcion = worksheet.Cells[row, 6].Text;
+                            productoExistente.Imagen = worksheet.Cells[row, 7].Text;
+                            productoExistente.Proveedor = int.TryParse(worksheet.Cells[row, 8].Text, out int provId) ? provId : (int?)null;
+                            productoExistente.Ubicacion = worksheet.Cells[row, 9].Text;
+                            productoExistente.Estado = worksheet.Cells[row, 10].Text;
+                            productoExistente.Categoria = worksheet.Cells[row, 11].Text;
+                        }
+                        else
+                        {
+                            // Crear nuevo
+                            var nuevoProducto = new Producto
+                            {
+                                Cantidad = int.Parse(worksheet.Cells[row, 1].Text),
+                                NombreTecnico = nombreTecnico,
+                                Medida = worksheet.Cells[row, 3].Text,
+                                UnidadMedida = worksheet.Cells[row, 4].Text,
+                                Marca = worksheet.Cells[row, 5].Text,
+                                Descripcion = worksheet.Cells[row, 6].Text,
+                                Imagen = worksheet.Cells[row, 7].Text,
+                                Proveedor = int.TryParse(worksheet.Cells[row, 8].Text, out int provIdNuevo) ? provIdNuevo : (int?)null,
+                                Ubicacion = worksheet.Cells[row, 9].Text,
+                                Estado = worksheet.Cells[row, 10].Text,
+                                Categoria = worksheet.Cells[row, 11].Text
+                            };
+
+                            _context.Producto.Add(nuevoProducto);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                    TempData["Mensaje"] = "Inventario actualizado correctamente.";
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
     }
 }
