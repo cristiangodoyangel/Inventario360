@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Inventario360.Controllers
 {
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Administrador, Proyectos")]
     public class UsuariosController : Controller
     {
         private readonly UserManager<Usuario> _userManager;
@@ -128,7 +128,7 @@ namespace Inventario360.Controllers
                 Id = usuario.Id,
                 NombreCompleto = usuario.NombreCompleto,
                 Email = usuario.Email,
-                Rol = rolesUsuario.FirstOrDefault() // solo un rol
+                Rol = rolesUsuario.FirstOrDefault() 
             };
 
             ViewBag.Roles = _roleManager.Roles.Select(r => new SelectListItem

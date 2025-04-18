@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Inventario360.Models
 {
+    [Table("Camionetas")] 
     public class Camioneta
     {
         [Key]

@@ -21,8 +21,10 @@
             @if (User.IsInRole("Administrador") || User.IsInRole("Proyectos"))
             {
                 <a asp-action="Crear" class="btn btn-secondary"> Agregar Producto</a>
+                <a asp-action="Subir" class="btn btn-secondary"> Subir Excel</a>
             }
         </div>
+
     </div>
 
     <div class="table-responsive">
@@ -122,6 +124,35 @@
         </div>
     </div>
 </div>
+
+@if (TempData["Nuevos"] != null || TempData["Actualizados"] != null)
+{
+    <div class="modal fade" id="resultadoExcelModal" tabindex="-1" aria-labelledby="resultadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-orange text-white">
+                    <h5 class="modal-title" id="resultadoModalLabel">Carga de inventario completada</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>@TempData["Nuevos"]</strong> productos fueron <strong>nuevos</strong>.</p>
+                    <p><strong>@TempData["Actualizados"]</strong> productos fueron <strong>actualizados</strong>.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var modal = new bootstrap.Modal(document.getElementById('resultadoExcelModal'));
+            modal.show();
+        });
+    </script>
+}
+
 
 
 @section Scripts {

@@ -38,6 +38,6 @@ namespace Inventario360.Models
         public string? Estado { get; set; }
 
         [StringLength(255)]
-        public string? Categoria { get; set; } // Nueva columna para almacenar la categoría como texto
+        public string? Categoria { get; set; } 
     }
 }

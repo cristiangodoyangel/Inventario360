@@ -4,13 +4,12 @@ using Inventario360.Models;
 
 namespace Inventario360.Data
 {
-    public class InventarioDbContext : IdentityDbContext<Usuario> // Se usa Usuario como clase de identidad
+    public class InventarioDbContext : IdentityDbContext<Usuario>
     {
         public InventarioDbContext(DbContextOptions<InventarioDbContext> options)
             : base(options) { }
 
-        // Definir las tablas (DbSet) para que Entity Framework las reconozca
-
+        
         public DbSet<SalidaDeBodega> SalidaDeBodega { get; set; }
         public DbSet<DetalleSalidaDeBodega> DetalleSalidaDeBodega { get; set; }
        
@@ -24,6 +23,8 @@ namespace Inventario360.Data
         public DbSet<Camioneta> Camionetas { get; set; }
 
         public DbSet<FichaCamioneta> FichaCamionetas { get; set; }
+        
+
 
 
 

@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Inventario360.Controllers
 {
-    public class FichaCamionetaController : Controller
+    public class CamionetasController : Controller
     {
         private readonly IFichaCamionetaService _fichaCamionetaService;
 
-        public FichaCamionetaController(IFichaCamionetaService fichaCamionetaService)
+        public CamionetasController(IFichaCamionetaService fichaCamionetaService)
         {
             _fichaCamionetaService = fichaCamionetaService;
         }
@@ -23,13 +23,13 @@ namespace Inventario360.Controllers
         }
 
 
+
         public async Task<IActionResult> Detalle(int id)
         {
-            var ficha = await _fichaCamionetaService.ObtenerDetalleConResponsable(id);
+            var ficha = await _fichaCamionetaService.ObtenerFichaPorId(id);
             if (ficha == null) return NotFound();
             return View(ficha);
         }
-
 
         public async Task<IActionResult> Crear()
         {

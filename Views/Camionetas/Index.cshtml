@@ -1,0 +1,136 @@
+﻿@model IEnumerable<Inventario360.Models.FichaCamioneta>
+@{
+    ViewData["Title"] = "Camionetas";
+}
+
+
+
+
+
+<h2 class="text-center mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-left mt-4"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-car-front-icon lucide-car-front"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8" /><path d="M7 14h.01" /><path d="M17 14h.01" /><rect width="18" height="8" x="3" y="10" rx="2" /><path d="M5 18v2" /><path d="M19 18v2" /></svg> Camionetas</h2>
+        <a asp-action="Crear" class="btn btn-secondary">Nueva Camioneta</a>
+
+    </div>
+</h2>
+
+<table id="tablaCamionetas" class="table table-striped table-bordered table-hover nowrap" width="100%">
+    <thead class="table-secondary">
+        <tr>
+            <th>Patente</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Año</th>
+            <th>Color</th>
+            <th>Estado</th>
+            <th>Responsable</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Patente</td>
+                <td>@item.Marca</td>
+                <td>@item.Modelo</td>
+                <td>@item.Año</td>
+                <td>@item.Color</td>
+                <td>@item.Estado</td>
+                <td>@item.Responsable?.Nombre</td>
+                <td>
+                    <a asp-action="Detalle" asp-route-id="@item.ID" class="btn btn-secondary btn-sm">Detalles</a>
+                    <a asp-action="Editar" asp-route-id="@item.ID" class="btn btn-secondary btn-sm">Editar</a>
+                    <a asp-action="Eliminar" asp-route-id="@item.ID" class="btn btn-orange btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tablaCamionetas').DataTable({
+                language: {
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros por página",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ camionetas",
+                    paginate: {
+                        next: "Siguiente",
+                        previous: "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .pagination-separated .paginate_button {
+        margin: 0 8px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #fcd8b7;
+    }
+
+    .fila-hover:hover {
+        background-color: #fbdfc5;
+    }
+
+    .mb-4 {
+        margin-bottom: 3rem !important;
+    }
+
+    .table-light th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* ✅ Agrega espacio entre el cuadro de búsqueda y la tabla */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+
+    /* ✅ Agregar borde superior e inferior a la tabla */
+    .table-bordered {
+        border: 1px solid #333 !important;
+    }
+
+        .table-bordered th,
+        .table-bordered td {
+            border: 0.5px solid #ccc !important;
+        }
+
+    /* ✅ Cambia el color del "+" cuando la tabla es responsiva */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control::before {
+        background-color: #f06529 !important; /* Naranja */
+        color: white !important; /* Color del "+" */
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+    }
+
+    /* ✅ Cambia el color del "-" cuando como puela fila está expandida */
+    table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control::before {
+        background-color: #d9531e !important; /* Gris */
+        color: black !important; /* Color del "-" */
+    }
+</style>
+

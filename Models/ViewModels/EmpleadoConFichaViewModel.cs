@@ -5,11 +5,11 @@ namespace Inventario360.Models.ViewModels
 {
     public class EmpleadoConFichaViewModel
     {
-        // Datos del empleado
+        
         public string Nombre { get; set; }
         public string Cargo { get; set; }
 
-        // Datos de la ficha
+        
         [Required]
         public DateTime FechaIngreso { get; set; }
 

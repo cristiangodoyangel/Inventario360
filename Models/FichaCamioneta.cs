@@ -37,7 +37,7 @@ namespace Inventario360.Models
 
         [ForeignKey("Responsable")]
         public int ResponsableID { get; set; }
-        public Empleado? Responsable { get; set; } // Relación con la tabla Empleado
+        public Empleado? Responsable { get; set; } 
 
         public DateTime? FechaMantenimiento { get; set; }
         public DateTime? FechaPermisoCirculacion { get; set; }

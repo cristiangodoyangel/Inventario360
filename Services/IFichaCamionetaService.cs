@@ -15,5 +15,9 @@ namespace Inventario360.Services
         Task<FichaCamioneta> ObtenerPorId(int id);
         Task<bool> ExisteResponsable(int responsableID); // Agregado
         Task<List<Empleado>> ObtenerEmpleados(); // Agregado
+        Task<List<FichaCamioneta>> ObtenerTodasConResponsableAsync();
+        Task<FichaCamioneta?> ObtenerDetalleConResponsable(int id);
+
+
     }
 }
