@@ -230,7 +230,11 @@ namespace Inventario360.Controllers
                 TempData["Error"] = "Por favor, selecciona un archivo válido.";
                 return RedirectToAction("Subir");
             }
+
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            int nuevos = 0;
+            int actualizados = 0;
 
             using (var stream = new MemoryStream())
             {
@@ -249,36 +253,37 @@ namespace Inventario360.Controllers
                     for (int row = 2; row <= rowCount; row++)
                     {
                         string nombreTecnico = worksheet.Cells[row, 2].Text.Trim();
+                        string medida = worksheet.Cells[row, 3].Text.Trim();
 
                         var productoExistente = await _context.Producto
-                            .FirstOrDefaultAsync(p => p.NombreTecnico == nombreTecnico);
+                            .FirstOrDefaultAsync(p => p.NombreTecnico == nombreTecnico && p.Medida == medida);
 
                         if (productoExistente != null)
                         {
-                            // Actualizar
-                            productoExistente.Cantidad = int.Parse(worksheet.Cells[row, 1].Text);
-                            productoExistente.Medida = worksheet.Cells[row, 3].Text;
+                            int cantidadExcel = int.Parse(worksheet.Cells[row, 1].Text);
+                            productoExistente.Cantidad = (productoExistente.Cantidad ?? 0) + cantidadExcel;
                             productoExistente.UnidadMedida = worksheet.Cells[row, 4].Text;
                             productoExistente.Marca = worksheet.Cells[row, 5].Text;
                             productoExistente.Descripcion = worksheet.Cells[row, 6].Text;
-                            productoExistente.Imagen = worksheet.Cells[row, 7].Text;
+                            productoExistente.Imagen = string.IsNullOrWhiteSpace(worksheet.Cells[row, 7].Text) ? "no-image.png" : worksheet.Cells[row, 7].Text;
                             productoExistente.Proveedor = int.TryParse(worksheet.Cells[row, 8].Text, out int provId) ? provId : (int?)null;
                             productoExistente.Ubicacion = worksheet.Cells[row, 9].Text;
                             productoExistente.Estado = worksheet.Cells[row, 10].Text;
                             productoExistente.Categoria = worksheet.Cells[row, 11].Text;
+
+                            actualizados++;
                         }
                         else
                         {
-                            // Crear nuevo
                             var nuevoProducto = new Producto
                             {
                                 Cantidad = int.Parse(worksheet.Cells[row, 1].Text),
                                 NombreTecnico = nombreTecnico,
-                                Medida = worksheet.Cells[row, 3].Text,
+                                Medida = medida,
                                 UnidadMedida = worksheet.Cells[row, 4].Text,
                                 Marca = worksheet.Cells[row, 5].Text,
                                 Descripcion = worksheet.Cells[row, 6].Text,
-                                Imagen = worksheet.Cells[row, 7].Text,
+                                Imagen = string.IsNullOrWhiteSpace(worksheet.Cells[row, 7].Text) ? "no-image.png" : worksheet.Cells[row, 7].Text,
                                 Proveedor = int.TryParse(worksheet.Cells[row, 8].Text, out int provIdNuevo) ? provIdNuevo : (int?)null,
                                 Ubicacion = worksheet.Cells[row, 9].Text,
                                 Estado = worksheet.Cells[row, 10].Text,
@@ -286,16 +291,20 @@ namespace Inventario360.Controllers
                             };
 
                             _context.Producto.Add(nuevoProducto);
+                            nuevos++;
                         }
                     }
 
                     await _context.SaveChangesAsync();
                     TempData["Mensaje"] = "Inventario actualizado correctamente.";
+                    TempData["Nuevos"] = nuevos;
+                    TempData["Actualizados"] = actualizados;
                 }
             }
 
             return RedirectToAction("Index");
         }
+
 
 
     }
